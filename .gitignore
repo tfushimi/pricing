@@ -1,0 +1,8 @@
+/cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+/*.o
+/*.a
+/*.swp
+
+.idea/
