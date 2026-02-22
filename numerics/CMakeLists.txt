@@ -1,5 +1,7 @@
-add_library(numerics STATIC
+add_library(numerics INTERFACE
+        types.h
         Segment.h
         PiecewiseLinearFunction.h
-        PiecewiseLinearFunction.cpp
 )
+
+add_executable(test_pwl test_pwl.cpp)

@@ -1,5 +1,5 @@
 #pragma once
 #include <limits>
 
-inline double MAX_VALUE = std::numeric_limits<double>::max();
-inline double MIN_VALUE = std::numeric_limits<double>::min();
+constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
+constexpr double POS_INF =  std::numeric_limits<double>::infinity();

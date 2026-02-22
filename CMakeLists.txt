@@ -7,5 +7,3 @@ add_subdirectory(numerics)
 
 add_executable(quant_finance main.cpp)
 target_link_libraries(quant_finance PRIVATE numerics)
-
-find_program(CLANG_FORMAT clang-format)
