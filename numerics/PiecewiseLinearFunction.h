@@ -90,9 +90,7 @@ namespace numerics::pwl {
                 segments.push_back(Segment(seg1.getSlope() + seg2.getSlope(), seg1.getIntercept() + seg2.getIntercept(), seg1.getLeft(), seg1.getRight()));
             }
 
-            auto result = PiecewiseLinearFunction(segments);
-
-            return result.merged();
+            return PiecewiseLinearFunction(std::move(segments)).merged();
         }
 
         PiecewiseLinearFunction operator-() const {
@@ -147,9 +145,9 @@ namespace numerics::pwl {
 
             auto [f, g] = align(*this, other);
 
-            std::vector<Segment> segs;
+            std::vector<Segment> segments;
 
-            segs.reserve(f._segments.size());
+            segments.reserve(f._segments.size());
 
             for (std::size_t i = 0; i < f._segments.size(); ++i) {
 
@@ -168,11 +166,11 @@ namespace numerics::pwl {
 
                 const double c = gSeg.getIntercept();
 
-                segs.emplace_back(fSeg.getSlope() / c, fSeg.getIntercept() / c,
+                segments.emplace_back(fSeg.getSlope() / c, fSeg.getIntercept() / c,
                                   fSeg.getLeft(), fSeg.getRight());
             }
 
-            return PiecewiseLinearFunction(std::move(segs)).merged();
+            return PiecewiseLinearFunction(std::move(segments)).merged();
         }
 
         // Max/Min
@@ -264,7 +262,7 @@ namespace numerics::pwl {
 
             merged.reserve(fb.size() + gs.size());
 
-            std::set_union(fb.begin(), fb.end(), gs.begin(), gs.end(), std::back_inserter(merged));
+            std::ranges::set_union(fb, gs, std::back_inserter(merged));
 
             return merged;
         }
@@ -289,7 +287,7 @@ namespace numerics::pwl {
 
                 // pts is already sorted because breakPoints is sorted and we only
                 // take interior points, but sort defensively
-                std::sort(pts.begin(), pts.end());
+                std::ranges::sort(pts);
 
                 for (std::size_t i = 0; i + 1 < pts.size(); ++i) {
 
@@ -314,27 +312,27 @@ namespace numerics::pwl {
 
                 if (!cross) {
                     // No crossing: one segment dominates throughout
-                    double mid = sf.midpoint();
-                    bool fWins = isMax ? (sf(mid) >= sg(mid)) : (sf(mid) <= sg(mid));
-                    const auto& w = fWins ? sf : sg;
-                    segs.emplace_back(w.getSlope(), w.getIntercept(),
-                                      sf.getLeft(), sf.getRight());
+                    const double midpoint = sf.midpoint();
+                    const bool fWins = isMax ? sf(midpoint) >= sg(midpoint) : sf(midpoint) <= sg(midpoint);
+                    const auto& winner = fWins ? sf : sg;
+                    segs.emplace_back(winner.getSlope(), winner.getIntercept(), sf.getLeft(), sf.getRight());
                 } else {
                     // Crossing at x: split into [lo, x) and [x, hi)
-                    double x    = *cross;
-                    double midL = sf.midpointLeft(x);
-                    double midR = sf.midpointRight(x);
+                    double x = *cross;
+                    const double midLeft = sf.midpointLeft(x);
+                    const double midRight = sf.midpointRight(x);
 
-                    bool fWinsLeft  = isMax ? (sf(midL) >= sg(midL)) : (sf(midL) <= sg(midL));
-                    bool fWinsRight = isMax ? (sf(midR) >= sg(midR)) : (sf(midR) <= sg(midR));
+                    const bool fWinsLeft  = isMax ? sf(midLeft) >= sg(midLeft) : sf(midLeft) <= sg(midLeft);
+                    const bool fWinsRight = isMax ? sf(midRight) >= sg(midRight) : sf(midRight) <= sg(midRight);
 
-                    const auto& wL = fWinsLeft  ? sf : sg;
-                    const auto& wR = fWinsRight ? sf : sg;
+                    const auto& winnerLeft = fWinsLeft  ? sf : sg;
+                    const auto& winnerRight = fWinsRight ? sf : sg;
 
-                    segs.emplace_back(wL.getSlope(), wL.getIntercept(), sf.getLeft(), x);
-                    segs.emplace_back(wR.getSlope(), wR.getIntercept(), x, sf.getRight());
+                    segs.emplace_back(winnerLeft.getSlope(), winnerLeft.getIntercept(), sf.getLeft(), x);
+                    segs.emplace_back(winnerRight.getSlope(), winnerRight.getIntercept(), x, sf.getRight());
                 }
             }
+
             return PiecewiseLinearFunction(std::move(segs)).merged();
         }
 
