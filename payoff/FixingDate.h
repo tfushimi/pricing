@@ -5,5 +5,5 @@
 namespace payoff {
 
 // TODO use chrono date later
-    using FixingDate = std::string;
-}
+using FixingDate = std::string;
+}  // namespace payoff

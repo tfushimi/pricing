@@ -8,41 +8,32 @@ namespace payoff {
 using PL = numerics::pwl::PiecewiseLinearFunction;
 
 class PLVisitor final : public PayoffVisitor<PL> {
-public:
+   public:
+    PL visit(const Fixing& node) override {
+        // TODO store fixing date for validation
+        return PL::createLinear(1.0, 0.0);
+    }
 
-  PL visit(const Fixing& node) override {
-    // TODO store fixing date for validation
-    return PL::createLinear(1.0, 0.0);
-  }
+    PL visit(const Constant& node) override { return PL::createConstant(node.getValue()); }
 
-  PL visit(const Constant& node) override {
+    PL visit(const Sum& node) override {
+        return evaluate(node.getLeft()) + evaluate(node.getRight());
+    }
 
-    return PL::createConstant(node.getValue());
-  }
+    PL visit(const Multiply& node) override {
+        return evaluate(node.getLeft()) * evaluate(node.getRight());
+    }
 
-  PL visit(const Sum& node) override {
+    PL visit(const Divide& node) override {
+        return evaluate(node.getLeft()) / evaluate(node.getRight());
+    }
 
-    return evaluate(node.getLeft()) + evaluate(node.getRight());
-  }
+    PL visit(const Max& node) override {
+        return PL::max(evaluate(node.getLeft()), evaluate(node.getRight()));
+    }
 
-  PL visit(const Multiply& node) override {
-
-    return evaluate(node.getLeft()) * evaluate(node.getRight());
-  }
-
-  PL visit(const Divide& node) override {
-
-      return evaluate(node.getLeft()) / evaluate(node.getRight());
-  }
-
-  PL visit(const Max& node) override {
-
-    return PL::max(evaluate(node.getLeft()), evaluate(node.getRight()));
-  }
-
-  PL visit(const Min& node) override {
-
-    return PL::min(evaluate(node.getLeft()), evaluate(node.getRight()));
-  }
+    PL visit(const Min& node) override {
+        return PL::min(evaluate(node.getLeft()), evaluate(node.getRight()));
+    }
 };
-}
+}  // namespace payoff
