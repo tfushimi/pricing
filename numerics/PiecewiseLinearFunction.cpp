@@ -2,7 +2,7 @@
 
 using namespace numerics::linear;
 
-PiecewiseLinearFunction PiecewiseLinearFunction::createLinear(const double slope,
+PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope,
                                                               const double intercept,
                                                               const double lo, const double hi) {
     return PiecewiseLinearFunction({
@@ -12,12 +12,12 @@ PiecewiseLinearFunction PiecewiseLinearFunction::createLinear(const double slope
     });
 }
 
-PiecewiseLinearFunction PiecewiseLinearFunction::createLinear(const double slope,
+PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope,
                                                               const double intercept) {
     return PiecewiseLinearFunction({Segment(slope, intercept, NEG_INF, POS_INF)});
 }
 
-PiecewiseLinearFunction PiecewiseLinearFunction::createConstant(const double x) {
+PiecewiseLinearFunction PiecewiseLinearFunction::constant(const double x) {
     return PiecewiseLinearFunction({Segment(0.0, x, NEG_INF, POS_INF)});
 }
 
@@ -135,6 +135,14 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator/(
     }
 
     return PiecewiseLinearFunction(std::move(segments)).merged();
+}
+
+PiecewiseLinearFunction PiecewiseLinearFunction::operator>(const PiecewiseLinearFunction& other) const {
+    return greaterThanInner(*this, other, true);
+}
+
+PiecewiseLinearFunction PiecewiseLinearFunction::operator>=(const PiecewiseLinearFunction& other) const {
+    return greaterThanInner(*this, other, false);
 }
 
 // Max/Min
@@ -255,8 +263,8 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
                                                              const PiecewiseLinearFunction& g,
                                                              const bool isMax) {
     auto [fa, ga] = align(f, g);
-    std::vector<Segment> segs;
-    segs.reserve(fa._segments.size());
+    std::vector<Segment> segments;
+    segments.reserve(fa._segments.size());
 
     for (std::size_t i = 0; i < fa._segments.size(); ++i) {
         const auto& sf = fa._segments[i];
@@ -268,7 +276,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
             const double midpoint = sf.midpoint();
             const bool fWins = isMax ? sf(midpoint) >= sg(midpoint) : sf(midpoint) <= sg(midpoint);
             const auto& winner = fWins ? sf : sg;
-            segs.emplace_back(winner.getSlope(), winner.getIntercept(), sf.getLeft(),
+            segments.emplace_back(winner.getSlope(), winner.getIntercept(), sf.getLeft(),
                               sf.getRight());
         } else {
             // Crossing at x: split into [lo, x) and [x, hi)
@@ -283,12 +291,59 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
             const auto& winnerLeft = fWinsLeft ? sf : sg;
             const auto& winnerRight = fWinsRight ? sf : sg;
 
-            segs.emplace_back(winnerLeft.getSlope(), winnerLeft.getIntercept(), sf.getLeft(),
+            segments.emplace_back(winnerLeft.getSlope(), winnerLeft.getIntercept(), sf.getLeft(),
                               splitAt);
-            segs.emplace_back(winnerRight.getSlope(), winnerRight.getIntercept(), splitAt,
+            segments.emplace_back(winnerRight.getSlope(), winnerRight.getIntercept(), splitAt,
                               sf.getRight());
         }
     }
 
-    return PiecewiseLinearFunction(std::move(segs)).merged();
+    return PiecewiseLinearFunction(std::move(segments)).merged();
+}
+
+PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const PiecewiseLinearFunction& f,
+                                                                  const PiecewiseLinearFunction& g,
+                                                                  bool isStrict) {
+    auto [fa, ga] = align(f, g);
+
+    std::vector<Segment> segments;
+    segments.reserve(fa._segments.size());
+
+    for (std::size_t i = 0; i < fa._segments.size(); ++i) {
+        const auto& sf = fa._segments[i];
+        const auto& sg = ga._segments[i];
+        const auto cross = sf.crossing(sg);
+
+        if (!cross) {
+            // No crossing: one segment dominates throughout
+            const double midpoint = sf.midpoint();
+            const bool fWins = isStrict ? sf(midpoint) > sg(midpoint) : sf(midpoint) >= sg(midpoint);
+            segments.emplace_back(0.0, fWins ? 1.0 : 0.0, sf.getLeft(), sf.getRight());
+        } else {
+            // Crossing at x:
+            // if isStrict = true, split into [lo, x + epsilon) and [x + epsilon, hi)
+            // if isStrict = false, split into [lo, x) and [x, hi)
+            const double splitAt = isStrict ? *cross + 1e-12 : *cross;
+
+            // Validate split is still inside the segment
+            if (!sf.containsInterior(splitAt)) {
+                // crossing is so close to a boundary that epsilon pushes it out, fall back to midpoint evaluation
+                const double mid = sf.midpoint();
+                const bool fWins = isStrict ? sf(mid) > sg(mid) : sf(mid) >= sg(mid);
+                segments.emplace_back(0.0, fWins ? 1.0 : 0.0, sf.getLeft(), sf.getRight());
+                continue;
+            }
+
+            const double midLeft = sf.midpointLeft(splitAt);
+            const double midRight = sf.midpointRight(splitAt);
+
+            const bool fWinsLeft = isStrict ? sf(midLeft) > sg(midLeft) : sf(midLeft) >= sg(midLeft);
+            const bool fWinsRight = isStrict ? sf(midRight) > sg(midRight) : sf(midRight) >= sg(midRight);
+
+            segments.emplace_back(0.0, fWinsLeft ? 1.0 : 0.0, sf.getLeft(), splitAt);
+            segments.emplace_back(0.0, fWinsRight ? 1.0 : 0.0, splitAt, sf.getRight());
+        }
+    }
+
+    return PiecewiseLinearFunction(std::move(segments)).merged();
 }

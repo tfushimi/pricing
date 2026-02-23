@@ -12,9 +12,9 @@ int main() {
 
     // PL
     {
-        const auto s = PL::createLinear(1.0, 0.0);
-        const auto k = PL::createConstant(100.0);
-        const auto callPayoff = PL::max(s - k, PL::createConstant(0.0));
+        const auto s = PL::linear(1.0, 0.0);
+        const auto k = PL::constant(100.0);
+        const auto callPayoff = PL::max(s - k, PL::constant(0.0));
 
         std::cout << callPayoff.toString() << std::endl;
         std::cout << " S=50:   " << callPayoff(50.0) << std::endl; // 0

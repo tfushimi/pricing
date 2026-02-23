@@ -16,8 +16,8 @@ class Multiply;
 class Divide;
 class Max;
 class Min;
-// class GreaterThan;
-// class GreaterThanOrEqual;
+class GreaterThan;
+class GreaterThanOrEqual;
 // class IfThenElse;
 
 class PayoffNodePtr {
@@ -43,8 +43,8 @@ class PayoffNodePtr {
     PayoffNodePtr operator*(const PayoffNodePtr& other) const;
     PayoffNodePtr operator/(const PayoffNodePtr& other) const;
     PayoffNodePtr operator-() const;
-    // PayoffNodePtr operator>(const PayoffNodePtr& other);
-    // PayoffNodePtr operator>=(const PayoffNodePtr& other);
+    PayoffNodePtr operator>(const PayoffNodePtr& other) const;
+    PayoffNodePtr operator>=(const PayoffNodePtr& other) const;
 
    private:
     std::shared_ptr<PayoffNode> _ptr;
@@ -73,8 +73,8 @@ class PayoffVisitor {
     virtual T visit(const Divide& node) = 0;
     virtual T visit(const Max& node) = 0;
     virtual T visit(const Min& node) = 0;
-    // virtual T visit(const GreaterThan& node)=0;
-    // virtual T visit(const GreaterThanOrEqual& node)=0;
+    virtual T visit(const GreaterThan& node)=0;
+    virtual T visit(const GreaterThanOrEqual& node)=0;
     // virtual T visit(const IfThenElse& node)=0;
 
     T evaluate(const PayoffNode& node);
@@ -90,7 +90,7 @@ class PayoffNode {
     virtual ~PayoffNode() = default;
 
     // TODO add GreaterThan, GreaterThanOrEqual, and IfThenElse
-    enum class Type { Fixing, Constant, Sum, Multiply, Divide, Max, Min };
+    enum class Type { Fixing, Constant, Sum, Multiply, Divide, Max, Min, GreaterThan, GreaterThanOrEqual };
 
     virtual Type type() const = 0;
 };
@@ -159,6 +159,18 @@ class Min final : public BinaryNode {
     Type type() const override { return Type::Min; }
 };
 
+class GreaterThan final : public BinaryNode {
+    public:
+    using BinaryNode::BinaryNode;
+    Type type() const override { return Type::GreaterThan; }
+};
+
+class GreaterThanOrEqual final : public BinaryNode {
+    public:
+    using BinaryNode::BinaryNode;
+    Type type() const override { return Type::GreaterThanOrEqual; }
+};
+
 // Factory functions
 inline PayoffNodePtr fixing(FixingDate date) {
     return std::make_shared<Fixing>(std::move(date));
@@ -192,6 +204,14 @@ inline PayoffNodePtr min(PayoffNodePtr left, PayoffNodePtr right) {
     return std::make_shared<Min>(std::move(left), std::move(right));
 }
 
+inline PayoffNodePtr greaterThan(PayoffNodePtr left, PayoffNodePtr right) {
+    return std::make_shared<GreaterThan>(std::move(left), std::move(right));
+}
+
+inline PayoffNodePtr greaterThanOrEqual(PayoffNodePtr left, PayoffNodePtr right) {
+    return std::make_shared<GreaterThanOrEqual>(std::move(left), std::move(right));
+}
+
 // PayoffNodePtr operator implementations
 inline PayoffNodePtr::PayoffNodePtr(double value) : _ptr(std::make_shared<Constant>(value)) {}
 
@@ -215,6 +235,14 @@ inline PayoffNodePtr PayoffNodePtr::operator-() const {
     return multiply(*this, -1.0);
 }
 
+inline PayoffNodePtr PayoffNodePtr::operator>(const PayoffNodePtr& other) const {
+    return greaterThan(*this, other);
+}
+
+inline PayoffNodePtr PayoffNodePtr::operator>=(const PayoffNodePtr& other) const {
+    return greaterThanOrEqual(*this, other);
+}
+
 template <typename T>
 T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
     switch (node.type()) {
@@ -232,6 +260,10 @@ T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
             return visit(static_cast<const Max&>(node));
         case PayoffNode::Type::Min:
             return visit(static_cast<const Min&>(node));
+        case PayoffNode::Type::GreaterThan:
+            return visit(static_cast<const GreaterThan&>(node));
+        case PayoffNode::Type::GreaterThanOrEqual:
+            return visit(static_cast<const GreaterThanOrEqual&>(node));
     }
 
     throw std::invalid_argument("Unknown payoff node type");

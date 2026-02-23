@@ -27,10 +27,10 @@ class PiecewiseLinearFunction {
     ~PiecewiseLinearFunction() = default;
 
     // static constructors
-    static PiecewiseLinearFunction createLinear(double slope, double intercept, double lo,
+    static PiecewiseLinearFunction linear(double slope, double intercept, double lo,
                                                 double hi);
-    static PiecewiseLinearFunction createLinear(double slope, double intercept);
-    static PiecewiseLinearFunction createConstant(double x);
+    static PiecewiseLinearFunction linear(double slope, double intercept);
+    static PiecewiseLinearFunction constant(double x);
 
     // Accessors
     const std::vector<Segment>& getSegments() const { return _segments; }
@@ -45,6 +45,8 @@ class PiecewiseLinearFunction {
     PiecewiseLinearFunction operator-(const PiecewiseLinearFunction& other) const;
     PiecewiseLinearFunction operator*(const PiecewiseLinearFunction& other) const;
     PiecewiseLinearFunction operator/(const PiecewiseLinearFunction& other) const;
+    PiecewiseLinearFunction operator>(const PiecewiseLinearFunction& other) const;
+    PiecewiseLinearFunction operator>=(const PiecewiseLinearFunction& other) const;
 
     // Max/Min
     static PiecewiseLinearFunction max(const PiecewiseLinearFunction& f,
@@ -74,6 +76,9 @@ class PiecewiseLinearFunction {
 
     static PiecewiseLinearFunction applyMaxMin(const PiecewiseLinearFunction& f,
                                                const PiecewiseLinearFunction& g, bool isMax);
+
+    static PiecewiseLinearFunction greaterThanInner(const PiecewiseLinearFunction& f,
+        const PiecewiseLinearFunction& g, bool isStrict);
 
     std::vector<Segment> _segments;
 };
