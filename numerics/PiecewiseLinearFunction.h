@@ -54,7 +54,7 @@ namespace numerics::pwl {
 
             breakPoints.reserve(getSegments().size()-1);
 
-            for (int i = 0; i < _segments.size()-1; ++i) {
+            for (std::size_t i = 0; i < _segments.size()-1; ++i) {
 
                 breakPoints.push_back(_segments[i].getRight());
             }
@@ -82,7 +82,7 @@ namespace numerics::pwl {
 
             std::vector<Segment> segments;
 
-            for (int i = 0; i < f._segments.size(); ++i) {
+            for (std::size_t i = 0; i < f._segments.size(); ++i) {
 
                 Segment& seg1 = f._segments[i];
                 Segment& seg2 = g._segments[i];
@@ -235,7 +235,7 @@ namespace numerics::pwl {
 
             segments.push_back(_segments[0]);
 
-            for (int i = 1; i < _segments.size(); i++) {
+            for (std::size_t i = 1; i < _segments.size(); i++) {
 
                 const Segment& curr = _segments[i];
                 Segment& prev = segments.back();
@@ -262,7 +262,7 @@ namespace numerics::pwl {
 
             merged.reserve(fb.size() + gs.size());
 
-            std::ranges::set_union(fb, gs, std::back_inserter(merged));
+            std::set_union(fb.begin(), fb.end(), gs.begin(), gs.end(), std::back_inserter(merged));
 
             return merged;
         }
@@ -287,7 +287,7 @@ namespace numerics::pwl {
 
                 // pts is already sorted because breakPoints is sorted and we only
                 // take interior points, but sort defensively
-                std::ranges::sort(pts);
+                std::sort(pts.begin(), pts.end());
 
                 for (std::size_t i = 0; i + 1 < pts.size(); ++i) {
 
