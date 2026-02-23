@@ -3,8 +3,8 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "PiecewiseLinearFunction.h"
-#include "Segment.h"
+#include "numerics/linear/PiecewiseLinearFunction.h"
+#include "numerics/linear/Segment.h"
 
 using namespace numerics::linear;
 

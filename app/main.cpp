@@ -1,9 +1,10 @@
 #include <iostream>
 
-#include "numerics/PiecewiseLinearFunction.h"
 #include "payoff/FixingDate.h"
-#include "payoff/PayoffNode.h"
+#include "numerics/linear/PiecewiseLinearFunction.h"
+#include "numerics/types.h"
 #include "payoff/PLVisitor.h"
+#include "payoff/PayoffNode.h"
 
 using namespace payoff;
 using namespace numerics::linear;

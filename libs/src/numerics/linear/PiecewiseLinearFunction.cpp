@@ -1,4 +1,4 @@
-#include "PiecewiseLinearFunction.h"
+#include "numerics/linear/PiecewiseLinearFunction.h"
 
 using namespace numerics::linear;
 

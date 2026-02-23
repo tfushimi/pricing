@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "types.h"
+#include "../types.h"
 
 namespace numerics::linear {
 

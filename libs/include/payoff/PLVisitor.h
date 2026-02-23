@@ -1,7 +1,8 @@
 #pragma once
 
+#include "numerics/linear/PiecewiseLinearFunction.h"
+#include "numerics/types.h"
 #include "PayoffNode.h"
-#include "numerics/PiecewiseLinearFunction.h"
 
 namespace payoff {
 
