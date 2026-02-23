@@ -55,14 +55,14 @@ class PiecewiseLinearFunction {
     static PiecewiseLinearFunction min(const PiecewiseLinearFunction& f,
                                        const PiecewiseLinearFunction& g);
 
-    // create a pair of new PLs with shared breakpoints
-    static std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> align(
-        const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g);
-
     std::string toString() const;
 
    private:
     void validate() const;
+
+    // create a pair of new PLs with shared breakpoints
+    static std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> align(
+        const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g);
 
     // creates a new PL by merging adjacent segments if possible
     PiecewiseLinearFunction merged() const;

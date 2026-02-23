@@ -156,13 +156,6 @@ PiecewiseLinearFunction PiecewiseLinearFunction::min(const PiecewiseLinearFuncti
     return applyMaxMin(f, g, false);
 }
 
-// create a pair of new PLs with shared breakpoints
-std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> PiecewiseLinearFunction::align(
-    const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g) {
-    const auto breaks = mergedBreakPoints(f, g);
-    return {f.withBreakPoints(breaks), g.withBreakPoints(breaks)};
-}
-
 std::string PiecewiseLinearFunction::toString() const {
     std::string result;
 
@@ -189,6 +182,13 @@ void PiecewiseLinearFunction::validate() const {
             throw std::invalid_argument("PiecewiseLinearFunction: segments are not contiguous");
         }
     }
+}
+
+// create a pair of new PLs with shared breakpoints
+std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> PiecewiseLinearFunction::align(
+    const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g) {
+    const auto breaks = mergedBreakPoints(f, g);
+    return {f.withBreakPoints(breaks), g.withBreakPoints(breaks)};
 }
 
 // creates a new PL by merging adjacent segments if possible
