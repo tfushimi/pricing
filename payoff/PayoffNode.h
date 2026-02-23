@@ -87,9 +87,13 @@ class PayoffVisitor {
 // Base node
 class PayoffNode {
    public:
+    PayoffNode() = default;
+    explicit PayoffNode(const PayoffNodePtr& node) = delete;
+    explicit PayoffNode(PayoffNodePtr&& node) = delete;
+    PayoffNode& operator=(const PayoffNodePtr& node) = delete;
+    PayoffNodePtr& operator=(PayoffNodePtr&& node) = delete;
     virtual ~PayoffNode() = default;
 
-    // TODO add GreaterThan, GreaterThanOrEqual, and IfThenElse
     enum class Type { Fixing, Constant, Sum, Multiply, Divide, Max, Min, GreaterThan, GreaterThanOrEqual };
 
     virtual Type type() const = 0;
