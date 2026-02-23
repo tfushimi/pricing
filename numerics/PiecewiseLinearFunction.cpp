@@ -323,7 +323,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
             // Crossing at x:
             // if isStrict = true, split into [lo, x + epsilon) and [x + epsilon, hi)
             // if isStrict = false, split into [lo, x) and [x, hi)
-            const double splitAt = isStrict ? *cross + 1e-12 : *cross;
+            const double splitAt = isStrict ? *cross + 1e-6 : *cross;
 
             // Validate split is still inside the segment
             if (!sf.containsInterior(splitAt)) {
