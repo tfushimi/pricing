@@ -7,3 +7,15 @@ add_subdirectory(numerics)
 
 add_executable(quant_finance main.cpp)
 target_link_libraries(quant_finance PRIVATE numerics)
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+include(GoogleTest)
