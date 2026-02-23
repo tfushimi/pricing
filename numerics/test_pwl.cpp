@@ -7,7 +7,7 @@
 #include "PiecewiseLinearFunction.h"
 #include "Segment.h"
 
-using namespace numerics::pwl;
+using namespace numerics::linear;
 
 static bool near(const double a, const double b, double tol = 1e-10) {
     return std::abs(a - b) < tol;

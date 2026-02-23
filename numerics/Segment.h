@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-namespace numerics::pwl {
+namespace numerics::linear {
 
 /**
  * Represents f(S) = slope * S + intercept for S in [lo, hi)

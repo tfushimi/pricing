@@ -5,8 +5,6 @@
 
 namespace payoff {
 
-using PL = numerics::pwl::PiecewiseLinearFunction;
-
 class PLVisitor final : public PayoffVisitor<PL> {
    public:
     PL visit(const Fixing& node) override {

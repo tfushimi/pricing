@@ -1,6 +1,6 @@
 #include "PiecewiseLinearFunction.h"
 
-using namespace numerics::pwl;
+using namespace numerics::linear;
 
 PiecewiseLinearFunction PiecewiseLinearFunction::createLinear(const double slope,
                                                               const double intercept,

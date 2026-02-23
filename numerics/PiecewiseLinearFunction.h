@@ -11,7 +11,7 @@
  * - PL is closed under +, -, max, min as well as * and / if one operand is constant.
  * - Assume that the most left endpoint is -inf and the most right endpoint is inf.
  */
-namespace numerics::pwl {
+namespace numerics::linear {
 class PiecewiseLinearFunction {
    public:
     explicit PiecewiseLinearFunction(std::vector<Segment> segments)
