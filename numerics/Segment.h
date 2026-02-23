@@ -107,4 +107,4 @@ class Segment {
     double _lo;
     double _hi;
 };
-}  // namespace numerics::pwl
+}  // namespace numerics::linear

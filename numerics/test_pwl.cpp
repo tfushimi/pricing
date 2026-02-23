@@ -68,22 +68,8 @@ TEST(PwlTest, TestArithmetic) {
     EXPECT_TRUE(near((S + K)(30.0), 80.0)) << "add";
     EXPECT_TRUE(near((S - K)(80.0), 30.0)) << "subtract";
     EXPECT_TRUE(near((-S)(5.0), -5.0)) << "negate";
-    EXPECT_TRUE(near((S * PL::constant(3.0))(4.0), 12.0))
-        << "multiply by constant";
-    EXPECT_TRUE(near((S / PL::constant(2.0))(6.0), 3.0))
-        << "divide by constant";
-
-    EXPECT_TRUE(near((S > K)(40), 0.0)) << "less than K";
-    EXPECT_TRUE(near((S > K)(50), 0.0)) << "at K";
-    EXPECT_TRUE(near((S > K)(60), 1.0)) << "greater than K";
-
-    EXPECT_TRUE(near((S >= K)(40), 0.0)) << "less than K";
-    EXPECT_TRUE(near((S >= K)(50), 1.0)) << "at K";
-    EXPECT_TRUE(near((S >= K)(60), 1.0)) << "greater than K";
-
-    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(-1e10), 1.0));
-    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(0.0), 1.0));
-    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(1e10), 1.0));
+    EXPECT_TRUE(near((S * PL::constant(3.0))(4.0), 12.0)) << "multiply by constant";
+    EXPECT_TRUE(near((S / PL::constant(2.0))(6.0), 3.0)) << "divide by constant";
 
     // merge: sum of two constants collapses to one segment
     const auto sum = PL::constant(2.0) + PL::constant(3.0);
@@ -100,30 +86,54 @@ TEST(PwlTest, TestArithmetic) {
 
     threw = false;
     try {
-        auto r = S / PiecewiseLinearFunction::constant(0.0);
+        auto r = S / PL::constant(0.0);
     } catch (const std::invalid_argument&) {
         threw = true;
     }
     EXPECT_TRUE(threw) << "divide by zero throws";
 }
 
+TEST(PwlTest, TestGraterThan) {
+    const auto S = PL::linear(1.0, 0.0);  // f(x) = x
+    const auto K = PL::constant(50.0);
+
+    EXPECT_TRUE(near((S > K)(40), 0.0)) << "less than K";
+    EXPECT_TRUE(near((S > K)(50), 0.0)) << "at K";
+    EXPECT_TRUE(near((S > K)(60), 1.0)) << "greater than K";
+
+    EXPECT_TRUE(near((S >= K)(40), 0.0)) << "less than K";
+    EXPECT_TRUE(near((S >= K)(50), 1.0)) << "at K";
+    EXPECT_TRUE(near((S >= K)(60), 1.0)) << "greater than K";
+
+    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(-1e10), 1.0));
+    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(0.0), 1.0));
+    EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(1e10), 1.0));
+}
+
+TEST(PwlTest, TestIfThenElse) {
+    const auto S = PL::linear(1.0, 0.0);  // f(x) = x
+    const auto K = PL::constant(100.0);
+
+    const auto call = PL::ite(S > K, S - K, PL::constant(0.0));
+
+    EXPECT_TRUE(near(call(50.0), 0.0)) << "call: below strike";
+    EXPECT_TRUE(near(call(150.0), 50.0)) << "call: above strike";
+    EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
+}
+
 TEST(PwlTest, TestMaxMin) {
-    const auto S = PiecewiseLinearFunction::linear(1.0, 0.0);
-    const auto zero = PiecewiseLinearFunction::constant(0.0);
+    const auto S = PL::linear(1.0, 0.0);
+    const auto zero = PL::constant(0.0);
 
     // call payoff: max(S - 100, 0)
-    const auto call =
-        PiecewiseLinearFunction::max(S - PiecewiseLinearFunction::constant(100.0), zero);
+    const auto call = PL::max(S - PL::constant(100.0), zero);
     EXPECT_TRUE(near(call(50.0), 0.0)) << "call: below strike";
     EXPECT_TRUE(near(call(150.0), 50.0)) << "call: above strike";
     EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
 
     // min(200, max(S - 100, 10)) — floor=10, cap at S=200, linear in between
-    const auto inner =
-        PiecewiseLinearFunction::max(S - PiecewiseLinearFunction::constant(100.0),
-                                     PiecewiseLinearFunction::constant(10.0));
-    const auto capped =
-        PiecewiseLinearFunction::min(PiecewiseLinearFunction::constant(200.0), inner);
+    const auto inner = PL::max(S - PL::constant(100.0), PL::constant(10.0));
+    const auto capped = PL::min(PL::constant(200.0), inner);
 
     EXPECT_TRUE(near(capped(50.0), 10.0)) << "floored+capped: floor region";
     EXPECT_TRUE(near(capped(150.0), 50.0)) << "floored+capped: linear region";

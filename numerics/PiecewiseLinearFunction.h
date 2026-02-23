@@ -27,8 +27,7 @@ class PiecewiseLinearFunction {
     ~PiecewiseLinearFunction() = default;
 
     // static constructors
-    static PiecewiseLinearFunction linear(double slope, double intercept, double lo,
-                                                double hi);
+    static PiecewiseLinearFunction linear(double slope, double intercept, double lo, double hi);
     static PiecewiseLinearFunction linear(double slope, double intercept);
     static PiecewiseLinearFunction constant(double x);
 
@@ -48,12 +47,16 @@ class PiecewiseLinearFunction {
     PiecewiseLinearFunction operator>(const PiecewiseLinearFunction& other) const;
     PiecewiseLinearFunction operator>=(const PiecewiseLinearFunction& other) const;
 
-    // Max/Min
+    // Max/Min/IfThenElse
     static PiecewiseLinearFunction max(const PiecewiseLinearFunction& f,
                                        const PiecewiseLinearFunction& g);
 
     static PiecewiseLinearFunction min(const PiecewiseLinearFunction& f,
                                        const PiecewiseLinearFunction& g);
+
+    static PiecewiseLinearFunction ite(const PiecewiseLinearFunction& cond,
+                                       const PiecewiseLinearFunction& then_,
+                                       const PiecewiseLinearFunction& else_);
 
     std::string toString() const;
 
@@ -64,12 +67,13 @@ class PiecewiseLinearFunction {
     static std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> align(
         const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g);
 
+    // create a tuple of new PLs with shared breakpoints
+    static std::tuple<PiecewiseLinearFunction, PiecewiseLinearFunction, PiecewiseLinearFunction>
+    align3(const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g,
+           const PiecewiseLinearFunction& h);
+
     // creates a new PL by merging adjacent segments if possible
     PiecewiseLinearFunction merged() const;
-
-    // returns a sorted union of breakpoints of two functions
-    static std::vector<double> mergedBreakPoints(const PiecewiseLinearFunction& f,
-                                                 const PiecewiseLinearFunction& g);
 
     // create a new PL with additional breakpoints
     PiecewiseLinearFunction withBreakPoints(const std::vector<double>& breakPoints) const;
@@ -78,8 +82,9 @@ class PiecewiseLinearFunction {
                                                const PiecewiseLinearFunction& g, bool isMax);
 
     static PiecewiseLinearFunction greaterThanInner(const PiecewiseLinearFunction& f,
-        const PiecewiseLinearFunction& g, bool isStrict);
+                                                    const PiecewiseLinearFunction& g,
+                                                    bool isStrict);
 
     std::vector<Segment> _segments;
 };
-}  // namespace numerics::pwl
+}  // namespace numerics::linear

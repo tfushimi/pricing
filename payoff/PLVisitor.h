@@ -41,5 +41,10 @@ class PLVisitor final : public PayoffVisitor<PL> {
     PL visit(const GreaterThanOrEqual& node) override {
         return evaluate(node.getLeft()) >= evaluate(node.getRight());
     }
+
+    PL visit(const IfThenElse& node) override {
+        return PL::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
+                       evaluate(node.getElse()));
+    }
 };
 }  // namespace payoff

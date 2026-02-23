@@ -18,7 +18,7 @@ class Max;
 class Min;
 class GreaterThan;
 class GreaterThanOrEqual;
-// class IfThenElse;
+class IfThenElse;
 
 class PayoffNodePtr {
    public:
@@ -73,9 +73,9 @@ class PayoffVisitor {
     virtual T visit(const Divide& node) = 0;
     virtual T visit(const Max& node) = 0;
     virtual T visit(const Min& node) = 0;
-    virtual T visit(const GreaterThan& node)=0;
-    virtual T visit(const GreaterThanOrEqual& node)=0;
-    // virtual T visit(const IfThenElse& node)=0;
+    virtual T visit(const GreaterThan& node) = 0;
+    virtual T visit(const GreaterThanOrEqual& node) = 0;
+    virtual T visit(const IfThenElse& node) = 0;
 
     T evaluate(const PayoffNode& node);
     T evaluate(const PayoffNodePtr& node) { return evaluate(*node); }
@@ -94,7 +94,18 @@ class PayoffNode {
     PayoffNodePtr& operator=(PayoffNodePtr&& node) = delete;
     virtual ~PayoffNode() = default;
 
-    enum class Type { Fixing, Constant, Sum, Multiply, Divide, Max, Min, GreaterThan, GreaterThanOrEqual };
+    enum class Type {
+        Fixing,
+        Constant,
+        Sum,
+        Multiply,
+        Divide,
+        Max,
+        Min,
+        GreaterThan,
+        GreaterThanOrEqual,
+        IfThenElse
+    };
 
     virtual Type type() const = 0;
 };
@@ -164,15 +175,33 @@ class Min final : public BinaryNode {
 };
 
 class GreaterThan final : public BinaryNode {
-    public:
+   public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::GreaterThan; }
 };
 
 class GreaterThanOrEqual final : public BinaryNode {
-    public:
+   public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::GreaterThanOrEqual; }
+};
+
+class IfThenElse final : public PayoffNode {
+   public:
+    explicit IfThenElse(PayoffNodePtr cond, PayoffNodePtr then_, PayoffNodePtr else_)
+        : _cond(std::move(cond)), _then(std::move(then_)), _else(std::move(else_)) {}
+    const PayoffNode& getCond() const { return *_cond; }
+    const PayoffNode& getThen() const { return *_then; }
+    const PayoffNode& getElse() const { return *_else; }
+    const PayoffNodePtr& getCondPtr() const { return _cond; }
+    const PayoffNodePtr& getThenPtr() const { return _then; }
+    const PayoffNodePtr& getElsePtr() const { return _else; }
+    Type type() const override { return Type::IfThenElse; }
+
+   private:
+    PayoffNodePtr _cond;
+    PayoffNodePtr _then;
+    PayoffNodePtr _else;
 };
 
 // Factory functions
@@ -214,6 +243,10 @@ inline PayoffNodePtr greaterThan(PayoffNodePtr left, PayoffNodePtr right) {
 
 inline PayoffNodePtr greaterThanOrEqual(PayoffNodePtr left, PayoffNodePtr right) {
     return std::make_shared<GreaterThanOrEqual>(std::move(left), std::move(right));
+}
+
+inline PayoffNodePtr ite(PayoffNodePtr cond, PayoffNodePtr then_, PayoffNodePtr else_) {
+    return std::make_shared<IfThenElse>(std::move(cond), std::move(then_), std::move(else_));
 }
 
 // PayoffNodePtr operator implementations
@@ -268,6 +301,8 @@ T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
             return visit(static_cast<const GreaterThan&>(node));
         case PayoffNode::Type::GreaterThanOrEqual:
             return visit(static_cast<const GreaterThanOrEqual&>(node));
+        case PayoffNode::Type::IfThenElse:
+            return visit(static_cast<const IfThenElse&>(node));
     }
 
     throw std::invalid_argument("Unknown payoff node type");

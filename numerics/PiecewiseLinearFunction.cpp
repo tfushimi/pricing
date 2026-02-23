@@ -2,9 +2,8 @@
 
 using namespace numerics::linear;
 
-PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope,
-                                                              const double intercept,
-                                                              const double lo, const double hi) {
+PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope, const double intercept,
+                                                        const double lo, const double hi) {
     return PiecewiseLinearFunction({
         Segment(0.0, 0.0, NEG_INF, lo),
         Segment(slope, intercept, lo, hi),
@@ -13,7 +12,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope,
 }
 
 PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope,
-                                                              const double intercept) {
+                                                        const double intercept) {
     return PiecewiseLinearFunction({Segment(slope, intercept, NEG_INF, POS_INF)});
 }
 
@@ -86,8 +85,8 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator*(
     const PiecewiseLinearFunction& other) const {
     auto [f, g] = align(*this, other);
 
-    std::vector<Segment> segs;
-    segs.reserve(f._segments.size());
+    std::vector<Segment> segments;
+    segments.reserve(f._segments.size());
 
     for (std::size_t i = 0; i < f._segments.size(); ++i) {
         const auto& a = f._segments[i];
@@ -95,17 +94,19 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator*(
 
         if (a.getSlope() == 0.0) {
             const double c = a.getIntercept();
-            segs.emplace_back(c * b.getSlope(), c * b.getIntercept(), a.getLeft(), a.getRight());
+            segments.emplace_back(c * b.getSlope(), c * b.getIntercept(), a.getLeft(),
+                                  a.getRight());
         } else if (b.getSlope() == 0.0) {
             const double c = b.getIntercept();
-            segs.emplace_back(c * a.getSlope(), c * a.getIntercept(), a.getLeft(), a.getRight());
+            segments.emplace_back(c * a.getSlope(), c * a.getIntercept(), a.getLeft(),
+                                  a.getRight());
         } else {
             throw std::invalid_argument(
                 "operator*: product of two non-constant segments is not linear");
         }
     }
 
-    return PiecewiseLinearFunction(std::move(segs)).merged();
+    return PiecewiseLinearFunction(std::move(segments)).merged();
 }
 
 PiecewiseLinearFunction PiecewiseLinearFunction::operator/(
@@ -137,11 +138,13 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator/(
     return PiecewiseLinearFunction(std::move(segments)).merged();
 }
 
-PiecewiseLinearFunction PiecewiseLinearFunction::operator>(const PiecewiseLinearFunction& other) const {
+PiecewiseLinearFunction PiecewiseLinearFunction::operator>(
+    const PiecewiseLinearFunction& other) const {
     return greaterThanInner(*this, other, true);
 }
 
-PiecewiseLinearFunction PiecewiseLinearFunction::operator>=(const PiecewiseLinearFunction& other) const {
+PiecewiseLinearFunction PiecewiseLinearFunction::operator>=(
+    const PiecewiseLinearFunction& other) const {
     return greaterThanInner(*this, other, false);
 }
 
@@ -156,6 +159,28 @@ PiecewiseLinearFunction PiecewiseLinearFunction::min(const PiecewiseLinearFuncti
     return applyMaxMin(f, g, false);
 }
 
+PiecewiseLinearFunction PiecewiseLinearFunction::ite(const PiecewiseLinearFunction& cond,
+                                                     const PiecewiseLinearFunction& then_,
+                                                     const PiecewiseLinearFunction& else_) {
+    auto [condPL, thenPL, elsePL] = align3(cond, then_, else_);
+
+    std::vector<Segment> segments;
+
+    for (size_t i = 0; i < thenPL._segments.size(); ++i) {
+        const auto& condSeg = condPL._segments[i];
+
+        if (condSeg.getSlope() != 0.0) {
+            throw std::invalid_argument("condition should be constant");
+        }
+
+        const auto& seg = condSeg.getIntercept() > 0.0 ? thenPL._segments[i] : elsePL._segments[i];
+
+        segments.emplace_back(seg.getSlope(), seg.getIntercept(), seg.getLeft(), seg.getRight());
+    }
+
+    return PiecewiseLinearFunction(std::move(segments)).merged();
+}
+
 std::string PiecewiseLinearFunction::toString() const {
     std::string result;
 
@@ -164,7 +189,6 @@ std::string PiecewiseLinearFunction::toString() const {
     }
 
     return result;
-    ;
 }
 
 void PiecewiseLinearFunction::validate() const {
@@ -187,8 +211,41 @@ void PiecewiseLinearFunction::validate() const {
 // create a pair of new PLs with shared breakpoints
 std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> PiecewiseLinearFunction::align(
     const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g) {
-    const auto breaks = mergedBreakPoints(f, g);
-    return {f.withBreakPoints(breaks), g.withBreakPoints(breaks)};
+    // collect sorted breakpoints
+    const auto fb = f.getBreakPoints();
+    const auto gb = g.getBreakPoints();
+
+    std::vector<double> breakPoints;
+
+    breakPoints.reserve(fb.size() + gb.size());
+
+    std::set_union(fb.begin(), fb.end(), gb.begin(), gb.end(), std::back_inserter(breakPoints));
+
+    return {f.withBreakPoints(breakPoints), g.withBreakPoints(breakPoints)};
+}
+
+std::tuple<PiecewiseLinearFunction, PiecewiseLinearFunction, PiecewiseLinearFunction>
+PiecewiseLinearFunction::align3(const PiecewiseLinearFunction& f, const PiecewiseLinearFunction& g,
+                                const PiecewiseLinearFunction& h) {
+    // collect sorted breakpoints
+    const auto fb = f.getBreakPoints();
+    const auto gb = g.getBreakPoints();
+    const auto hb = h.getBreakPoints();
+
+    std::vector<double> temp;
+
+    temp.reserve(fb.size() + gb.size());
+
+    std::set_union(fb.begin(), fb.end(), gb.begin(), gb.end(), std::back_inserter(temp));
+
+    std::vector<double> breakPoints;
+
+    breakPoints.reserve(temp.size() + hb.size());
+
+    std::set_union(temp.begin(), temp.end(), hb.begin(), hb.end(), std::back_inserter(breakPoints));
+
+    return {f.withBreakPoints(breakPoints), g.withBreakPoints(breakPoints),
+            h.withBreakPoints(breakPoints)};
 }
 
 // creates a new PL by merging adjacent segments if possible
@@ -213,21 +270,6 @@ PiecewiseLinearFunction PiecewiseLinearFunction::merged() const {
     }
 
     return PiecewiseLinearFunction(std::move(segments));
-}
-
-// returns a sorted union of breakpoints of two functions
-std::vector<double> PiecewiseLinearFunction::mergedBreakPoints(const PiecewiseLinearFunction& f,
-                                                               const PiecewiseLinearFunction& g) {
-    const auto fb = f.getBreakPoints();
-    const auto gs = g.getBreakPoints();
-
-    std::vector<double> merged;
-
-    merged.reserve(fb.size() + gs.size());
-
-    std::set_union(fb.begin(), fb.end(), gs.begin(), gs.end(), std::back_inserter(merged));
-
-    return merged;
 }
 
 // create a new PL with additional breakpoints
@@ -277,7 +319,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
             const bool fWins = isMax ? sf(midpoint) >= sg(midpoint) : sf(midpoint) <= sg(midpoint);
             const auto& winner = fWins ? sf : sg;
             segments.emplace_back(winner.getSlope(), winner.getIntercept(), sf.getLeft(),
-                              sf.getRight());
+                                  sf.getRight());
         } else {
             // Crossing at x: split into [lo, x) and [x, hi)
             const double splitAt = *cross;
@@ -292,9 +334,9 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
             const auto& winnerRight = fWinsRight ? sf : sg;
 
             segments.emplace_back(winnerLeft.getSlope(), winnerLeft.getIntercept(), sf.getLeft(),
-                              splitAt);
+                                  splitAt);
             segments.emplace_back(winnerRight.getSlope(), winnerRight.getIntercept(), splitAt,
-                              sf.getRight());
+                                  sf.getRight());
         }
     }
 
@@ -317,7 +359,8 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
         if (!cross) {
             // No crossing: one segment dominates throughout
             const double midpoint = sf.midpoint();
-            const bool fWins = isStrict ? sf(midpoint) > sg(midpoint) : sf(midpoint) >= sg(midpoint);
+            const bool fWins =
+                isStrict ? sf(midpoint) > sg(midpoint) : sf(midpoint) >= sg(midpoint);
             segments.emplace_back(0.0, fWins ? 1.0 : 0.0, sf.getLeft(), sf.getRight());
         } else {
             // Crossing at x:
@@ -327,7 +370,8 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
 
             // Validate split is still inside the segment
             if (!sf.containsInterior(splitAt)) {
-                // crossing is so close to a boundary that epsilon pushes it out, fall back to midpoint evaluation
+                // crossing is so close to a boundary that epsilon pushes it out, fall back to
+                // midpoint evaluation
                 const double mid = sf.midpoint();
                 const bool fWins = isStrict ? sf(mid) > sg(mid) : sf(mid) >= sg(mid);
                 segments.emplace_back(0.0, fWins ? 1.0 : 0.0, sf.getLeft(), sf.getRight());
@@ -337,8 +381,10 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
             const double midLeft = sf.midpointLeft(splitAt);
             const double midRight = sf.midpointRight(splitAt);
 
-            const bool fWinsLeft = isStrict ? sf(midLeft) > sg(midLeft) : sf(midLeft) >= sg(midLeft);
-            const bool fWinsRight = isStrict ? sf(midRight) > sg(midRight) : sf(midRight) >= sg(midRight);
+            const bool fWinsLeft =
+                isStrict ? sf(midLeft) > sg(midLeft) : sf(midLeft) >= sg(midLeft);
+            const bool fWinsRight =
+                isStrict ? sf(midRight) > sg(midRight) : sf(midRight) >= sg(midRight);
 
             segments.emplace_back(0.0, fWinsLeft ? 1.0 : 0.0, sf.getLeft(), splitAt);
             segments.emplace_back(0.0, fWinsRight ? 1.0 : 0.0, splitAt, sf.getRight());
