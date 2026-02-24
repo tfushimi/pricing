@@ -21,6 +21,8 @@ int main() {
         std::cout << " S=150: " << callPayoff(150.0) << std::endl;   // 50
     }
 
+    std::cout << std::endl;
+
     // DSL: Call Option
     {
         const auto S = fixing("SPY", "2026-03-20");
@@ -35,6 +37,8 @@ int main() {
         std::cout << " S=150: " << callPL(150.0) << std::endl;   // 50
     }
 
+    std::cout << std::endl;
+
     // DSL: Scaled Call Option
     {
         const auto S = fixing("SPY", "2026-03-20");
@@ -43,11 +47,13 @@ int main() {
         PLVisitor plVisitor;
         const auto callPL = plVisitor.evaluate(callPayoff);
 
-        std::cout << "Call payoff PL:\n" << callPL.toString() << "\n";
+        std::cout << "Scaled Call payoff PL:\n" << callPL.toString() << "\n";
         std::cout << " S=50:   " << callPL(50.0) << std::endl;   // 0
         std::cout << " S=100:  " << callPL(110.0) << std::endl;  // 0
-        std::cout << " S=150: " << callPL(160.0) << std::endl;   // 50
+        std::cout << " S=150: " << callPL(160.0) << std::endl;   // 0.5
     }
+
+    std::cout << std::endl;
 
     // DSL: Digital Option
     {
@@ -62,6 +68,8 @@ int main() {
         std::cout << " S=100:  " << digitalPL(100.0) << std::endl;  // 1
         std::cout << " S=150: " << digitalPL(150.0) << std::endl;   // 1
     }
+
+    std::cout << std::endl;
 
     // DSL: Double Digital Option
     {

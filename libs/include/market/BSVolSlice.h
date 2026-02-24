@@ -1,5 +1,6 @@
 #pragma once
 
+namespace market {
 class BSVolSlice {
    public:
     BSVolSlice() = default;
@@ -9,3 +10,4 @@ class BSVolSlice {
     virtual double vol() const = 0;
     virtual double dVolDStrike(double strike) const = 0;
 };
+}  // namespace market

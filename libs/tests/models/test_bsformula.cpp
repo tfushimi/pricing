@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "models/bsformula.h"
+#include "pricer/bsformula.h"
 
 const double F = 100.0;
 const double K = 100.0;

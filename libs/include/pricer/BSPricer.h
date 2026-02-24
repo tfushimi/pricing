@@ -3,6 +3,7 @@
 #include "market/Market.h"
 #include "payoff/PayoffNode.h"
 
+namespace pricer {
 class BSPricer {
    public:
     BSPricer() = default;
@@ -12,8 +13,10 @@ class BSPricer {
     BSPricer& operator=(const BSPricer&) = delete;
     ~BSPricer() = default;
 
-    static double price(const payoff::PayoffNodePtr& payoff, const Market& market);
+    static double price(const payoff::PayoffNodePtr& payoff, const market::Market& market);
 
    private:
-    static double priceSegment(double slope, double intercept, double lo, double hi, double dF, const BSVolSlice& bsVolSlice);
+    static double priceSegment(double slope, double intercept, double lo, double hi, double dF,
+                               const market::BSVolSlice& bsVolSlice);
 };
+}  // namespace pricer

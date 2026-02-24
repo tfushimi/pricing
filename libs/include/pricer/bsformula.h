@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+namespace bs {
 inline double normCdf(const double x) {
     return 0.5 * std::erfc(-x / std::sqrt(2.0));
 }
@@ -34,3 +35,4 @@ inline double blackDigitalFormula(const double F, const double K, const double T
 
     return dF * normCdf(d2) - blackVega(F, K, T, dF, vol) * dVolDStrike;
 }
+}  // namespace pricer

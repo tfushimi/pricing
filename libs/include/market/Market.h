@@ -5,6 +5,7 @@
 
 #include "BSVolSlice.h"
 
+namespace market {
 class Market {
    public:
     Market() = default;
@@ -14,3 +15,4 @@ class Market {
     virtual double getDiscountFactor(const std::string& date) const = 0;
     virtual std::unique_ptr<BSVolSlice> getBSVolSlice(const std::string& date) const = 0;
 };
+}  // namespace market

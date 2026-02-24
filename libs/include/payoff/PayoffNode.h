@@ -112,7 +112,8 @@ class PayoffNode {
 
 class Fixing final : public PayoffNode {
    public:
-    explicit Fixing(std::string symbol, FixingDate date) : _symbol(std::move(symbol)), _date(std::move(date)) {}
+    explicit Fixing(std::string symbol, FixingDate date)
+        : _symbol(std::move(symbol)), _date(std::move(date)) {}
     const std::string& getSymbol() const { return _symbol; }
     const FixingDate& getDate() const { return _date; }
     Type type() const override { return Type::Fixing; }

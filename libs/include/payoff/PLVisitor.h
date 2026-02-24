@@ -9,16 +9,13 @@ namespace payoff {
 class PLVisitor final : public PayoffVisitor<PLF> {
    public:
     PLF visit(const Fixing& node) override {
-
         if (_symbol != "" && _symbol != node.getSymbol()) {
-
             throw std::invalid_argument("PLPayoff cannot have more than one symbol");
         }
 
         _symbol = node.getSymbol();
 
         if (_fixingDate != "" && _fixingDate != node.getDate()) {
-
             throw std::invalid_argument("PLPayoff cannot have more than one date");
         }
 

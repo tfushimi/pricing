@@ -1,13 +1,16 @@
-#include "models/BSPricer.h"
+#include "pricer/BSPricer.h"
 
 #include "market/Market.h"
-#include "models/bsformula.h"
 #include "numerics/types.h"
-#include "payoff/PayoffNode.h"
 #include "payoff/PLVisitor.h"
+#include "payoff/PayoffNode.h"
+#include "pricer/bsformula.h"
 
 using namespace payoff;
 using namespace numerics::linear;
+using namespace market;
+using namespace pricer;
+using namespace bs;
 
 double BSPricer::priceSegment(const double slope, const double intercept, const double lo,
                               const double hi, const double dF, const BSVolSlice& bsVolSlice) {
@@ -32,7 +35,8 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
             return 0.0;
         }
 
-        return blackDigitalFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol(), bsVolSlice.dVolDStrike(K));
+        return blackDigitalFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol(),
+                                   bsVolSlice.dVolDStrike(K));
     };
 
     return slope * (Call(lo) - Call(hi)) + (slope * lo + intercept) * DigitalCall(lo) -
@@ -51,8 +55,8 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
     double price = 0.0;
 
     for (const Segment& segment : payoffPLF.getSegments()) {
-
-        price += priceSegment(segment.getSlope(), segment.getIntercept(), segment.getLeft(), segment.getRight(), dF, *bsVolSlice.get());
+        price += priceSegment(segment.getSlope(), segment.getIntercept(), segment.getLeft(),
+                              segment.getRight(), dF, *bsVolSlice.get());
     }
 
     return price;
