@@ -8,22 +8,22 @@ const double r = 0.05;
 const double vol = 0.20;
 const double dF = std::exp(-r * T);  // discount factor
 
-TEST(BlackTest, PutCallParity) {
+TEST(BSTest, PutCallParity) {
     // C - P = dF * (F - K)
-    double call = blackCallFormula(F, K, T, dF, vol);
-    double put = blackCallFormula(F, K, T, dF, vol) - dF * (F - K);
+    const double call = blackCallFormula(F, K, T, dF, vol);
+    const double put = blackCallFormula(F, K, T, dF, vol) - dF * (F - K);
     EXPECT_NEAR(call - put, dF * (F - K), 1e-10);
 }
 
-TEST(BlackTest, DigitalCallFlatVol) {
+TEST(BSTest, DigitalCallFlatVol) {
     // With zero skew, digital = dF * N(d2)
     auto [d1, d2] = blackD1D2(F, K, T, vol);
-    double expected = dF * normCdf(d2);
-    double actual = blackDigitalFormula(F, K, T, dF, vol, /*dVolDStrike=*/0.0);
+    const double expected = dF * normCdf(d2);
+    const double actual = blackDigitalFormula(F, K, T, dF, vol, /*dVolDStrike=*/0.0);
     EXPECT_NEAR(actual, expected, 1e-10);
 }
 
-TEST(BlackTest, DigitalCallSpreadApproximation) {
+TEST(BSTest, DigitalCallSpreadApproximation) {
     // Digital ≈ (C(K - dK) - C(K + dK)) / (2 * dK)
     const double dK = 0.01;
     const double callLow = blackCallFormula(F, K - dK, T, dF, vol);
@@ -33,7 +33,7 @@ TEST(BlackTest, DigitalCallSpreadApproximation) {
     EXPECT_NEAR(spread, digital, 1e-4);
 }
 
-TEST(BlackTest, SkewReducesDigitalForNegativeSkew) {
+TEST(BSTest, SkewReducesDigitalForNegativeSkew) {
     // Negative skew (equity-like) increases digital call price
     const double noSkew = blackDigitalFormula(F, K, T, dF, vol, 0.0);
     const double withSkew = blackDigitalFormula(F, K, T, dF, vol, -0.001);

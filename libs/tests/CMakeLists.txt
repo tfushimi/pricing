@@ -1,5 +1,5 @@
-add_executable(test_pwl numerics/linear/test_pwl.cpp)
-target_link_libraries(test_pwl PRIVATE
+add_executable(test_plf numerics/linear/test_plf.cpp)
+target_link_libraries(test_plf PRIVATE
         numerics
         GTest::gtest_main
 )
@@ -16,5 +16,5 @@ target_link_libraries(test_bsformula PRIVATE
 #)
 #
 include(GoogleTest)
-gtest_discover_tests(test_pwl)
+gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bsformula)
