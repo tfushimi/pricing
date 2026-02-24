@@ -4,7 +4,7 @@
 #include "numerics/types.h"
 #include "payoff/PLVisitor.h"
 #include "payoff/PayoffNode.h"
-#include "pricer/bsformula.h"
+#include "pricer/BSFormula.h"
 
 using namespace payoff;
 using namespace numerics::linear;
