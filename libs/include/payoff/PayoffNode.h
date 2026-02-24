@@ -125,7 +125,7 @@ class Fixing final : public PayoffNode {
 
 class Constant final : public PayoffNode {
    public:
-    explicit Constant(double value) : _value(value) {}
+    explicit Constant(const double value) : _value(value) {}
     double getValue() const { return _value; }
     Type type() const override { return Type::Constant; }
 
