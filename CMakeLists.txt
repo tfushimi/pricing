@@ -39,7 +39,7 @@ if(CLANG_FORMAT)
                 format
                 COMMAND find
                 ${CMAKE_SOURCE_DIR}/app
-                ${CMAKE_SOURCE_DIR}/libds
+                ${CMAKE_SOURCE_DIR}/libs
         (-name "*.cpp" -o -name "*.h")
                 -exec ${CLANG_FORMAT} -i {} +
                 COMMENT "Running clang-format"

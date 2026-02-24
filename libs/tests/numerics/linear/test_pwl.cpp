@@ -12,7 +12,7 @@ static bool near(const double a, const double b, double tol = 1e-10) {
     return std::abs(a - b) < tol;
 }
 
-TEST(PwlTest, TestSegment) {
+TEST(PLTest, TestSegment) {
     // f(x) = 2x + 3
     const Segment s(2.0, 3.0, 0.0, 10.0);
     EXPECT_TRUE(near(s(5.0), 13.0)) << "segment eval";
@@ -44,7 +44,7 @@ TEST(PwlTest, TestSegment) {
     EXPECT_TRUE(threw) << "lo >= hi throws";
 }
 
-TEST(PwlTest, TestConstruction) {
+TEST(PLTest, TestConstruction) {
     // f(x) = 1
     const auto constant = PL::constant(1.0);
     EXPECT_TRUE(near(constant(1e10), 1.0)) << "constant PLF";
@@ -61,7 +61,7 @@ TEST(PwlTest, TestConstruction) {
     EXPECT_TRUE(near(b(20.0), 0.0)) << "bounded linear: zero at hi (open)";
 }
 
-TEST(PwlTest, TestArithmetic) {
+TEST(PLTest, TestArithmetic) {
     const auto S = PL::linear(1.0, 0.0);  // f(x) = x
     const auto K = PL::constant(50.0);
 
@@ -93,7 +93,7 @@ TEST(PwlTest, TestArithmetic) {
     EXPECT_TRUE(threw) << "divide by zero throws";
 }
 
-TEST(PwlTest, TestGraterThan) {
+TEST(PLTest, TestGraterThan) {
     const auto S = PL::linear(1.0, 0.0);  // f(x) = x
     const auto K = PL::constant(50.0);
 
@@ -110,7 +110,7 @@ TEST(PwlTest, TestGraterThan) {
     EXPECT_TRUE(near((PL::constant(3.0) > PL::constant(2.0))(1e10), 1.0));
 }
 
-TEST(PwlTest, TestIfThenElse) {
+TEST(PLTest, TestIfThenElse) {
     const auto S = PL::linear(1.0, 0.0);  // f(x) = x
     const auto K = PL::constant(100.0);
 
@@ -121,7 +121,7 @@ TEST(PwlTest, TestIfThenElse) {
     EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
 }
 
-TEST(PwlTest, TestMaxMin) {
+TEST(PLTest, TestMaxMin) {
     const auto S = PL::linear(1.0, 0.0);
     const auto zero = PL::constant(0.0);
 
