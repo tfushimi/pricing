@@ -6,7 +6,7 @@ target_link_libraries(test_plf PRIVATE
 
 add_executable(test_bsformula models/test_bsformula.cpp)
 target_link_libraries(test_bsformula PRIVATE
-        models
+        pricer
         GTest::gtest_main
 )
 #add_executable(test_payoff test_payoff.cpp)

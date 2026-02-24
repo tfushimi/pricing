@@ -35,4 +35,4 @@ inline double blackDigitalFormula(const double F, const double K, const double T
 
     return dF * normCdf(d2) - blackVega(F, K, T, dF, vol) * dVolDStrike;
 }
-}  // namespace pricer
+}  // namespace bs

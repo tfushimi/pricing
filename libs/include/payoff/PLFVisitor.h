@@ -6,6 +6,9 @@
 
 namespace payoff {
 
+/**
+ * Convert PayoffNodePtr tree into a piecewise liear function
+ */
 class PLFVisitor final : public PayoffVisitor<PLF> {
    public:
     PLF visit(const Fixing& node) override {

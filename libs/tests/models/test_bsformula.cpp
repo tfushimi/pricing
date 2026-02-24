@@ -9,6 +9,8 @@ const double r = 0.05;
 const double vol = 0.20;
 const double dF = std::exp(-r * T);  // discount factor
 
+using namespace bs;
+
 TEST(BSTest, PutCallParity) {
     // C - P = dF * (F - K)
     const double call = blackCallFormula(F, K, T, dF, vol);
