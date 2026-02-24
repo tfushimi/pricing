@@ -2,7 +2,7 @@
 
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/types.h"
-#include "payoff/PLVisitor.h"
+#include "payoff/PLFVisitor.h"
 #include "payoff/PayoffNode.h"
 
 using namespace payoff;
@@ -28,7 +28,7 @@ int main() {
         const auto S = fixing("SPY", "2026-03-20");
         const auto callPayoff = max(S - 100.0, 0.0);
 
-        PLVisitor plVisitor;
+        PLFVisitor plVisitor;
         const auto callPL = plVisitor.evaluate(callPayoff);
 
         std::cout << "Call payoff PL:\n" << callPL.toString() << "\n";
@@ -44,7 +44,7 @@ int main() {
         const auto S = fixing("SPY", "2026-03-20");
         const auto callPayoff = max(S / 100.0 - 1.1, 0.0);
 
-        PLVisitor plVisitor;
+        PLFVisitor plVisitor;
         const auto callPL = plVisitor.evaluate(callPayoff);
 
         std::cout << "Scaled Call payoff PL:\n" << callPL.toString() << "\n";
@@ -60,7 +60,7 @@ int main() {
         const auto S = fixing("SPY", "2026-03-20");
         const auto digitalPayoff = ite(S >= 100, 1.0, 0.0);
 
-        PLVisitor plVisitor;
+        PLFVisitor plVisitor;
         const auto digitalPL = plVisitor.evaluate(digitalPayoff);
 
         std::cout << "Digital payoff PL:\n" << digitalPL.toString() << "\n";
@@ -76,7 +76,7 @@ int main() {
         const auto S = fixing("SPY", "2026-03-20");
         const auto doubleDigitalPayoff = (S > 90) - (S > 110);
 
-        PLVisitor plVisitor;
+        PLFVisitor plVisitor;
         const auto doubleDigitalPL = plVisitor.evaluate(doubleDigitalPayoff);
 
         std::cout << "Double digital payoff PL:\n" << doubleDigitalPL.toString() << "\n";

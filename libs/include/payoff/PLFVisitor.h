@@ -6,7 +6,7 @@
 
 namespace payoff {
 
-class PLVisitor final : public PayoffVisitor<PLF> {
+class PLFVisitor final : public PayoffVisitor<PLF> {
    public:
     PLF visit(const Fixing& node) override {
         if (_symbol != "" && _symbol != node.getSymbol()) {

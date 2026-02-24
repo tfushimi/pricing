@@ -2,7 +2,7 @@
 
 #include "market/Market.h"
 #include "numerics/types.h"
-#include "payoff/PLVisitor.h"
+#include "payoff/PLFVisitor.h"
 #include "payoff/PayoffNode.h"
 #include "pricer/BSFormula.h"
 
@@ -46,7 +46,7 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
     // TODO applyMarket to replace Fixing with any observables in market
 
-    PLVisitor plVisitor;
+    PLFVisitor plVisitor;
     const auto payoffPLF = plVisitor.evaluate(payoff);
     const auto fixingDate = plVisitor.getFixingDate();
     const std::unique_ptr<BSVolSlice> bsVolSlice = market.getBSVolSlice(fixingDate);

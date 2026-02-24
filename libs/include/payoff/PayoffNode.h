@@ -34,7 +34,7 @@ class PayoffNodePtr {
     // Pointer methods
     const PayoffNode& operator*() const { return *_ptr; }
     const PayoffNode* operator->() const { return _ptr.get(); }
-    const std::shared_ptr<const PayoffNode>& ptr() const { return _ptr; }
+    const PayoffNode* get() const { return _ptr.get(); }
     explicit operator bool() const { return _ptr.get() != nullptr; }
 
     // Arithmetic operators
