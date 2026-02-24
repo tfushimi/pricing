@@ -23,7 +23,7 @@ int main() {
 
     // DSL: Call Option
     {
-        const auto S = fixing("2026-03-20");
+        const auto S = fixing("SPY", "2026-03-20");
         const auto callPayoff = max(S - 100.0, 0.0);
 
         PLVisitor plVisitor;
@@ -35,9 +35,23 @@ int main() {
         std::cout << " S=150: " << callPL(150.0) << std::endl;   // 50
     }
 
+    // DSL: Scaled Call Option
+    {
+        const auto S = fixing("SPY", "2026-03-20");
+        const auto callPayoff = max(S / 100.0 - 1.1, 0.0);
+
+        PLVisitor plVisitor;
+        const auto callPL = plVisitor.evaluate(callPayoff);
+
+        std::cout << "Call payoff PL:\n" << callPL.toString() << "\n";
+        std::cout << " S=50:   " << callPL(50.0) << std::endl;   // 0
+        std::cout << " S=100:  " << callPL(110.0) << std::endl;  // 0
+        std::cout << " S=150: " << callPL(160.0) << std::endl;   // 50
+    }
+
     // DSL: Digital Option
     {
-        const auto S = fixing("2026-03-20");
+        const auto S = fixing("SPY", "2026-03-20");
         const auto digitalPayoff = ite(S >= 100, 1.0, 0.0);
 
         PLVisitor plVisitor;
@@ -51,7 +65,7 @@ int main() {
 
     // DSL: Double Digital Option
     {
-        const auto S = fixing("2026-03-20");
+        const auto S = fixing("SPY", "2026-03-20");
         const auto doubleDigitalPayoff = (S > 90) - (S > 110);
 
         PLVisitor plVisitor;

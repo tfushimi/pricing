@@ -9,7 +9,21 @@ namespace payoff {
 class PLVisitor final : public PayoffVisitor<PLF> {
    public:
     PLF visit(const Fixing& node) override {
-        // TODO store fixing date for validation
+
+        if (_symbol != "" && _symbol != node.getSymbol()) {
+
+            throw std::invalid_argument("PLPayoff cannot have more than one symbol");
+        }
+
+        _symbol = node.getSymbol();
+
+        if (_fixingDate != "" && _fixingDate != node.getDate()) {
+
+            throw std::invalid_argument("PLPayoff cannot have more than one date");
+        }
+
+        _fixingDate = node.getDate();
+
         return PLF::linear(1.0, 0.0);
     }
 
@@ -45,7 +59,13 @@ class PLVisitor final : public PayoffVisitor<PLF> {
 
     PLF visit(const IfThenElse& node) override {
         return PLF::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
-                       evaluate(node.getElse()));
+                        evaluate(node.getElse()));
     }
+
+    FixingDate getFixingDate() const { return _fixingDate; }
+
+   private:
+    std::string _symbol = "";
+    FixingDate _fixingDate = "";
 };
 }  // namespace payoff

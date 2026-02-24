@@ -112,11 +112,13 @@ class PayoffNode {
 
 class Fixing final : public PayoffNode {
    public:
-    explicit Fixing(FixingDate date) : _date(std::move(date)) {}
+    explicit Fixing(std::string symbol, FixingDate date) : _symbol(std::move(symbol)), _date(std::move(date)) {}
+    const std::string& getSymbol() const { return _symbol; }
     const FixingDate& getDate() const { return _date; }
     Type type() const override { return Type::Fixing; }
 
    private:
+    std::string _symbol;
     FixingDate _date;
 };
 
@@ -205,8 +207,8 @@ class IfThenElse final : public PayoffNode {
 };
 
 // Factory functions
-inline PayoffNodePtr fixing(FixingDate date) {
-    return std::make_shared<Fixing>(std::move(date));
+inline PayoffNodePtr fixing(std::string symbol, FixingDate date) {
+    return std::make_shared<Fixing>(std::move(symbol), std::move(date));
 }
 
 inline PayoffNodePtr constant(double value) {

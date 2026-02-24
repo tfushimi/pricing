@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include "models/bsformula.h"
 
 const double F = 100.0;
@@ -27,7 +28,7 @@ TEST(BSTest, DigitalCallSpreadApproximation) {
     // Digital ≈ (C(K - dK) - C(K + dK)) / (2 * dK)
     const double dK = 0.01;
     const double callLow = blackCallFormula(F, K - dK, T, dF, vol);
-    const double callHigh= blackCallFormula(F, K + dK, T, dF, vol);
+    const double callHigh = blackCallFormula(F, K + dK, T, dF, vol);
     const double spread = (callLow - callHigh) / (2.0 * dK);
     const double digital = blackDigitalFormula(F, K, T, dF, vol, 0.0);
     EXPECT_NEAR(spread, digital, 1e-4);
