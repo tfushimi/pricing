@@ -1,9 +1,10 @@
+#include "numerics/linear/PiecewiseLinearFunction.h"
+
 #include <gtest/gtest.h>
 
 #include <cmath>
 #include <stdexcept>
 
-#include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/linear/Segment.h"
 
 using namespace numerics::linear;

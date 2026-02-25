@@ -36,7 +36,7 @@ class ConstantFoldVisitor final : public PayoffVisitor<PayoffNodePtr> {
         auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
-            return fold(left, right, [](const double x, const double y) { return x + y; });
+            return fold(left, right, [](const double x, const double y) { return x * y; });
         }
 
         // special case: multiply by 0 or 1
@@ -60,6 +60,10 @@ class ConstantFoldVisitor final : public PayoffVisitor<PayoffNodePtr> {
         auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
+            if (isConstantValue(right, 0.0)) {
+                throw std::invalid_argument("ConstantFoldVisitor: division by zero");
+            }
+
             return fold(left, right, [](const double x, const double y) { return x / y; });
         }
 

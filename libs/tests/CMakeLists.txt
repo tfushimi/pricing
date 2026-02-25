@@ -1,20 +1,22 @@
-add_executable(test_plf numerics/linear/test_plf.cpp)
+add_executable(test_plf numerics/linear/PiecewiseLinearFunction_test.cpp)
 target_link_libraries(test_plf PRIVATE
         numerics
         GTest::gtest_main
 )
 
-add_executable(test_bsformula models/test_bsformula.cpp)
-target_link_libraries(test_bsformula PRIVATE
+add_executable(test_bs_formula pricer/BSFormula_test.cpp)
+target_link_libraries(test_bs_formula PRIVATE
         pricer
         GTest::gtest_main
 )
-#add_executable(test_payoff test_payoff.cpp)
-#target_link_libraries(test_payoff PRIVATE
-#        payoff
-#        GTest::gtest_main
-#)
-#
+
+add_executable(test_constant_fold_visitor payoff/ConstantFoldVisitor_test.cpp)
+target_link_libraries(test_constant_fold_visitor PRIVATE
+        payoff
+        GTest::gtest_main
+)
+
 include(GoogleTest)
 gtest_discover_tests(test_plf)
-gtest_discover_tests(test_bsformula)
+gtest_discover_tests(test_bs_formula)
+gtest_discover_tests(test_constant_fold_visitor)
