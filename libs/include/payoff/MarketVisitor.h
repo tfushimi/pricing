@@ -13,6 +13,7 @@ class MarketVisitor final : public PayoffVisitor<PayoffNodePtr> {
     explicit MarketVisitor(const market::Market& market) : _market(market) {}
     ~MarketVisitor() override = default;
 
+   protected:
     // Fixing: replace with Constant if observed, otherwise keep as Fixing
     PayoffNodePtr visit(const Fixing& node) override {
         const auto spot = _market.getPrice(node.getSymbol(), node.getDate());

@@ -46,9 +46,9 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
     // TODO applyMarket to replace Fixing with any observables in market
 
-    PLFVisitor plVisitor;
-    const auto payoffPLF = plVisitor.evaluate(payoff);
-    const auto fixingDate = plVisitor.getFixingDate();
+    PLFVisitor plfVisitor;
+    const auto payoffPLF = plfVisitor.evaluate(payoff);
+    const auto fixingDate = plfVisitor.getFixingDate();
     const std::unique_ptr<BSVolSlice> bsVolSlice = market.getBSVolSlice(fixingDate);
     const double dF = market.getDiscountFactor(fixingDate);
 

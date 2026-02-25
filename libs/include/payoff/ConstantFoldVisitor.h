@@ -12,6 +12,7 @@ class ConstantFoldVisitor final : public PayoffVisitor<PayoffNodePtr> {
     ConstantFoldVisitor() = default;
     ~ConstantFoldVisitor() override = default;
 
+   protected:
     PayoffNodePtr visit(const Fixing& node) override {
         return std::make_shared<Fixing>(node.getSymbol(), node.getDate());
     }

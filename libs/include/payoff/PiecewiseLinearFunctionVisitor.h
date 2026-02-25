@@ -12,6 +12,9 @@ using namespace numerics::linear;
  */
 class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
    public:
+    FixingDate getFixingDate() const { return _fixingDate; }
+
+   protected:
     PLF visit(const Fixing& node) override {
         if (_symbol != "" && _symbol != node.getSymbol()) {
             throw std::invalid_argument("PLPayoff cannot have more than one symbol");
@@ -62,8 +65,6 @@ class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
         return PLF::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
                         evaluate(node.getElse()));
     }
-
-    FixingDate getFixingDate() const { return _fixingDate; }
 
    private:
     std::string _symbol = "";

@@ -66,6 +66,14 @@ template <typename T>
 class PayoffVisitor {
    public:
     virtual ~PayoffVisitor() = default;
+
+    T evaluate(const PayoffNode& node);
+    T evaluate(const PayoffNodePtr& node) { return evaluate(*node); }
+
+    // Delete rvalue overload to catch bugs at compile time
+    T evaluate(PayoffNodePtr&&) = delete;
+
+   protected:
     virtual T visit(const Fixing& node) = 0;
     virtual T visit(const Constant& node) = 0;
     virtual T visit(const Sum& node) = 0;
@@ -76,12 +84,6 @@ class PayoffVisitor {
     virtual T visit(const GreaterThan& node) = 0;
     virtual T visit(const GreaterThanOrEqual& node) = 0;
     virtual T visit(const IfThenElse& node) = 0;
-
-    T evaluate(const PayoffNode& node);
-    T evaluate(const PayoffNodePtr& node) { return evaluate(*node); }
-
-    // Delete rvalue overload to catch bugs at compile time
-    T evaluate(PayoffNodePtr&&) = delete;
 };
 
 // Base node
