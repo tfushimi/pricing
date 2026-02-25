@@ -2,8 +2,8 @@
 
 #include "market/Market.h"
 #include "numerics/types.h"
-#include "payoff/PLFVisitor.h"
 #include "payoff/PayoffNode.h"
+#include "payoff/types.h"
 #include "pricer/BSFormula.h"
 
 using namespace payoff;

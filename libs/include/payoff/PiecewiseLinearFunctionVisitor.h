@@ -5,11 +5,12 @@
 #include "numerics/types.h"
 
 namespace payoff {
+using namespace numerics::linear;
 
 /**
  * Convert PayoffNodePtr tree into a piecewise liear function
  */
-class PLFVisitor final : public PayoffVisitor<PLF> {
+class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
    public:
     PLF visit(const Fixing& node) override {
         if (_symbol != "" && _symbol != node.getSymbol()) {

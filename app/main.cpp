@@ -2,8 +2,9 @@
 
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/types.h"
-#include "payoff/PLFVisitor.h"
 #include "payoff/PayoffNode.h"
+#include "payoff/PiecewiseLinearFunctionVisitor.h"
+#include "payoff/types.h"
 
 using namespace payoff;
 using namespace numerics::linear;
