@@ -1,10 +1,10 @@
-#pragma once
-
 #include <set>
 
-#include "PayoffNode.h"
+#include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 
 namespace payoff {
+namespace {
 
 class FixingCollector final : public PayoffVisitor<void> {
    public:
@@ -64,10 +64,11 @@ class FixingCollector final : public PayoffVisitor<void> {
    private:
     std::set<Fixing> _fixings;
 };
+}  // namespace
 
-inline std::set<Fixing> collectFixings(const PayoffNodePtr& payoff) {
+inline std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
     FixingCollector collector;
     collector.evaluate(payoff);
     return collector.getFixings();
 }
-}  // namespace payoff
+};  // namespace payoff

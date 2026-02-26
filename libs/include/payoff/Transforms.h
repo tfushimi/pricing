@@ -1,4 +1,6 @@
 #pragma once
+#include <set>
+
 #include "market/Market.h"
 #include "payoff/PayoffNode.h"
 
@@ -13,4 +15,7 @@ PayoffNodePtr foldConstants(const PayoffNodePtr& payoff);
 inline PayoffNodePtr simplify(const PayoffNodePtr& payoff, const market::Market& market) {
     return foldConstants(applyMarket(payoff, market));
 }
+
+// Find all fixings in the payoff
+inline std::set<Fixing> getFixings(const PayoffNodePtr& payoff);
 }  // namespace payoff

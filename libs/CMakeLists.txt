@@ -5,6 +5,7 @@ add_library(numerics STATIC
 add_library(payoff STATIC
         src/payoff/ConstantFold.cpp
         src/payoff/MarketVisitor.cpp
+        src/payoff/FixingCollector.cpp
 )
 add_library(market INTERFACE)
 add_library(pricer STATIC src/pricer/BSPricer.cpp)
