@@ -5,6 +5,8 @@
 #include "payoff/PayoffNode.h"
 #include "payoff/types.h"
 #include "pricer/BSFormula.h"
+#include "payoff/MarketVisitor.h"
+#include "payoff/ConstantFoldVisitor.h"
 
 using namespace payoff;
 using namespace numerics::linear;
@@ -43,11 +45,22 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
            (slope * hi + intercept) * DigitalCall(hi);
 }
 
-double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
-    // TODO applyMarket to replace Fixing with any observables in market
+PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const Market& market) {
 
+    MarketVisitor marketVisitor(market);
+
+    const auto tempPayoff = marketVisitor.evaluate(payoff);
+
+    ConstantFoldVisitor constantFoldVisitor;
+
+    return constantFoldVisitor.evaluate(tempPayoff);
+}
+
+double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
+
+    const auto newPayoff = applyMarket(payoff, market);
     PLFVisitor plfVisitor;
-    const auto payoffPLF = plfVisitor.evaluate(payoff);
+    const auto payoffPLF = plfVisitor.evaluate(newPayoff);
     const auto fixingDate = plfVisitor.getFixingDate();
     const std::unique_ptr<BSVolSlice> bsVolSlice = market.getBSVolSlice(fixingDate);
     const double dF = market.getDiscountFactor(fixingDate);

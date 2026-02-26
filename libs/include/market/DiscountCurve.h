@@ -1,0 +1,8 @@
+//
+// Created by Takahiro on 2/25/26.
+//
+
+#ifndef QUANT_FINANCE_DISCOUNTCURVE_H
+#define QUANT_FINANCE_DISCOUNTCURVE_H
+
+#endif  // QUANT_FINANCE_DISCOUNTCURVE_H

@@ -12,7 +12,7 @@ using namespace numerics::linear;
 TEST(PLFTest, TestSegment) {
     // f(x) = 2x + 3
     const Segment s(2.0, 3.0, 0.0, 10.0);
-    EXPECT_NEAR(s(5.0), 13.0, 1e-10) << "segment eval";
+    EXPECT_DOUBLE_EQ(s(5.0), 13.0) << "segment eval";
     EXPECT_TRUE(s.contains(0.0)) << "contains lo (inclusive)";
     EXPECT_TRUE(!s.contains(10.0)) << "excludes hi (open)";
     EXPECT_TRUE(!s.containsInterior(0.0)) << "interior excludes lo";
@@ -21,7 +21,7 @@ TEST(PLFTest, TestSegment) {
     // crossing at x=5
     const Segment f(1.0, 0.0, 0.0, 10.0);
     const Segment g(-1.0, 10.0, 0.0, 10.0);  // cross at x=5
-    EXPECT_NEAR(*f.crossing(g), 5.0, 1e-10) << "crossing at x=5";
+    EXPECT_DOUBLE_EQ(*f.crossing(g), 5.0) << "crossing at x=5";
 
     // no crossing
     const Segment h(1.0, 5.0, 0.0, 10.0);  // parallel to f
@@ -44,29 +44,29 @@ TEST(PLFTest, TestSegment) {
 TEST(PLFTest, TestConstruction) {
     // f(x) = 1
     const auto constant = PLF::constant(1.0);
-    EXPECT_NEAR(constant(1e10), 1.0, 1e-10) << "constant PLF";
+    EXPECT_DOUBLE_EQ(constant(1e10), 1.0) << "constant PLF";
     EXPECT_EQ(constant.getBreakPoints().size(), 0) << "constant has no breakpoints";
 
     // f(x) = 2x + 1
     const auto linear = PLF::linear(2.0, 1.0);
-    EXPECT_NEAR(linear(5.0), 11.0, 1e-10) << "unbounded linear PLF";
+    EXPECT_DOUBLE_EQ(linear(5.0), 11.0) << "unbounded linear PLF";
 
     // bounded: f(x) = x on [10, 20), zero outside
     const auto b = PLF::linear(1.0, 0.0, 10.0, 20.0);
-    EXPECT_NEAR(b(5.0), 0.0, 1e-10) << "bounded linear: zero left of lo";
-    EXPECT_NEAR(b(15.0), 15.0, 1e-10) << "bounded linear: interior";
-    EXPECT_NEAR(b(20.0), 0.0, 1e-10) << "bounded linear: zero at hi (open)";
+    EXPECT_DOUBLE_EQ(b(5.0), 0.0) << "bounded linear: zero left of lo";
+    EXPECT_DOUBLE_EQ(b(15.0), 15.0) << "bounded linear: interior";
+    EXPECT_DOUBLE_EQ(b(20.0), 0.0) << "bounded linear: zero at hi (open)";
 }
 
 TEST(PLFTest, TestArithmetic) {
     const auto S = PLF::linear(1.0, 0.0);  // f(x) = x
     const auto K = PLF::constant(50.0);
 
-    EXPECT_NEAR((S + K)(30.0), 80.0, 1e-10) << "add";
-    EXPECT_NEAR((S - K)(80.0), 30.0, 1e-10) << "subtract";
-    EXPECT_NEAR((-S)(5.0), -5.0, 1e-10) << "negate";
-    EXPECT_NEAR((S * PLF::constant(3.0))(4.0), 12.0, 1e-10) << "multiply by constant";
-    EXPECT_NEAR((S / PLF::constant(2.0))(6.0), 3.0, 1e-10) << "divide by constant";
+    EXPECT_DOUBLE_EQ((S + K)(30.0), 80.0) << "add";
+    EXPECT_DOUBLE_EQ((S - K)(80.0), 30.0) << "subtract";
+    EXPECT_DOUBLE_EQ((-S)(5.0), -5.0) << "negate";
+    EXPECT_DOUBLE_EQ((S * PLF::constant(3.0))(4.0), 12.0) << "multiply by constant";
+    EXPECT_DOUBLE_EQ((S / PLF::constant(2.0))(6.0), 3.0) << "divide by constant";
 
     // merge: sum of two constants collapses to one segment
     const auto sum = PLF::constant(2.0) + PLF::constant(3.0);
@@ -94,17 +94,17 @@ TEST(PLFTest, TestGraterThan) {
     const auto S = PLF::linear(1.0, 0.0);  // f(x) = x
     const auto K = PLF::constant(50.0);
 
-    EXPECT_NEAR((S > K)(40), 0.0, 1e-10) << "less than K";
-    EXPECT_NEAR((S > K)(50), 0.0, 1e-10) << "at K";
-    EXPECT_NEAR((S > K)(60), 1.0, 1e-10) << "greater than K";
+    EXPECT_DOUBLE_EQ((S > K)(40), 0.0) << "less than K";
+    EXPECT_DOUBLE_EQ((S > K)(50), 0.0) << "at K";
+    EXPECT_DOUBLE_EQ((S > K)(60), 1.0) << "greater than K";
 
-    EXPECT_NEAR((S >= K)(40), 0.0, 1e-10) << "less than K";
-    EXPECT_NEAR((S >= K)(50), 1.0, 1e-10) << "at K";
-    EXPECT_NEAR((S >= K)(60), 1.0, 1e-10) << "greater than K";
+    EXPECT_DOUBLE_EQ((S >= K)(40), 0.0) << "less than K";
+    EXPECT_DOUBLE_EQ((S >= K)(50), 1.0) << "at K";
+    EXPECT_DOUBLE_EQ((S >= K)(60), 1.0) << "greater than K";
 
-    EXPECT_NEAR((PLF::constant(3.0) > PLF::constant(2.0))(-1e10), 1.0, 1e-10);
-    EXPECT_NEAR((PLF::constant(3.0) > PLF::constant(2.0))(0.0), 1.0, 1e-10);
-    EXPECT_NEAR((PLF::constant(3.0) > PLF::constant(2.0))(1e10), 1.0, 1e-10);
+    EXPECT_DOUBLE_EQ((PLF::constant(3.0) > PLF::constant(2.0))(-1e10), 1.0);
+    EXPECT_DOUBLE_EQ((PLF::constant(3.0) > PLF::constant(2.0))(0.0), 1.0);
+    EXPECT_DOUBLE_EQ((PLF::constant(3.0) > PLF::constant(2.0))(1e10), 1.0);
 }
 
 TEST(PLFTest, TestIfThenElse) {
@@ -113,8 +113,8 @@ TEST(PLFTest, TestIfThenElse) {
 
     const auto call = PLF::ite(S > K, S - K, PLF::constant(0.0));
 
-    EXPECT_NEAR(call(50.0), 0.0, 1e-10) << "call: below strike";
-    EXPECT_NEAR(call(150.0), 50.0, 1e-10) << "call: above strike";
+    EXPECT_DOUBLE_EQ(call(50.0), 0.0) << "call: below strike";
+    EXPECT_DOUBLE_EQ(call(150.0), 50.0) << "call: above strike";
     EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
 }
 
@@ -124,16 +124,17 @@ TEST(PLFTest, TestMaxMin) {
 
     // call payoff: max(S - 100, 0)
     const auto call = PLF::max(S - PLF::constant(100.0), zero);
-    EXPECT_NEAR(call(50.0), 0.0, 1e-10) << "call: below strike";
-    EXPECT_NEAR(call(150.0), 50.0, 1e-10) << "call: above strike";
+
+    EXPECT_DOUBLE_EQ(call(50.0), 0.0) << "call: below strike";
+    EXPECT_DOUBLE_EQ(call(150.0), 50.0) << "call: above strike";
     EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
 
     // min(200, max(S - 100, 10)) — floor=10, cap at S=200, linear in between
     const auto inner = PLF::max(S - PLF::constant(100.0), PLF::constant(10.0));
     const auto capped = PLF::min(PLF::constant(200.0), inner);
 
-    EXPECT_NEAR(capped(50.0), 10.0, 1e-10) << "floored+capped: floor region";
-    EXPECT_NEAR(capped(150.0), 50.0, 1e-10) << "floored+capped: linear region";
-    EXPECT_NEAR(capped(400.0), 200.0, 1e-10) << "floored+capped: cap region";
+    EXPECT_DOUBLE_EQ(capped(50.0), 10.0) << "floored+capped: floor region";
+    EXPECT_DOUBLE_EQ(capped(150.0), 50.0) << "floored+capped: linear region";
+    EXPECT_DOUBLE_EQ(capped(400.0), 200.0) << "floored+capped: cap region";
     EXPECT_EQ(capped.getBreakPoints().size(), 2) << "floored+capped: two breakpoints";
 }
