@@ -1,8 +1,9 @@
-#pragma once
+#include "payoff/Transforms.h"
 
-#include "PayoffNode.h"
+#include "payoff/PayoffNode.h"
 
 namespace payoff {
+namespace {
 
 /**
  * Recursively fold Constant nodes to simply PayoffNode tree
@@ -153,4 +154,9 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Constant>(std::forward<F>(f)(getValue(left), getValue(right)));
     }
 };
+} // anonymous namespace
+
+PayoffNodePtr foldConstants(const PayoffNodePtr& payoff) {
+    return ConstantFold().evaluate(payoff);
+}
 }  // namespace payoff

@@ -2,7 +2,7 @@
 
 #include "market/Market.h"
 #include "numerics/types.h"
-#include "payoff/ConstantFold.h"
+#include "payoff/Transforms.h"
 #include "payoff/MarketVisitor.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/types.h"
@@ -43,16 +43,6 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 
     return slope * (Call(lo) - Call(hi)) + (slope * lo + intercept) * DigitalCall(lo) -
            (slope * hi + intercept) * DigitalCall(hi);
-}
-
-PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const Market& market) {
-    MarketVisitor marketVisitor(market);
-
-    const auto tempPayoff = marketVisitor.evaluate(payoff);
-
-    ConstantFold constantFoldVisitor;
-
-    return constantFoldVisitor.evaluate(tempPayoff);
 }
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {

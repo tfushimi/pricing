@@ -10,8 +10,8 @@ target_link_libraries(test_bs_formula PRIVATE
         GTest::gtest_main
 )
 
-add_executable(test_constant_fold_visitor payoff/ConstantFoldVisitor_test.cpp)
-target_link_libraries(test_constant_fold_visitor PRIVATE
+add_executable(test_constant_fold payoff/ConstantFold_test.cpp)
+target_link_libraries(test_constant_fold PRIVATE
         payoff
         GTest::gtest_main
 )
@@ -25,5 +25,5 @@ target_link_libraries(test_payoff_node PRIVATE
 include(GoogleTest)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
-gtest_discover_tests(test_constant_fold_visitor)
+gtest_discover_tests(test_constant_fold)
 gtest_discover_tests(test_payoff_node)
