@@ -1,3 +1,4 @@
+add_library(common INTERFACE)
 add_library(numerics STATIC
         src/numerics/linear/PiecewiseLinearFunction.cpp
 )
@@ -6,6 +7,7 @@ add_library(market INTERFACE)
 add_library(pricer STATIC src/pricer/BSPricer.cpp)
 
 # export headers
+target_include_directories(common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(numerics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(payoff INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(market INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)

@@ -3,8 +3,8 @@
 #include <memory>
 #include <stdexcept>
 
-#include "FixingDate.h"
 #include "PayoffNode.h"
+#include "common/types.h"
 
 namespace payoff {
 
@@ -51,13 +51,13 @@ class PayoffNodePtr {
 };
 
 // arithmetic operators for double hls
-inline PayoffNodePtr operator+(double lhs, const PayoffNodePtr& rhs) {
+inline PayoffNodePtr operator+(const double lhs, const PayoffNodePtr& rhs) {
     return PayoffNodePtr(lhs) + rhs;
 }
-inline PayoffNodePtr operator-(double lhs, const PayoffNodePtr& rhs) {
+inline PayoffNodePtr operator-(const double lhs, const PayoffNodePtr& rhs) {
     return PayoffNodePtr(lhs) - rhs;
 }
-inline PayoffNodePtr operator*(double lhs, const PayoffNodePtr& rhs) {
+inline PayoffNodePtr operator*(const double lhs, const PayoffNodePtr& rhs) {
     return PayoffNodePtr(lhs) * rhs;
 }
 
@@ -114,15 +114,15 @@ class PayoffNode {
 
 class Fixing final : public PayoffNode {
    public:
-    explicit Fixing(std::string symbol, FixingDate date)
+    explicit Fixing(std::string symbol, Date date)
         : _symbol(std::move(symbol)), _date(std::move(date)) {}
     const std::string& getSymbol() const { return _symbol; }
-    const FixingDate& getDate() const { return _date; }
+    const Date& getDate() const { return _date; }
     Type type() const override { return Type::Fixing; }
 
    private:
     std::string _symbol;
-    FixingDate _date;
+    Date _date;
 };
 
 class Constant final : public PayoffNode {
@@ -210,7 +210,7 @@ class IfThenElse final : public PayoffNode {
 };
 
 // Factory functions
-inline PayoffNodePtr fixing(std::string symbol, FixingDate date) {
+inline PayoffNodePtr fixing(std::string symbol, Date date) {
     return std::make_shared<Fixing>(std::move(symbol), std::move(date));
 }
 

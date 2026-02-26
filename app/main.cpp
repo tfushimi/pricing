@@ -16,7 +16,7 @@ int main() {
         constexpr double barrier = 80.0;
         constexpr double cap = 120.0;
 
-        const auto S = fixing("SPY", "2026-12-18");
+        const auto S = fixing("SPY", makeDate(2026, 3, 20));
 
         // Three regions:
         // S <  barrier:            S              (barrier breached, lose from initial)

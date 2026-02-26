@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "PayoffNode.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/types.h"
@@ -11,18 +13,15 @@ using namespace numerics::linear;
  * Convert PayoffNodePtr tree into a piecewise liear function
  */
 class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
-   public:
-    FixingDate getFixingDate() const { return _fixingDate; }
-
    protected:
     PLF visit(const Fixing& node) override {
-        if (_symbol != "" && _symbol != node.getSymbol()) {
+        if (_symbol.has_value() && _symbol != node.getSymbol()) {
             throw std::invalid_argument("PLPayoff cannot have more than one symbol");
         }
 
         _symbol = node.getSymbol();
 
-        if (_fixingDate != "" && _fixingDate != node.getDate()) {
+        if (_fixingDate.has_value() && _fixingDate != node.getDate()) {
             throw std::invalid_argument("PLPayoff cannot have more than one date");
         }
 
@@ -67,7 +66,7 @@ class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
     }
 
    private:
-    std::string _symbol = "";
-    FixingDate _fixingDate = "";
+    std::optional<std::string> _symbol = std::nullopt;
+    std::optional<Date> _fixingDate = std::nullopt;
 };
 }  // namespace payoff

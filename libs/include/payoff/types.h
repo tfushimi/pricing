@@ -1,6 +1,10 @@
 #pragma once
+
+#include <chrono>
+
 #include "PiecewiseLinearFunctionVisitor.h"
 
 namespace payoff {
-using PLFVisitor = payoff::PiecewiseLinearFunctionVisitor;
+
+using PLFVisitor = PiecewiseLinearFunctionVisitor;
 }

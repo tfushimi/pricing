@@ -17,6 +17,8 @@ const Fixing* asFixing(const PayoffNodePtr& node) {
 
 ConstantFoldVisitor visitor;
 
+const auto spy = fixing("SPY", makeDate(2026, 3, 20));
+
 TEST(ConstantFoldVisitorTest, ArithmeticTest) {
     const auto sum = constant(1.0) + constant(2.0);
     const auto* sumConstant = asConstant(visitor.evaluate(sum));
@@ -40,7 +42,6 @@ TEST(ConstantFoldVisitorTest, ArithmeticTest) {
 }
 
 TEST(ConstantFoldVisitorTest, MultiplyTest) {
-    const auto spy = fixing("SPY", "2026-03-20");
     const auto zero = constant(0.0);
     const auto one = constant(1.0);
 
@@ -74,7 +75,7 @@ TEST(ConstantFoldVisitorTest, MultiplyTest) {
 }
 
 TEST(ConstantFoldVisitorTest, DivideTest) {
-    const auto divide = fixing("SPY", "2026-03-20") / constant(1.0);
+    const auto divide = spy / constant(1.0);
     const auto* divideConstant = asFixing(visitor.evaluate(divide));
     ASSERT_NE(divideConstant, nullptr);
     EXPECT_EQ(divideConstant->getSymbol(), "SPY");

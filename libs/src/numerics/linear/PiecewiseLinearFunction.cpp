@@ -57,9 +57,9 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator+(
         Segment& seg1 = f._segments[i];
         Segment& seg2 = g._segments[i];
 
-        segments.push_back(Segment(seg1.getSlope() + seg2.getSlope(),
-                                   seg1.getIntercept() + seg2.getIntercept(), seg1.getLeft(),
-                                   seg1.getRight()));
+        segments.emplace_back(seg1.getSlope() + seg2.getSlope(),
+                              seg1.getIntercept() + seg2.getIntercept(), seg1.getLeft(),
+                              seg1.getRight());
     }
 
     return PiecewiseLinearFunction(std::move(segments)).merged();
@@ -69,8 +69,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator-() const {
     std::vector<Segment> segments;
 
     for (const auto seg : _segments) {
-        segments.push_back(
-            Segment(-seg.getSlope(), -seg.getIntercept(), seg.getLeft(), seg.getRight()));
+        segments.emplace_back(-seg.getSlope(), -seg.getIntercept(), seg.getLeft(), seg.getRight());
     }
 
     return PiecewiseLinearFunction(std::move(segments));
@@ -250,7 +249,7 @@ PiecewiseLinearFunction::align3(const PiecewiseLinearFunction& f, const Piecewis
 
 // creates a new PL by merging adjacent segments if possible
 PiecewiseLinearFunction PiecewiseLinearFunction::merged() const {
-    if (_segments.size() == 0) {
+    if (_segments.empty()) {
         return *this;
     }
 

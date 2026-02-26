@@ -1,17 +1,16 @@
 #include "payoff/PayoffNode.h"
 
-#include "payoff/PiecewiseLinearFunctionVisitor.h"
-
 #include <gtest/gtest.h>
+
+#include "payoff/PiecewiseLinearFunctionVisitor.h"
 
 using namespace payoff;
 
 PiecewiseLinearFunctionVisitor visitor;
 
-const auto S = fixing("SPY", "2026/03/20");
+const auto S = fixing("SPY", makeDate(2026, 3, 20));
 
 TEST(PayoffNodeTest, ArithmeticTest) {
-
     const auto sum = constant(1.0) + constant(2.0);
     const auto sumPLF = visitor.evaluate(sum);
     EXPECT_DOUBLE_EQ(sumPLF(-1e+10), 3.0);
@@ -37,8 +36,7 @@ TEST(PayoffNodeTest, ArithmeticTest) {
     EXPECT_DOUBLE_EQ(dividePLF(1e+10), 0.5);
 }
 
-TEST(PayoffNodeTest, FixingTest) {
-
+TEST(PayoffNodeTest, FixingArithmeticTest) {
     const auto sum = S + 50;
     EXPECT_DOUBLE_EQ(visitor.evaluate(sum)(30.0), 80.0);
 
@@ -56,7 +54,6 @@ TEST(PayoffNodeTest, FixingTest) {
 }
 
 TEST(PayoffNodeTest, GreaterThanTest) {
-
     const auto greaterThanK = S > 50.0;
     EXPECT_DOUBLE_EQ(visitor.evaluate(greaterThanK)(40.0), 0.0);
     EXPECT_DOUBLE_EQ(visitor.evaluate(greaterThanK)(50.0), 0.0);
@@ -74,7 +71,6 @@ TEST(PayoffNodeTest, GreaterThanTest) {
 }
 
 TEST(PayoffNodeTest, IfThenElseTest) {
-
     const auto K = constant(100.0);
 
     const auto cond = S > K;
@@ -86,7 +82,6 @@ TEST(PayoffNodeTest, IfThenElseTest) {
 }
 
 TEST(PayoffNodeTest, MaxMinTest) {
-
     const auto zero = constant(0.0);
 
     // call
