@@ -17,13 +17,14 @@ int main() {
     const auto S = fixing("SPY", makeDate(2026, 3, 20));
 
     // Three regions:
-    // S <  barrier:            S              (barrier breached, lose from initial)
-    // barrier <= S < notional: notional       (protected)
-    // S >= notional:           min(S, cap)    (participate up to cap)
+    // S <  barrier:            S                        (breached)
+    // barrier <= S < notional: notional                 (protected)
+    // S >= notional:           min(notional + 1.1*(S - notional), cap)  (1.1x participation above notional)
 
     const auto barrierCondition = S >= constant(barrier);
-    const auto protectedPayoff = min(max(S, constant(notional)), constant(cap));
-    const auto breachedPayoff = S;
+    const auto participation    = constant(notional) + constant(1.1) * (S - constant(notional));
+    const auto protectedPayoff  = min(max(participation, constant(notional)), constant(cap));
+    const auto breachedPayoff   = S;
 
     const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
 
@@ -48,7 +49,7 @@ int main() {
             region = "capped";
         }
 
-        std::cout << std::fixed << std::setprecision(1) << std::setw(7) << spot << "  |"
+        std::cout << std::fixed << std::setprecision(2) << std::setw(7) << spot << "  |"
                   << std::setw(8) << plf(spot) << "  | " << region << "\n";
     }
 
