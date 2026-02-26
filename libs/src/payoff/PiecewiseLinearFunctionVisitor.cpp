@@ -1,14 +1,14 @@
-#pragma once
-
 #include <optional>
 
-#include "PayoffNode.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/types.h"
+#include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 
-namespace payoff {
 using namespace numerics::linear;
 
+namespace payoff {
+namespace {
 /**
  * Convert PayoffNodePtr tree into a piecewise liear function
  */
@@ -69,4 +69,9 @@ class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
     std::optional<std::string> _symbol = std::nullopt;
     std::optional<Date> _fixingDate = std::nullopt;
 };
+}  // namespace
+
+PLF toPiecewiseLinearFunction(const PayoffNodePtr& payoff) {
+    return PiecewiseLinearFunctionVisitor().evaluate(payoff);
+}
 }  // namespace payoff

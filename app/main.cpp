@@ -1,10 +1,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "numerics/linear/PiecewiseLinearFunction.h"
 #include "payoff/PayoffNode.h"
-#include "payoff/PiecewiseLinearFunctionVisitor.h"
-#include "payoff/types.h"
+#include "payoff/Transforms.h"
 
 using namespace payoff;
 using namespace numerics::linear;
@@ -29,7 +27,7 @@ int main() {
 
         const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
 
-        const auto plf = PLFVisitor().evaluate(payoff);
+        const auto plf = toPiecewiseLinearFunction(payoff);
 
         const std::vector<double> spots = {50,  60,  70,  79,  80,  85,  90, 95,
                                            100, 105, 110, 115, 120, 130, 150};

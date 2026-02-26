@@ -1,10 +1,11 @@
 #include "pricer/BSPricer.h"
 
 #include "market/Market.h"
+#include "numerics/linear/PiecewiseLinearFunction.h"
+#include "numerics/linear/Segment.h"
 #include "numerics/types.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
-#include "payoff/types.h"
 #include "pricer/BSFormula.h"
 
 using namespace payoff;
@@ -45,9 +46,8 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 }
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
-    const auto newPayoff = applyMarket(payoff, market);
-    PLFVisitor plfVisitor;
-    const auto payoffPLF = plfVisitor.evaluate(newPayoff);
+    const auto newPayoff = simplify(payoff, market);
+    const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
 
     // TODO create FixingCollector
     const Date fixingDate = makeDate(2026, 3, 20);
