@@ -2,9 +2,8 @@
 
 #include "market/Market.h"
 #include "numerics/types.h"
-#include "payoff/Transforms.h"
-#include "payoff/MarketVisitor.h"
 #include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 #include "payoff/types.h"
 #include "pricer/BSFormula.h"
 

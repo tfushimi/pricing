@@ -1,6 +1,5 @@
-#include "payoff/Transforms.h"
-
 #include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 
 namespace payoff {
 namespace {
@@ -154,7 +153,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Constant>(std::forward<F>(f)(getValue(left), getValue(right)));
     }
 };
-} // anonymous namespace
+}  // anonymous namespace
 
 PayoffNodePtr foldConstants(const PayoffNodePtr& payoff) {
     return ConstantFold().evaluate(payoff);

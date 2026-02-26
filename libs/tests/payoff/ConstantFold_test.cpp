@@ -1,8 +1,7 @@
-#include "payoff/Transforms.h"
-
 #include <gtest/gtest.h>
 
 #include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 
 using namespace payoff;
 using namespace payoff;

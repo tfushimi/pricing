@@ -1,9 +1,9 @@
-#pragma once
-
-#include "PayoffNode.h"
 #include "market/Market.h"
+#include "payoff/PayoffNode.h"
+#include "payoff/Transforms.h"
 
 namespace payoff {
+namespace {
 
 /**
  * Replace Fixing nodes with Constant if observed in Market
@@ -66,4 +66,9 @@ class MarketVisitor final : public PayoffVisitor<PayoffNodePtr> {
    private:
     const market::Market& _market;
 };
+}  // namespace
+
+PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
+    return MarketVisitor(market).evaluate(payoff);
+}
 }  // namespace payoff

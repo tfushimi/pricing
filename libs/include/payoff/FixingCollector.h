@@ -7,19 +7,14 @@
 namespace payoff {
 
 class FixingCollector final : public PayoffVisitor<void> {
-public:
+   public:
     FixingCollector() = default;
     ~FixingCollector() override = default;
 
-    const std::set<Fixing>& getFixings() const {
+    const std::set<Fixing>& getFixings() const { return _fixings; }
 
-        return _fixings;
-    }
-
-    protected:
-    void visit(const Fixing& node) override {
-        _fixings.insert(node);
-    }
+   protected:
+    void visit(const Fixing& node) override { _fixings.insert(node); }
 
     void visit(const Constant& node) override {
         // no-op
@@ -66,7 +61,7 @@ public:
         evaluate(node.getElse());
     }
 
-    private:
+   private:
     std::set<Fixing> _fixings;
 };
 
@@ -75,4 +70,4 @@ inline std::set<Fixing> collectFixings(const PayoffNodePtr& payoff) {
     collector.evaluate(payoff);
     return collector.getFixings();
 }
-}
+}  // namespace payoff

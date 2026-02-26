@@ -3,8 +3,8 @@ add_library(numerics STATIC
         src/numerics/linear/PiecewiseLinearFunction.cpp
 )
 add_library(payoff STATIC
-        include/payoff/Transforms.h
         src/payoff/ConstantFold.cpp
+        src/payoff/MarketVisitor.cpp
 )
 add_library(market INTERFACE)
 add_library(pricer STATIC src/pricer/BSPricer.cpp)
