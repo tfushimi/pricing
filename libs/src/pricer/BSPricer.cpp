@@ -2,7 +2,7 @@
 
 #include "market/Market.h"
 #include "numerics/types.h"
-#include "payoff/ConstantFoldVisitor.h"
+#include "payoff/ConstantFold.h"
 #include "payoff/MarketVisitor.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/types.h"
@@ -50,7 +50,7 @@ PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const Market& market) {
 
     const auto tempPayoff = marketVisitor.evaluate(payoff);
 
-    ConstantFoldVisitor constantFoldVisitor;
+    ConstantFold constantFoldVisitor;
 
     return constantFoldVisitor.evaluate(tempPayoff);
 }

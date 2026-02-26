@@ -1,4 +1,4 @@
-#include "payoff/ConstantFoldVisitor.h"
+#include "payoff/ConstantFold.h"
 
 #include <gtest/gtest.h>
 
@@ -15,7 +15,7 @@ const Fixing* asFixing(const PayoffNodePtr& node) {
     return dynamic_cast<const Fixing*>(node.get());
 }
 
-ConstantFoldVisitor visitor;
+ConstantFold visitor;
 
 const auto spy = fixing("SPY", makeDate(2026, 3, 20));
 

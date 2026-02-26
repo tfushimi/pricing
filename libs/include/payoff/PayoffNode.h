@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <stdexcept>
 
@@ -119,6 +120,18 @@ class Fixing final : public PayoffNode {
     const std::string& getSymbol() const { return _symbol; }
     const Date& getDate() const { return _date; }
     Type type() const override { return Type::Fixing; }
+
+    // define < and == to be comparable for std::set
+    bool operator<(const Fixing& other) const {
+        if (_symbol != other._symbol) {
+            return _symbol < other._symbol;
+        }
+        return std::chrono::sys_days{_date} < std::chrono::sys_days{other._date};
+    }
+
+    bool operator==(const Fixing& other) const {
+        return _symbol == other._symbol && _date == other._date;
+    }
 
    private:
     std::string _symbol;

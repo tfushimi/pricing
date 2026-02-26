@@ -7,10 +7,10 @@ namespace payoff {
 /**
  * Recursively fold Constant nodes to simply PayoffNode tree
  */
-class ConstantFoldVisitor final : public PayoffVisitor<PayoffNodePtr> {
+class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
    public:
-    ConstantFoldVisitor() = default;
-    ~ConstantFoldVisitor() override = default;
+    ConstantFold() = default;
+    ~ConstantFold() override = default;
 
    protected:
     PayoffNodePtr visit(const Fixing& node) override {
