@@ -49,10 +49,20 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
     const auto newPayoff = applyMarket(payoff, market);
     const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
 
-    // TODO create FixingCollector
-    const Date fixingDate = makeDate(2026, 3, 20);
-    const std::unique_ptr<BSVolSlice> bsVolSlice = market.getBSVolSlice(fixingDate);
-    const double dF = market.getDiscountFactor(fixingDate);
+    const auto fixingDates = getFixings(newPayoff);
+    if (fixingDates.size() != 1) {
+        throw std::invalid_argument("Payoff should have a single fixing, found " +
+                                    std::to_string(fixingDates.size()));
+    }
+    const auto fixingDate = fixingDates.begin()->getDate();
+    const auto bsVolSlice = market.getBSVolSlice(fixingDate);
+    const auto discountCurve = market.getDiscountFactor(fixingDate);
+
+    if (!discountCurve) {
+        throw std::invalid_argument("Discount curve not found");
+    }
+
+    const double dF = discountCurve.get()->get(fixingDate);
 
     double price = 0.0;
 

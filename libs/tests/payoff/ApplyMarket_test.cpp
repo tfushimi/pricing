@@ -30,13 +30,11 @@ class MockMarket final : public Market {
         return std::nullopt;  // not observed — Fixing node kept as-is
     }
 
-    double getDiscountFactor(const Date& date) const override {
-        throw std::logic_error("MockMarket::getDiscountFactor not implemented");
+    std::unique_ptr<DiscountCurve> getDiscountFactor(const Date& date) const override {
+        return nullptr;
     }
 
-    std::unique_ptr<BSVolSlice> getBSVolSlice(const Date& date) const override {
-        throw std::logic_error("MockMarket::getBSVolSlice not implemented");
-    }
+    std::unique_ptr<BSVolSlice> getBSVolSlice(const Date& date) const override { return nullptr; }
 
    private:
     Date _pricingDate;
