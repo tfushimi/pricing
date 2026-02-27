@@ -8,10 +8,10 @@ namespace {
 /**
  * Replace Fixing nodes with Constant if observed in Market
  */
-class MarketVisitor final : public PayoffVisitor<PayoffNodePtr> {
+class ApplyMarket final : public PayoffVisitor<PayoffNodePtr> {
    public:
-    explicit MarketVisitor(const market::Market& market) : _market(market) {}
-    ~MarketVisitor() override = default;
+    explicit ApplyMarket(const market::Market& market) : _market(market) {}
+    ~ApplyMarket() override = default;
 
    protected:
     // Fixing: replace with Constant if observed, otherwise keep as Fixing
@@ -69,6 +69,6 @@ class MarketVisitor final : public PayoffVisitor<PayoffNodePtr> {
 }  // namespace
 
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
-    return MarketVisitor(market).evaluate(payoff);
+    return foldConstants(ApplyMarket(market).evaluate(payoff));
 }
 }  // namespace payoff

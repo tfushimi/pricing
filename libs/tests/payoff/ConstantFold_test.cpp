@@ -1,18 +1,10 @@
 #include <gtest/gtest.h>
 
+#include "PayoffTestUtils.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
 
 using namespace payoff;
-using namespace payoff;
-
-const Constant* asConstant(const PayoffNodePtr& node) {
-    return dynamic_cast<const Constant*>(node.get());
-}
-
-const Fixing* asFixing(const PayoffNodePtr& node) {
-    return dynamic_cast<const Fixing*>(node.get());
-}
 
 const auto spy = fixing("SPY", makeDate(2026, 3, 20));
 

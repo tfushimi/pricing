@@ -22,8 +22,16 @@ target_link_libraries(test_payoff_node PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_apply_market payoff/ApplyMarket_test.cpp)
+target_link_libraries(test_apply_market PRIVATE
+        payoff
+        market
+        GTest::gtest_main
+)
+
 include(GoogleTest)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
 gtest_discover_tests(test_constant_fold)
 gtest_discover_tests(test_payoff_node)
+gtest_discover_tests(test_apply_market)

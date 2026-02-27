@@ -4,7 +4,7 @@ add_library(numerics STATIC
 )
 add_library(payoff STATIC
         src/payoff/ConstantFold.cpp
-        src/payoff/MarketVisitor.cpp
+        src/payoff/ApplyMarket.cpp
         src/payoff/FixingCollector.cpp
         src/payoff/PiecewiseLinearFunctionVisitor.cpp
 )

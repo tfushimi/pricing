@@ -1,8 +1,18 @@
 #pragma once
 
 #include <chrono>
+#include <functional>
 
 using Date = std::chrono::year_month_day;
+
+// Hash for Date so it can be used as unordered_map key
+template <>
+struct std::hash<Date> {
+    std::size_t operator()(const Date& d) const noexcept {
+        // sys_days is just an integer count — trivially hashable
+        return std::hash<int>{}(std::chrono::sys_days{d}.time_since_epoch().count());
+    }
+};
 
 inline Date makeDate(const int year, const int month, const int day) {
     return Date{std::chrono::year{year}, std::chrono::month{static_cast<unsigned>(month)},

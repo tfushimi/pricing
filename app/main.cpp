@@ -8,7 +8,6 @@ using namespace payoff;
 using namespace numerics::linear;
 
 int main() {
-
     // Example: Barrier Enhanced Notes
     constexpr double notional = 100.0;
     constexpr double barrier = 80.0;
@@ -19,12 +18,13 @@ int main() {
     // Three regions:
     // S <  barrier:            S                        (breached)
     // barrier <= S < notional: notional                 (protected)
-    // S >= notional:           min(notional + 1.1*(S - notional), cap)  (1.1x participation above notional)
+    // S >= notional:           min(notional + 1.1*(S - notional), cap)  (1.1x participation above
+    // notional)
 
     const auto barrierCondition = S >= constant(barrier);
-    const auto participation    = constant(notional) + constant(1.1) * (S - constant(notional));
-    const auto protectedPayoff  = min(max(participation, constant(notional)), constant(cap));
-    const auto breachedPayoff   = S;
+    const auto participation = constant(notional) + constant(1.1) * (S - constant(notional));
+    const auto protectedPayoff = min(max(participation, constant(notional)), constant(cap));
+    const auto breachedPayoff = S;
 
     const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
 

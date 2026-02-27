@@ -46,7 +46,7 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 }
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
-    const auto newPayoff = simplify(payoff, market);
+    const auto newPayoff = applyMarket(payoff, market);
     const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
 
     // TODO create FixingCollector
