@@ -14,8 +14,8 @@ using namespace market;
 using namespace pricer;
 using namespace bs;
 
-double BSPricer::priceSegment(const double slope, const double intercept, const double lo,
-                              const double hi, const double dF, const BSVolSlice& bsVolSlice) {
+double BSPricer::priceSegment(const Segment& segment, const double dF,
+                              const BSVolSlice& bsVolSlice) {
     auto Call = [&](const double K) -> double {
         if (K <= 0.0) {
             return dF * bsVolSlice.forward();  // C(0) = disc * F
@@ -25,7 +25,7 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
             return 0.0;
         }
 
-        return blackCallFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol());
+        return blackCallFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol(K));
     };
 
     auto DigitalCall = [&](const double K) -> double {
@@ -37,9 +37,14 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
             return 0.0;
         }
 
-        return blackDigitalFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol(),
-                                   bsVolSlice.dVolDStrike(K));
+        return blackDigitalFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF,
+                                   bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
     };
+
+    const auto slope = segment.getSlope();
+    const auto intercept = segment.getIntercept();
+    const auto lo = segment.getLeft();
+    const auto hi = segment.getRight();
 
     return slope * (Call(lo) - Call(hi)) + (slope * lo + intercept) * DigitalCall(lo) -
            (slope * hi + intercept) * DigitalCall(hi);
@@ -47,15 +52,19 @@ double BSPricer::priceSegment(const double slope, const double intercept, const 
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
     const auto newPayoff = applyMarket(payoff, market);
-    const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
-
     const auto fixingDates = getFixings(newPayoff);
     if (fixingDates.size() != 1) {
         throw std::invalid_argument("Payoff should have a single fixing, found " +
                                     std::to_string(fixingDates.size()));
     }
     const auto fixingDate = fixingDates.begin()->getDate();
+
     const auto bsVolSlice = market.getBSVolSlice(fixingDate);
+
+    if (!bsVolSlice) {
+        throw std::invalid_argument("BSVolSlice not found in market");
+    }
+
     const auto discountCurve = market.getDiscountFactor(fixingDate);
 
     if (!discountCurve) {
@@ -66,9 +75,10 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
 
     double price = 0.0;
 
+    const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
+
     for (const Segment& segment : payoffPLF.getSegments()) {
-        price += priceSegment(segment.getSlope(), segment.getIntercept(), segment.getLeft(),
-                              segment.getRight(), dF, *bsVolSlice.get());
+        price += priceSegment(segment, dF, *bsVolSlice);
     }
 
     return price;
