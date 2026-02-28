@@ -71,7 +71,7 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
         throw std::invalid_argument("Discount curve not found");
     }
 
-    const double dF = discountCurve.get()->get(fixingDate);
+    const double dF = discountCurve->get(fixingDate);
 
     double price = 0.0;
 
