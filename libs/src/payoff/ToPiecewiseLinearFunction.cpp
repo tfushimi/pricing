@@ -10,9 +10,9 @@ using namespace numerics::linear;
 namespace payoff {
 namespace {
 /**
- * Convert PayoffNodePtr tree into a piecewise liear function
+ * Convert PayoffNodePtr tree into a piecewise linear function
  */
-class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
+class ToPiecewiseLinearFunction final : public PayoffVisitor<PLF> {
    protected:
     PLF visit(const Fixing& node) override {
         if (_symbol.has_value() && _symbol != node.getSymbol()) {
@@ -72,6 +72,6 @@ class PiecewiseLinearFunctionVisitor final : public PayoffVisitor<PLF> {
 }  // namespace
 
 PLF toPiecewiseLinearFunction(const PayoffNodePtr& payoff) {
-    return PiecewiseLinearFunctionVisitor().evaluate(payoff);
+    return ToPiecewiseLinearFunction().evaluate(payoff);
 }
 }  // namespace payoff

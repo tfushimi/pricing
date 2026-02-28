@@ -11,7 +11,7 @@ class FixingCollector final : public PayoffVisitor<void> {
     FixingCollector() = default;
     ~FixingCollector() override = default;
 
-    const std::set<Fixing>& getFixings() const { return _fixings; }
+    std::set<Fixing> getFixings() const { return _fixings; }
 
    protected:
     void visit(const Fixing& node) override { _fixings.insert(node); }
@@ -66,7 +66,7 @@ class FixingCollector final : public PayoffVisitor<void> {
 };
 }  // namespace
 
-inline std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
+std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
     FixingCollector collector;
     collector.evaluate(payoff);
     return collector.getFixings();
