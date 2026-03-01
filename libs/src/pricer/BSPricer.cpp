@@ -11,61 +11,49 @@
 using namespace payoff;
 using namespace numerics::linear;
 using namespace market;
-using namespace pricer;
-using namespace bs;
 
-double BSPricer::safeEndPoint(const double slope, const double intercept, const double endpoint) {
-    if (endpoint == NEG_INF) {
-        return slope < 0.0 ? POS_INF : (slope > 0.0 ? NEG_INF : intercept);
-    }
-
-    if (endpoint == POS_INF) {
-        return slope < 0.0 ? NEG_INF : (slope > 0.0 ? POS_INF : intercept);
-    }
-
-    return slope * endpoint + intercept;
-}
+namespace pricer {
 
 double BSPricer::priceSegment(const Segment& segment, const double dF,
                               const BSVolSlice& bsVolSlice) {
-    auto Call = [&](const double K) -> double {
-        if (K <= 0.0) {
-            return dF * bsVolSlice.forward();  // C(0) = disc * F
-        }
+    const auto F = bsVolSlice.forward();
+    const auto T = bsVolSlice.time();
+    const auto slope = segment.getSlope();
+    const auto intercept = segment.getIntercept();
 
+    // Under GBM, S >= 0 always — trim segment to non-negative domain
+    // P(S < 0) = 0 so segments below zero contribute nothing
+    if (segment.getRight() <= 0.0) {
+        return 0.0;
+    }
+    const auto lo = std::max(segment.getLeft(), 0.0);
+    const auto hi = segment.getRight();  // may be POS_INF
+
+    auto Call = [&](const double K) -> double {
+        if (K == 0.0) {
+            return dF * F;
+        }
         if (K == POS_INF) {
             return 0.0;
         }
-
-        return blackCallFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF, bsVolSlice.vol(K));
+        return blackCallFormula(F, K, T, dF, bsVolSlice.vol(K));
     };
 
     auto DigitalCall = [&](const double K) -> double {
-        if (K <= 0.0) {
-            return dF;  // DigCall(0) = disc
+        if (K == 0.0) {
+            return dF;
         }
-
         if (K == POS_INF) {
             return 0.0;
         }
-
-        return blackDigitalFormula(bsVolSlice.forward(), K, bsVolSlice.time(), dF,
-                                   bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
+        return blackDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
     };
 
-    const auto slope = segment.getSlope();
-    const auto intercept = segment.getIntercept();
-    const auto lo = segment.getLeft();
-    const auto hi = segment.getRight();
+    const double leftEndPoint = slope * lo + intercept;
+    const double rightEndPoint = hi == POS_INF ? 0.0 : slope * hi + intercept;
 
-    const auto left = safeEndPoint(slope, intercept, lo);
-    const auto right = safeEndPoint(slope, intercept, hi);
-
-    const auto call = slope * (Call(lo) - Call(hi));
-    const auto base = (left == NEG_INF ? 0.0 : left) * DigitalCall(lo);
-    const auto excess = (right == POS_INF ? 0.0 : right) * DigitalCall(hi);
-
-    return call + base - excess;
+    return slope * (Call(lo) - Call(hi)) + leftEndPoint * DigitalCall(lo) -
+           rightEndPoint * DigitalCall(hi);
 }
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
@@ -101,3 +89,4 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
 
     return price;
 }
+}  // namespace pricer

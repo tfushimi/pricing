@@ -13,7 +13,6 @@ class BSPricer final : public PayoffPricer {
    private:
     static double priceSegment(const numerics::linear::Segment& segment, double dF,
                                const market::BSVolSlice& bsVolSlice);
-    static double safeEndPoint(double slope, double intercept, double endpoint);
 };
 
 inline double bsPrice(const payoff::PayoffNodePtr& payoff, const market::Market& market) {
