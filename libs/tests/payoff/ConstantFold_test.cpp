@@ -8,7 +8,7 @@ using namespace payoff;
 
 const auto spy = fixing("SPY", makeDate(2026, 3, 20));
 
-TEST(ConstantFoldVisitorTest, ArithmeticTest) {
+TEST(ConstantFoldTest, ArithmeticTest) {
     const auto sum = constant(1.0) + constant(2.0);
     const auto* sumConstant = asConstant(foldConstants(sum));
     ASSERT_NE(sumConstant, nullptr);
