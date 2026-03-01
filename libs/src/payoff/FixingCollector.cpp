@@ -16,7 +16,7 @@ class FixingCollector final : public PayoffVisitor<void> {
    protected:
     void visit(const Fixing& node) override { _fixings.insert(node); }
 
-    void visit(const Constant& node) override {
+    void visit(const Constant&) override {
         // no-op
     }
 

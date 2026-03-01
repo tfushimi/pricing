@@ -12,7 +12,6 @@ add_library(market INTERFACE)
 add_library(pricer STATIC
         src/pricer/BSPricer.cpp
 )
-add_library(vol INTERFACE)
 
 # include directories
 target_include_directories(common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -23,7 +22,6 @@ target_include_directories(payoff
 )
 target_include_directories(market INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(pricer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(vol INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # link libraries
 target_link_libraries(common INTERFACE
@@ -46,9 +44,6 @@ target_link_libraries(pricer PUBLIC
         payoff
 )
 target_link_libraries(pricer PRIVATE
-        project_warnings
-)
-target_link_libraries(vol INTERFACE
         project_warnings
 )
 add_subdirectory(tests)

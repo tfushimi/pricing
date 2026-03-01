@@ -22,7 +22,7 @@ class MockMarket final : public Market {
 
     Date getPricingDate() const override { return _pricingDate; }
 
-    std::optional<double> getPrice(const std::string& symbol, const Date& date) const override {
+    std::optional<double> getPrice(const std::string&, const Date& date) const override {
         // symbol ignored in mock — price is keyed by date only
         const auto it = _priceMap.find(date);
         if (it != _priceMap.end())
@@ -30,11 +30,9 @@ class MockMarket final : public Market {
         return std::nullopt;  // not observed — Fixing node kept as-is
     }
 
-    std::unique_ptr<DiscountCurve> getDiscountFactor(const Date& date) const override {
-        return nullptr;
-    }
+    std::shared_ptr<DiscountCurve> getDiscountCurve(const Date&) const override { return nullptr; }
 
-    std::unique_ptr<BSVolSlice> getBSVolSlice(const Date& date) const override { return nullptr; }
+    std::shared_ptr<BSVolSlice> getBSVolSlice(const Date&) const override { return nullptr; }
 
    private:
     Date _pricingDate;

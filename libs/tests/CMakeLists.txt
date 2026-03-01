@@ -10,6 +10,13 @@ target_link_libraries(test_bs_formula PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_bs_pricer pricer/BSPricer_test.cpp)
+target_link_libraries(test_bs_pricer PRIVATE
+        payoff
+        pricer
+        GTest::gtest_main
+)
+
 add_executable(test_constant_fold payoff/ConstantFold_test.cpp)
 target_link_libraries(test_constant_fold PRIVATE
         payoff

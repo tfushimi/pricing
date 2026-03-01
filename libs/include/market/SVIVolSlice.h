@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include "market/BSVolSlice.h"
-#include "vol/SVI.h"
+#include "market/SVI.h"
 
 namespace market {
 

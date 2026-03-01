@@ -14,6 +14,18 @@ using namespace market;
 using namespace pricer;
 using namespace bs;
 
+double BSPricer::safeEndPoint(const double slope, const double intercept, const double endpoint) {
+    if (endpoint == NEG_INF) {
+        return slope < 0.0 ? POS_INF : (slope > 0.0 ? NEG_INF : intercept);
+    }
+
+    if (endpoint == POS_INF) {
+        return slope < 0.0 ? NEG_INF : (slope > 0.0 ? POS_INF : intercept);
+    }
+
+    return slope * endpoint + intercept;
+}
+
 double BSPricer::priceSegment(const Segment& segment, const double dF,
                               const BSVolSlice& bsVolSlice) {
     auto Call = [&](const double K) -> double {
@@ -46,8 +58,14 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
     const auto lo = segment.getLeft();
     const auto hi = segment.getRight();
 
-    return slope * (Call(lo) - Call(hi)) + (slope * lo + intercept) * DigitalCall(lo) -
-           (slope * hi + intercept) * DigitalCall(hi);
+    const auto left = safeEndPoint(slope, intercept, lo);
+    const auto right = safeEndPoint(slope, intercept, hi);
+
+    const auto call = slope * (Call(lo) - Call(hi));
+    const auto base = (left == NEG_INF ? 0.0 : left) * DigitalCall(lo);
+    const auto excess = (right == POS_INF ? 0.0 : right) * DigitalCall(hi);
+
+    return call + base - excess;
 }
 
 double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
@@ -65,7 +83,7 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
         throw std::invalid_argument("BSVolSlice not found in market");
     }
 
-    const auto discountCurve = market.getDiscountFactor(fixingDate);
+    const auto discountCurve = market.getDiscountCurve(fixingDate);
 
     if (!discountCurve) {
         throw std::invalid_argument("Discount curve not found");

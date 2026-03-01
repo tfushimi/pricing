@@ -8,17 +8,15 @@
 namespace pricer {
 class BSPricer final : public PayoffPricer {
    public:
-    BSPricer() = default;
-    BSPricer(const BSPricer&) = delete;
-    BSPricer(BSPricer&&) = delete;
-    BSPricer& operator=(BSPricer&&) = delete;
-    BSPricer& operator=(const BSPricer&) = delete;
-    ~BSPricer() override = default;
-
     double price(const payoff::PayoffNodePtr& payoff, const market::Market& market) override;
 
    private:
     static double priceSegment(const numerics::linear::Segment& segment, double dF,
                                const market::BSVolSlice& bsVolSlice);
+    static double safeEndPoint(double slope, double intercept, double endpoint);
 };
+
+inline double bsPrice(const payoff::PayoffNodePtr& payoff, const market::Market& market) {
+    return BSPricer().price(payoff, market);
+}
 }  // namespace pricer
