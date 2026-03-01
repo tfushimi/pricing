@@ -1,6 +1,6 @@
 #include "numerics/linear/PiecewiseLinearFunction.h"
 
-using namespace numerics::linear;
+namespace numerics::linear {
 
 PiecewiseLinearFunction PiecewiseLinearFunction::linear(const double slope, const double intercept,
                                                         const double lo, const double hi) {
@@ -404,4 +404,5 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
     }
 
     return PiecewiseLinearFunction(std::move(segments)).merged();
+}
 }
