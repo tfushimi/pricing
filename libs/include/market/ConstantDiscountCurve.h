@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-
+#include "market/DiscountCurve.h"
 namespace market {
 
 class ConstantDiscountCurve final : public DiscountCurve {
