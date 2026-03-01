@@ -405,4 +405,4 @@ PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const Piecewis
 
     return PiecewiseLinearFunction(std::move(segments)).merged();
 }
-}
+}  // namespace numerics::linear
