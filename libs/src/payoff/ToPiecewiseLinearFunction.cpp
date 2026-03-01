@@ -1,7 +1,6 @@
 #include <optional>
 
 #include "numerics/linear/PiecewiseLinearFunction.h"
-#include "numerics/types.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
 
@@ -12,9 +11,9 @@ namespace {
 /**
  * Convert PayoffNodePtr tree into a piecewise linear function
  */
-class ToPiecewiseLinearFunction final : public PayoffVisitor<PLF> {
+class ToPiecewiseLinearFunction final : public PayoffVisitor<PiecewiseLinearFunction> {
    protected:
-    PLF visit(const Fixing& node) override {
+    PiecewiseLinearFunction visit(const Fixing& node) override {
         if (_symbol.has_value() && _symbol != node.getSymbol()) {
             throw std::invalid_argument("PLPayoff cannot have more than one symbol");
         }
@@ -27,42 +26,44 @@ class ToPiecewiseLinearFunction final : public PayoffVisitor<PLF> {
 
         _fixingDate = node.getDate();
 
-        return PLF::linear(1.0, 0.0);
+        return PiecewiseLinearFunction::linear(1.0, 0.0);
     }
 
-    PLF visit(const Constant& node) override { return PLF::constant(node.getValue()); }
+    PiecewiseLinearFunction visit(const Constant& node) override {
+        return PiecewiseLinearFunction::constant(node.getValue());
+    }
 
-    PLF visit(const Sum& node) override {
+    PiecewiseLinearFunction visit(const Sum& node) override {
         return evaluate(node.getLeft()) + evaluate(node.getRight());
     }
 
-    PLF visit(const Multiply& node) override {
+    PiecewiseLinearFunction visit(const Multiply& node) override {
         return evaluate(node.getLeft()) * evaluate(node.getRight());
     }
 
-    PLF visit(const Divide& node) override {
+    PiecewiseLinearFunction visit(const Divide& node) override {
         return evaluate(node.getLeft()) / evaluate(node.getRight());
     }
 
-    PLF visit(const Max& node) override {
-        return PLF::max(evaluate(node.getLeft()), evaluate(node.getRight()));
+    PiecewiseLinearFunction visit(const Max& node) override {
+        return PiecewiseLinearFunction::max(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
 
-    PLF visit(const Min& node) override {
-        return PLF::min(evaluate(node.getLeft()), evaluate(node.getRight()));
+    PiecewiseLinearFunction visit(const Min& node) override {
+        return PiecewiseLinearFunction::min(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
 
-    PLF visit(const GreaterThan& node) override {
+    PiecewiseLinearFunction visit(const GreaterThan& node) override {
         return evaluate(node.getLeft()) > evaluate(node.getRight());
     }
 
-    PLF visit(const GreaterThanOrEqual& node) override {
+    PiecewiseLinearFunction visit(const GreaterThanOrEqual& node) override {
         return evaluate(node.getLeft()) >= evaluate(node.getRight());
     }
 
-    PLF visit(const IfThenElse& node) override {
-        return PLF::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
-                        evaluate(node.getElse()));
+    PiecewiseLinearFunction visit(const IfThenElse& node) override {
+        return PiecewiseLinearFunction::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
+                                            evaluate(node.getElse()));
     }
 
    private:
@@ -71,7 +72,7 @@ class ToPiecewiseLinearFunction final : public PayoffVisitor<PLF> {
 };
 }  // namespace
 
-PLF toPiecewiseLinearFunction(const PayoffNodePtr& payoff) {
+PiecewiseLinearFunction toPiecewiseLinearFunction(const PayoffNodePtr& payoff) {
     return ToPiecewiseLinearFunction().evaluate(payoff);
 }
 }  // namespace payoff

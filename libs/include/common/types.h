@@ -24,3 +24,7 @@ inline double yearFraction(const Date from, const Date to) {
     const auto days = std::chrono::sys_days{to} - std::chrono::sys_days{from};
     return days.count() / 365.25;
 }
+
+// -inf/inf of double
+constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
+constexpr double POS_INF = std::numeric_limits<double>::infinity();

@@ -1,9 +1,9 @@
 #include "pricer/BSPricer.h"
 
+#include "common/types.h"
 #include "market/Market.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/linear/Segment.h"
-#include "numerics/types.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
 #include "pricer/BSFormula.h"

@@ -5,9 +5,11 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "common/types.h"
 #include "numerics/linear/Segment.h"
 
 using namespace numerics::linear;
+using PLF = PiecewiseLinearFunction;
 
 TEST(PLFTest, TestSegment) {
     // f(x) = 2x + 3
