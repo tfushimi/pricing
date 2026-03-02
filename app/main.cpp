@@ -15,7 +15,6 @@ using namespace numerics::linear;
 using namespace vol;
 
 int main() {
-
     // 1-year tenor: meaningful time value across all regions
     const Date pricingDate = makeDate(2025, 1, 15);
     const Date fixingDate = makeDate(2026, 1, 15);
@@ -24,8 +23,8 @@ int main() {
 
     // Barrier Enhanced Note parameters
     constexpr double notional = 100.0;
-    constexpr double barrier = 80.0;   // 20% downside protection
-    constexpr double cap = 120.0;  // 20% upside cap
+    constexpr double barrier = 80.0;  // 20% downside protection
+    constexpr double cap = 120.0;     // 20% upside cap
 
     const auto S = fixing("SPY", fixingDate);
 
@@ -39,11 +38,11 @@ int main() {
     const auto protectedPayoff = min(max(participation, constant(notional)), constant(cap));
     const auto breachedPayoff = S;
 
-    const auto payoff  = ite(barrierCondition, protectedPayoff, breachedPayoff);
-    const auto plf     = toPiecewiseLinearFunction(payoff);
+    const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
+    const auto plf = toPiecewiseLinearFunction(payoff);
     const auto payment = CashPayment(payoff, settlementDate);
 
-    const std::vector<double> spots = {50,  60,  70,  79,  80,  85,  90,  95,
+    const std::vector<double> spots = {50,  60,  70,  79,  80,  85,  90, 95,
                                        100, 105, 110, 115, 120, 130, 150};
 
     // SVI surface calibrated to ~20% ATM vol with realistic equity skew:
@@ -59,7 +58,6 @@ int main() {
     std::cout << "--------------------------------------\n";
 
     for (const double spot : spots) {
-
         SimpleMarket market{pricingDate, "SPY", spot, rate, sviParams};
 
         std::string region;
@@ -73,10 +71,9 @@ int main() {
             region = "capped";
         }
 
-        std::cout << std::fixed << std::setprecision(2)
-                  << std::setw(7) << spot    << "  |"
-                  << std::setw(8) << plf(spot) << "  | "
-                  << std::setw(6) << bsPrice(payment, market)   << "  | " << region << "\n";
+        std::cout << std::fixed << std::setprecision(2) << std::setw(7) << spot << "  |"
+                  << std::setw(8) << plf(spot) << "  | " << std::setw(6) << bsPrice(payment, market)
+                  << "  | " << region << "\n";
     }
 
     return 0;

@@ -7,6 +7,7 @@ add_library(payoff STATIC
         src/payoff/ApplyMarket.cpp
         src/payoff/FixingCollector.cpp
         src/payoff/ToPiecewiseLinearFunction.cpp
+        src/payoff/ApplyFixings.cpp
 )
 add_library(market INTERFACE)
 add_library(pricer STATIC

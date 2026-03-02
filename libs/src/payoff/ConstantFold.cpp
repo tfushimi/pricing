@@ -22,8 +22,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const Sum& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right, [](const double x, const double y) { return x + y; });
@@ -33,8 +33,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const Multiply& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right, [](const double x, const double y) { return x * y; });
@@ -57,8 +57,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const Divide& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             if (isConstantValue(right, 0.0)) {
@@ -76,8 +76,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const Max& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right, [](const double x, const double y) { return std::max(x, y); });
@@ -87,8 +87,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const Min& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right, [](const double x, const double y) { return std::min(x, y); });
@@ -98,8 +98,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const GreaterThan& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right,
@@ -110,8 +110,8 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const GreaterThanOrEqual& node) override {
-        auto left = evaluate(node.getLeft());
-        auto right = evaluate(node.getRight());
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
 
         if (isConstant(left) && isConstant(right)) {
             return fold(left, right,
@@ -122,9 +122,9 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
     PayoffNodePtr visit(const IfThenElse& node) override {
-        auto cond = evaluate(node.getCond());
-        auto then_ = evaluate(node.getThen());
-        auto else_ = evaluate(node.getElse());
+        const auto cond = evaluate(node.getCond());
+        const auto then_ = evaluate(node.getThen());
+        const auto else_ = evaluate(node.getElse());
 
         // If condition is known at fold time, pick the branch
         if (isConstant(cond)) {

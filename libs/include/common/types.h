@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <functional>
+#include <map>
+#include <valarray>
 
 using Date = std::chrono::year_month_day;
 
@@ -28,3 +30,9 @@ inline double yearFraction(const Date from, const Date to) {
 // -inf/inf of double
 constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
 constexpr double POS_INF = std::numeric_limits<double>::infinity();
+
+// N path values at one fixing date
+using Sample = std::valarray<double>;
+
+// full evolution across fixing dates
+using Scenario = std::map<Date, Sample>;
