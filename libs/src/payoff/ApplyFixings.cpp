@@ -32,7 +32,16 @@ class ApplyFixings final : public PayoffVisitor<Sample> {
     ~ApplyFixings() override = default;
 
    protected:
-    Sample visit(const Fixing& node) override { return _scenario.at(node.getDate()); }
+    Sample visit(const Fixing& node) override {
+        const Date fixingDate = node.getDate();
+
+        if (!_scenario.contains(fixingDate)) {
+
+            throw std::invalid_argument("Sample not found on " + toString(fixingDate));
+        }
+
+        return _scenario.at(fixingDate);
+    }
 
     Sample visit(const Constant& node) override { return Sample(node.getValue(), _dim); }
 

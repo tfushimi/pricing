@@ -1,11 +1,16 @@
 #pragma once
 
 #include <chrono>
+#include <format>
 #include <functional>
 #include <map>
 #include <valarray>
 
 using Date = std::chrono::year_month_day;
+
+inline std::string toString(const Date& date) {
+    return std::format("{}", date);  // e.g. "2026-01-15"
+}
 
 // Hash for Date so it can be used as unordered_map key
 template <>

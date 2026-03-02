@@ -11,8 +11,8 @@ class FlatVolSlice final : public BSVolSlice {
 
     double forward() const override { return _forward; }
     double time() const override { return _time; }
-    double vol(const double strike) const override { return _vol; }
-    double dVolDStrike(const double strike) const override { return 0.0; }
+    double vol(const double) const override { return _vol; }
+    double dVolDStrike(const double) const override { return 0.0; }
 
    private:
     double _forward;
