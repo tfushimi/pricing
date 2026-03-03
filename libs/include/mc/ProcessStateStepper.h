@@ -23,7 +23,7 @@ class ProcessStateStepper {
                 rng.fill(w);
             }
 
-            state = _process.step(t, dt, state, dW);
+            state = _process.step(state, t, dt, dW);
 
             if (timeGrid.isFixingTime(i + 1)) {
                 scenario[timeGrid.date(i + 1)] = _process.spot(state);
