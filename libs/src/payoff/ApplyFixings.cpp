@@ -36,7 +36,6 @@ class ApplyFixings final : public PayoffVisitor<Sample> {
         const Date fixingDate = node.getDate();
 
         if (!_scenario.contains(fixingDate)) {
-
             throw std::invalid_argument("Sample not found on " + toString(fixingDate));
         }
 
@@ -66,25 +65,13 @@ class ApplyFixings final : public PayoffVisitor<Sample> {
     Sample visit(const Max& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
-
-        Sample result(left.size());
-        for (size_t i = 0; i < left.size(); ++i) {
-            result[i] = std::max(left[i], right[i]);
-        }
-
-        return result;
+        return (left + right + abs(left - right)) * 0.5;
     }
 
     Sample visit(const Min& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
-
-        Sample result(left.size());
-        for (size_t i = 0; i < left.size(); ++i) {
-            result[i] = std::min(left[i], right[i]);
-        }
-
-        return result;
+        return (left + right - abs(left - right)) * 0.5;
     }
 
     Sample visit(const GreaterThan& node) override {
