@@ -30,13 +30,12 @@ TEST(GBMProcess, ZeroDiffusion) {
 }
 
 TEST(HestonProcess, ZeroDiffusion) {
-    constexpr double S0 = 100.0;
+    constexpr double F0 = 100.0;
     constexpr double v0 = 0.04;  // =theta to keep v stay at theta
-    constexpr double r = 0.05;
     constexpr double theta = v0;
     constexpr double dt = 1.0;
 
-    const mc::HestonProcess heston(S0, v0, r, 2.0, theta, 0.3, -0.7);
+    const mc::HestonProcess heston(F0, v0, 2.0, theta, 0.3, -0.7);
     const auto state0 = heston.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1), Sample(0.0, 1)};
@@ -44,9 +43,9 @@ TEST(HestonProcess, ZeroDiffusion) {
 
     EXPECT_NEAR(mean(state1.v), v0, 1e-10);
 
-    const double expectedLogS = std::log(S0) + (r - 0.5 * theta) * dt;
-    EXPECT_NEAR(mean(state1.logS), expectedLogS, 1e-10);
+    const double expectedLogF = std::log(F0) - 0.5 * theta * dt;
+    EXPECT_NEAR(mean(state1.logF), expectedLogF, 1e-10);
 
     const Sample& spot = heston.spot(state1);
-    EXPECT_NEAR(mean(spot), std::exp(expectedLogS), 1e-10);
+    EXPECT_NEAR(mean(spot), std::exp(expectedLogF), 1e-10);
 }

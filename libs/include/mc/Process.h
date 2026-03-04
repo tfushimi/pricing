@@ -47,18 +47,16 @@ class GBMProcess final : public Process<GBMState> {
 
 // TODO define LocalVolProcess
 struct HestonState {
-    Sample logS;
+    Sample logF;
     Sample v;
 };
 
-// TODO simulate forward price
 class HestonProcess final : public Process<HestonState> {
    public:
-    HestonProcess(const double S0, const double v0, const double r, const double kappa,
+    HestonProcess(const double F0, const double v0, const double kappa,
                   const double theta, const double xi, const double rho)
-        : _logS0(std::log(S0)),
+        : _logF0(std::log(F0)),
           _v0(v0),
-          _r(r),
           _kappa(kappa),
           _theta(theta),
           _xi(xi),
@@ -68,7 +66,7 @@ class HestonProcess final : public Process<HestonState> {
     std::size_t nNormals() const override { return 2; }
 
     HestonState initialState(const std::size_t nPaths) const override {
-        return {Sample(_logS0, nPaths), Sample(_v0, nPaths)};
+        return {Sample(_logF0, nPaths), Sample(_v0, nPaths)};
     }
 
     // dW[0], dW[1] are independent N(0,1)
@@ -89,17 +87,17 @@ class HestonProcess final : public Process<HestonState> {
         const Sample dW_S = dW[0];
         const Sample dW_v = _rho * dW[0] + _rhoBar * dW[1];
 
-        const Sample logS_next = currentState.logS + (_r - 0.5 * vPos) * dt + sqrtV * sqrtDt * dW_S;
+        const Sample logS_next = currentState.logF - 0.5 * vPos * dt + sqrtV * sqrtDt * dW_S;
         const Sample v_next = vPos + _kappa * (_theta - vPos) * dt + _xi * sqrtV * sqrtDt * dW_v;
 
         // floor v_next too
         return {logS_next, (v_next + abs(v_next)) * 0.5};
     }
 
-    const Sample spot(const HestonState& state) const override { return exp(state.logS); }
+    const Sample spot(const HestonState& state) const override { return exp(state.logF); }
 
    private:
-    const double _logS0, _v0, _r;
+    const double _logF0, _v0;
     const double _kappa, _theta, _xi;
     const double _rho, _rhoBar;  // rhoBar precomputed once in constructor
 };
