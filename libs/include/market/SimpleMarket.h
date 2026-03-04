@@ -40,7 +40,7 @@ class SimpleMarket final : public Market {
         return _discountCurve;
     }
 
-    std::shared_ptr<BSVolSlice> getBSVolSlice(const Date& date) const override {
+    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date& date) const override {
         const auto T = yearFraction(_pricingDate, date);
         const auto disc = _discountCurve->get(T);
         const auto forward = _spot / disc;

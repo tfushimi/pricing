@@ -33,9 +33,11 @@ double BSPricer::price(const PayoffNodePtr& payoff, const Market& market,
         throw std::invalid_argument("Payoff should have a single fixing, found " +
                                     std::to_string(fixingDates.size()));
     }
+
+    const auto symbol = fixingDates.begin()->getSymbol();
     const auto fixingDate = fixingDates.begin()->getDate();
 
-    const auto bsVolSlice = market.getBSVolSlice(fixingDate);
+    const auto bsVolSlice = market.getBSVolSlice(symbol, fixingDate);
 
     if (!bsVolSlice) {
         throw std::invalid_argument("BSVolSlice not found in market");

@@ -27,12 +27,12 @@ class BSPricerTest : public ::testing::Test {
     SimpleMarket market{pricingDate, "SPY", spot, rate, sviParams};
 
     double volAt(const double K) const {
-        const auto slice = market.getBSVolSlice(fixingDate);
+        const auto slice = market.getBSVolSlice("SPY", fixingDate);
         return slice->vol(K);
     }
 
     double skewAt(const double K) const {
-        const auto slice = market.getBSVolSlice(fixingDate);
+        const auto slice = market.getBSVolSlice("SPY", fixingDate);
         return slice->dVolDStrike(K);
     }
 };
