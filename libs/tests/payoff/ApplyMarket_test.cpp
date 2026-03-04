@@ -32,7 +32,9 @@ class MockMarket final : public Market {
 
     std::shared_ptr<DiscountCurve> getDiscountCurve(const Date&) const override { return nullptr; }
 
-    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override { return nullptr; }
+    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
+        return nullptr;
+    }
 
    private:
     Date _pricingDate;

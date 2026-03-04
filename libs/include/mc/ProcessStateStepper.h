@@ -18,18 +18,19 @@ class ProcessStateStepper {
         State state = _process.initialState(nPaths);
 
         for (std::size_t i = 0; i + 1 < timeGrid.size(); i++) {
-            const double t = timeGrid.time(i);
-            const double dt = timeGrid.time(i + 1) - t;
+            const auto currentTime = timeGrid.time(i);
+            const auto dt = timeGrid.time(i + 1) - currentTime;
 
             std::vector<Sample> dW(_process.nNormals(), Sample(0.0, nPaths));
+
             for (auto& w : dW) {
                 rng.fill(w);
             }
 
-            state = _process.step(state, t, dt, dW);
+            state = _process.step(state, currentTime, dt, dW);
 
             if (timeGrid.isFixingTime(i + 1)) {
-                scenario[timeGrid.date(i + 1)] = _process.spot(state);
+                scenario[timeGrid.date(i + 1)] = _process.value(state);
             }
         }
 

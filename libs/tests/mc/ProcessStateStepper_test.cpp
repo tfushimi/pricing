@@ -19,7 +19,7 @@ static TimeGrid makeAnnualGrid(const int years) {
 }
 
 TEST(ProcessStateStepper, ScenarioHasCorrectNumberOfFixings) {
-    const GBMProcess gbm(100.0, 0.2);
+    const GBMProcess gbm(0.2);
     const ProcessStateStepper stepper(gbm);
 
     const auto grid = makeAnnualGrid(3);
@@ -34,10 +34,9 @@ TEST(ProcessStateStepper, ScenarioHasCorrectNumberOfFixings) {
 }
 
 TEST(ProcessStateStepper, GBMPureDriftPath) {
-    constexpr double F0 = 100.0;
     constexpr double vol = 0.2;
 
-    const GBMProcess gbm(F0, vol);
+    const GBMProcess gbm(vol);
     const ProcessStateStepper stepper(gbm);
 
     const auto grid = makeAnnualGrid(1);
@@ -45,8 +44,6 @@ TEST(ProcessStateStepper, GBMPureDriftPath) {
 
     const auto scenario = stepper.run(grid, 1, rng);
 
-    const double T = grid.time(grid.size() - 1);
     const Sample& spotAtT = scenario.at(2025y / January / 1d);
-    const double expected = F0 * std::exp(-0.5 * vol * vol * T);
-    EXPECT_NEAR(mean(spotAtT), expected, 1e-4);
+    EXPECT_NEAR(mean(spotAtT), 1.0, 1e-4);
 }
