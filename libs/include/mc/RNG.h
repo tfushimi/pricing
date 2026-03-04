@@ -7,10 +7,11 @@ namespace mc {
 
 class RNG {
    public:
+    virtual ~RNG() = default;
     explicit RNG(const std::size_t seed = std::random_device{}())
         : _engine(seed), _dist(0.0, 1.0) {}
 
-    void fill(Sample& sample) {
+    virtual void fill(Sample& sample) {
         for (double& value : sample) {
             value = _dist(_engine);
         }

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "common/types.h"
+#include <iostream>
 
+#include "common/types.h"
 namespace mc {
 
 template <typename StateType>
@@ -13,36 +14,35 @@ class Process {
     virtual std::size_t nNormals() const = 0;
     virtual StateType step(const StateType& currentState, double currentTime, double dt,
                            const std::vector<Sample>& dW) const = 0;
-    virtual const Sample& spot(const StateType& state) const = 0;
+    virtual const Sample spot(const StateType& state) const = 0;
 };
 
 struct GBMState {
-    Sample logS;
+    Sample logF;
 };
 
 class GBMProcess final : public Process<GBMState> {
    public:
-    GBMProcess(const double S0, const double r, const double vol)
-        : _logS0(std::log(S0)), _r(r), _vol(vol) {}
+    GBMProcess(const double F0, const double vol) : _logF0(std::log(F0)), _vol(vol) {}
 
     GBMState initialState(const std::size_t nPaths) const override {
-        return {Sample(_logS0, nPaths)};
+        return {Sample(_logF0, nPaths)};
     }
 
     std::size_t nNormals() const override { return 1; }
 
     GBMState step(const GBMState& currentState, const double, const double dt,
                   const std::vector<Sample>& dW) const override {
-        const double drift = (_r - 0.5 * _vol * _vol) * dt;
+        const double drift = -0.5 * _vol * _vol * dt;
         const double diffusion = _vol * std::sqrt(dt);
 
-        return {currentState.logS + drift + diffusion * dW[0]};
+        return {currentState.logF + drift + diffusion * dW[0]};
     }
 
-    const Sample& spot(const GBMState& state) const override { return exp(state.logS); }
+    const Sample spot(const GBMState& state) const override { return exp(state.logF); }
 
    private:
-    const double _logS0, _r, _vol;
+    const double _logF0, _vol;
 };
 
 // TODO define LocalVolProcess
@@ -51,6 +51,7 @@ struct HestonState {
     Sample v;
 };
 
+// TODO simulate forward price
 class HestonProcess final : public Process<HestonState> {
    public:
     HestonProcess(const double S0, const double v0, const double r, const double kappa,
@@ -95,7 +96,7 @@ class HestonProcess final : public Process<HestonState> {
         return {logS_next, (v_next + abs(v_next)) * 0.5};
     }
 
-    const Sample& spot(const HestonState& state) const override { return exp(state.logS); }
+    const Sample spot(const HestonState& state) const override { return exp(state.logS); }
 
    private:
     const double _logS0, _v0, _r;

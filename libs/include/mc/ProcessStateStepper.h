@@ -3,6 +3,9 @@
 #include "TimeGrid.h"
 #include "common/types.h"
 
+namespace mc {
+
+// TODO try concept
 template <typename ProcessType>
 class ProcessStateStepper {
     using State = ProcessType::State;
@@ -10,7 +13,7 @@ class ProcessStateStepper {
    public:
     explicit ProcessStateStepper(const ProcessType& process) : _process(process) {}
 
-    Scenario run(const mc::TimeGrid& timeGrid, std::size_t nPaths, mc::RNG& rng) const {
+    Scenario run(const TimeGrid& timeGrid, std::size_t nPaths, RNG& rng) const {
         Scenario scenario;
         State state = _process.initialState(nPaths);
 
@@ -36,3 +39,4 @@ class ProcessStateStepper {
    private:
     const ProcessType& _process;
 };
+}  // namespace mc
