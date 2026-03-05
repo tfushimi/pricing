@@ -1,9 +1,9 @@
 #pragma once
 
-class DiscountCurve {
+class Curve {
    public:
-    explicit DiscountCurve(const Date pricingDate) : _pricingDate(pricingDate) {}
-    virtual ~DiscountCurve() = default;
+    explicit Curve(const Date pricingDate) : _pricingDate(pricingDate) {}
+    virtual ~Curve() = default;
     virtual double get(const Date& date) {
         const double T = yearFraction(_pricingDate, date);
         return get(T);

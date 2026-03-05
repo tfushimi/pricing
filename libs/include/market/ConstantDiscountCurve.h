@@ -1,13 +1,13 @@
 #pragma once
 #include <cmath>
 
-#include "market/DiscountCurve.h"
+#include "market/Curve.h"
 namespace market {
 
-class ConstantDiscountCurve final : public DiscountCurve {
+class ConstantDiscountCurve final : public Curve {
    public:
     explicit ConstantDiscountCurve(const Date pricingDate, const double rate)
-        : DiscountCurve(pricingDate), _rate(rate) {}
+        : Curve(pricingDate), _rate(rate) {}
 
     double get(const double T) override { return std::exp(-_rate * T); }
 

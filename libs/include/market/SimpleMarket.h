@@ -36,7 +36,7 @@ class SimpleMarket final : public Market {
         return std::nullopt;
     }
 
-    std::shared_ptr<DiscountCurve> getDiscountCurve(const Date&) const override {
+    std::shared_ptr<Curve> getDiscountCurve(const Date&) const override {
         return _discountCurve;
     }
 
@@ -51,7 +51,7 @@ class SimpleMarket final : public Market {
     Date _pricingDate;
     std::string _symbol;
     double _spot;
-    std::shared_ptr<DiscountCurve> _discountCurve;
+    std::shared_ptr<Curve> _discountCurve;
     vol::SVIParams _sviParams;
 };
 
