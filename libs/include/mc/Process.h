@@ -20,6 +20,7 @@ class Process {
 };
 
 // log(Z_{t+dt}) - log(Z_t) = vol * (W_{t+dt} - W_t) = vol * N(0, dt)
+// S_{t+dt} = F_{t+dt} * exp(Z_{t+dt}) / mean(exp(Z_{t+dt}))
 struct GBMState {
     Sample logZ;
 };
