@@ -22,10 +22,9 @@ TEST_F(ProcessTest, InitialState) {
 }
 
 TEST_F(ProcessTest, GBMZeroDiffusion) {
-    constexpr double vol = 0.2;
     constexpr double dt = 1.0;
 
-    const GBMProcess gbm(forward, vol);
+    const GBMProcess gbm(forward, 0.2);
     const auto state0 = gbm.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1)};
