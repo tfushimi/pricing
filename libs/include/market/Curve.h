@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common/types.h"
+
 class Curve {
    public:
     explicit Curve(const Date pricingDate) : _pricingDate(pricingDate) {}
@@ -8,7 +10,7 @@ class Curve {
         const double T = yearFraction(_pricingDate, date);
         return get(T);
     }
-    virtual double get(double T) = 0;
+    virtual double get(double T) const = 0;
 
    private:
     Date _pricingDate;

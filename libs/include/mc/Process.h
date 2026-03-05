@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "common/types.h"
+#include "market/Curve.h"
+
 namespace mc {
 
 template <typename StateType>
@@ -14,7 +16,7 @@ class Process {
     virtual std::size_t nNormals() const = 0;
     virtual StateType step(const StateType& currentState, double currentTime, double dt,
                            const std::vector<Sample>& dW) const = 0;
-    virtual const Sample value(const StateType& state) const = 0;
+    virtual const Sample value(const StateType& state, double time) const = 0;
 };
 
 // log(Z_{t+dt}) - log(Z_t) = vol * (W_{t+dt} - W_t) = vol * N(0, dt)
@@ -24,7 +26,7 @@ struct GBMState {
 
 class GBMProcess final : public Process<GBMState> {
    public:
-    explicit GBMProcess(const double vol) : _vol(vol) {}
+    explicit GBMProcess(const Curve& forward, const double vol) : _forward(forward), _vol(vol) {}
 
     GBMState initialState(const std::size_t nPaths) const override { return {Sample(0.0, nPaths)}; }
 
@@ -35,14 +37,15 @@ class GBMProcess final : public Process<GBMState> {
         return {currentState.logZ + _vol * std::sqrt(dt) * dW[0]};
     }
 
-    const Sample value(const GBMState& state) const override {
+    const Sample value(const GBMState& state, const double time) const override {
         const auto Z = exp(state.logZ);
         const auto avg = Z.sum() / Z.size();
 
-        return Z / avg;
+        return (_forward.get(time) / avg) * Z;
     }
 
    private:
+    const Curve& _forward;
     const double _vol;
 };
 
@@ -54,9 +57,10 @@ struct HestonState {
 
 class HestonProcess final : public Process<HestonState> {
    public:
-    HestonProcess(const double v0, const double kappa, const double theta, const double xi,
-                  const double rho)
-        : _v0(v0),
+    HestonProcess(const Curve& forward, const double v0, const double kappa, const double theta,
+                  const double xi, const double rho)
+        : _forward(forward),
+          _v0(v0),
           _kappa(kappa),
           _theta(theta),
           _xi(xi),
@@ -94,14 +98,15 @@ class HestonProcess final : public Process<HestonState> {
         return {logZ_next, (v_next + abs(v_next)) * 0.5};
     }
 
-    const Sample value(const HestonState& state) const override {
+    const Sample value(const HestonState& state, const double time) const override {
         const auto Z = exp(state.logZ);
         const auto avg = Z.sum() / Z.size();
 
-        return Z / avg;
+        return (_forward.get(time) / avg) * Z;
     }
 
    private:
+    const Curve& _forward;
     const double _v0;
     const double _kappa, _theta, _xi;
     const double _rho, _rhoBar;  // rhoBar precomputed once in constructor

@@ -46,6 +46,7 @@ target_link_libraries(pricer PUBLIC
         project_warnings
 )
 target_link_libraries(mc INTERFACE
+        market
         project_warnings
 )
 

@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "MCTestUtils.h"
+#include "market/ConstantForwardCurve.h"
 #include "mc/Process.h"
 #include "mc/TimeGrid.h"
 
@@ -19,7 +20,10 @@ static TimeGrid makeAnnualGrid(const int years) {
 }
 
 TEST(ProcessStateStepper, ScenarioHasCorrectNumberOfFixings) {
-    const GBMProcess gbm(0.2);
+    const Date pricingDate = makeDate(2025, 1, 1);
+    const market::ConstantForwardCurve forward(pricingDate, 100, 0.01);
+
+    const GBMProcess gbm(forward, 0.2);
     const ProcessStateStepper stepper(gbm);
 
     const auto grid = makeAnnualGrid(3);
@@ -34,9 +38,12 @@ TEST(ProcessStateStepper, ScenarioHasCorrectNumberOfFixings) {
 }
 
 TEST(ProcessStateStepper, GBMPureDriftPath) {
+    const Date pricingDate = makeDate(2024, 1, 1);
+    const market::ConstantForwardCurve forward(pricingDate, 100, 0.01);
+
     constexpr double vol = 0.2;
 
-    const GBMProcess gbm(vol);
+    const GBMProcess gbm(forward, vol);
     const ProcessStateStepper stepper(gbm);
 
     const auto grid = makeAnnualGrid(1);
@@ -44,6 +51,7 @@ TEST(ProcessStateStepper, GBMPureDriftPath) {
 
     const auto scenario = stepper.run(grid, 1, rng);
 
-    const Sample& spotAtT = scenario.at(2025y / January / 1d);
-    EXPECT_NEAR(mean(spotAtT), 1.0, 1e-4);
+    const auto simulationDate = 2025y / January / 1d;
+    const Sample& spotAtT = scenario.at(simulationDate);
+    EXPECT_NEAR(mean(spotAtT), forward.get(yearFraction(pricingDate, simulationDate)), 1e-4);
 }

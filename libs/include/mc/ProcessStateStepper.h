@@ -30,7 +30,7 @@ class ProcessStateStepper {
             state = _process.step(state, currentTime, dt, dW);
 
             if (timeGrid.isFixingTime(i + 1)) {
-                scenario[timeGrid.date(i + 1)] = _process.value(state);
+                scenario[timeGrid.date(i + 1)] = _process.value(state, currentTime + dt);
             }
         }
 

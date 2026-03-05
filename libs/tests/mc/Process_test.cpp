@@ -3,19 +3,25 @@
 #include <gtest/gtest.h>
 
 #include "MCTestUtils.h"
+#include "market/ConstantForwardCurve.h"
 
 TEST(GBMProcess, InitialState) {
-    const mc::GBMProcess gbm(0.2);
+    const Date pricingDate = makeDate(2025, 1, 1);
+    const market::ConstantForwardCurve forward(pricingDate, 100, 0.01);
+    const mc::GBMProcess gbm(forward, 0.2);
     const auto [logS] = gbm.initialState(1000);
     EXPECT_NEAR(mean(logS), 0.0, 1e-10);
     EXPECT_EQ(gbm.nNormals(), 1);
 }
 
 TEST(GBMProcess, ZeroDiffusion) {
+    const Date pricingDate = makeDate(2025, 1, 1);
+    const market::ConstantForwardCurve forward(pricingDate, 100, 0.01);
+
     constexpr double vol = 0.2;
     constexpr double dt = 1.0;
 
-    const mc::GBMProcess gbm(vol);
+    const mc::GBMProcess gbm(forward, vol);
     const auto state0 = gbm.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1)};
@@ -23,16 +29,19 @@ TEST(GBMProcess, ZeroDiffusion) {
 
     EXPECT_NEAR(mean(state1.logZ), 0.0, 1e-10);
 
-    const Sample& spot = gbm.value(state1);
-    EXPECT_NEAR(mean(spot), 1.0, 1e-10);
+    const Sample& spot = gbm.value(state1, dt);
+    EXPECT_NEAR(mean(spot), forward.get(dt), 1e-10);
 }
 
 TEST(HestonProcess, ZeroDiffusion) {
+    const Date pricingDate = makeDate(2025, 1, 1);
+    const market::ConstantForwardCurve forward(pricingDate, 100, 0.01);
+
     constexpr double v0 = 0.04;  // =theta to keep v stay at theta
     constexpr double theta = v0;
     constexpr double dt = 1.0;
 
-    const mc::HestonProcess heston(v0, 2.0, theta, 0.3, -0.7);
+    const mc::HestonProcess heston(forward, v0, 2.0, theta, 0.3, -0.7);
     const auto state0 = heston.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1), Sample(0.0, 1)};
@@ -42,6 +51,6 @@ TEST(HestonProcess, ZeroDiffusion) {
 
     EXPECT_NEAR(mean(state1.logZ), 0.0, 1e-10);
 
-    const Sample& spot = heston.value(state1);
-    EXPECT_NEAR(mean(spot), 1.0, 1e-10);
+    const Sample& spot = heston.value(state1, dt);
+    EXPECT_NEAR(mean(spot), forward.get(dt), 1e-10);
 }
