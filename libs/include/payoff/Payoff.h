@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Payoff/PayoffNode.h"
+#include "payoff/PayoffNode.h"
 #include "common/types.h"
 
 namespace payoff {
