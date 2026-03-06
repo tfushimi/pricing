@@ -36,6 +36,31 @@ TEST_F(ProcessTest, GBMZeroDiffusion) {
     EXPECT_NEAR(mean(spot), forward.get(dt), 1e-10);
 }
 
+TEST_F(ProcessTest, GBMDiffusion) {
+    constexpr std::size_t nPaths = 100'000;
+    constexpr double T = 1.0;
+    constexpr double vol = 0.2;
+
+    const GBMProcess gbm(forward, vol);
+
+    constexpr int nSteps = 12;
+    constexpr double dt = T / nSteps;
+
+    RNG rng(42);
+    auto state = gbm.initialState(nPaths);
+    for (int i = 0; i < nSteps; ++i) {
+        std::vector dW = {Sample(0.0, nPaths)};
+        rng.fill(dW[0]);
+        state = gbm.step(state, i * dt, dt, dW);
+    }
+
+    const Sample spot = gbm.value(state, T);
+    EXPECT_NEAR(mean(spot), forward.get(T), 1e-10);
+
+    constexpr double expectedVar = vol * vol * T;
+    EXPECT_NEAR(variance(state.logZ), expectedVar, 1e-3);
+}
+
 TEST_F(ProcessTest, HestonZeroDiffusion) {
     constexpr double v0 = 0.04;  // =theta to keep v stay at theta
     constexpr double theta = v0;
@@ -53,4 +78,32 @@ TEST_F(ProcessTest, HestonZeroDiffusion) {
 
     const Sample& spot = heston.value(state1, dt);
     EXPECT_NEAR(mean(spot), forward.get(dt), 1e-10);
+}
+
+TEST_F(ProcessTest, HestonDiffusion) {
+    constexpr std::size_t nPaths = 100'000;
+    constexpr double T = 1.0;
+    constexpr double v0 = 0.04;
+    constexpr double kappa = 2.0;
+    constexpr double theta = v0;
+
+    const HestonProcess heston(forward, 0.04, 2.0, 0.04, 0.3, -0.7);
+
+    constexpr int nSteps = 12;
+    constexpr double dt = T / nSteps;
+
+    RNG rng(42);
+    auto state = heston.initialState(nPaths);
+    for (int i = 0; i < nSteps; ++i) {
+        std::vector dW = {Sample(0.0, nPaths), Sample(0.0, nPaths)};
+        rng.fill(dW[0]);
+        rng.fill(dW[1]);
+        state = heston.step(state, i * dt, dt, dW);
+    }
+
+    const Sample spot = heston.value(state, T);
+    EXPECT_NEAR(mean(spot), forward.get(T), 1e-10);
+
+    const double expectedVar = theta * T + (v0 - theta) * (1.0 - std::exp(-kappa * T)) / kappa;
+    EXPECT_NEAR(variance(state.logZ), expectedVar, 1e-3);
 }
