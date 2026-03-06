@@ -17,6 +17,13 @@ target_link_libraries(test_bs_pricer PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_mc_pricer pricer/MCPricer_test.cpp)
+target_link_libraries(test_mc_pricer PRIVATE
+        payoff
+        pricer
+        GTest::gtest_main
+)
+
 add_executable(test_constant_fold payoff/ConstantFold_test.cpp)
 target_link_libraries(test_constant_fold PRIVATE
         payoff
@@ -63,6 +70,8 @@ target_link_libraries(test_process_state_stepper PRIVATE
 include(GoogleTest)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
+gtest_discover_tests(test_bs_pricer)
+gtest_discover_tests(test_mc_pricer)
 gtest_discover_tests(test_constant_fold)
 gtest_discover_tests(test_payoff_node)
 gtest_discover_tests(test_apply_fixings)

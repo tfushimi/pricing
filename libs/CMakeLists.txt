@@ -43,6 +43,7 @@ target_link_libraries(market INTERFACE
 target_link_libraries(pricer PUBLIC
         numerics
         payoff
+        mc
         project_warnings
 )
 target_link_libraries(mc INTERFACE
