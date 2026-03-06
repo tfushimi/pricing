@@ -1,9 +1,6 @@
 #pragma once
 
-#include <valarray>
-
 #include "PayoffPricer.h"
-#include "common/types.h"
 #include "market/Market.h"
 #include "mc/ProcessStateStepper.h"
 #include "mc/RNG.h"
@@ -16,8 +13,12 @@ namespace pricer {
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
    public:
-    MCPricer(const ProcessType& process, const int nPaths)
-        : _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)), _nPaths(nPaths) {}
+    MCPricer(const std::string& symbol, const ProcessType& process, const int nPaths,
+             const mc::RNG& rng)
+        : _symbol(symbol),
+          _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
+          _nPaths(nPaths),
+          _rng(rng) {}
 
     ~MCPricer() override = default;
 
@@ -35,28 +36,29 @@ class MCPricer final : public PayoffPricer {
         }
 
         const auto newPayoff = payoff::applyMarket(cashPayment->getAmount(), market);
-        // TODO define getFixingDates
-        const auto fixingDatesSet = payoff::getFixings(newPayoff);
-        std::vector<Date> fixingDates;
-        fixingDates.reserve(fixingDatesSet.size());
-        for (const auto& fixing : fixingDatesSet) {
-            fixingDates.push_back(fixing.getDate());
+        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
+
+        if (symbols.size() == 0) {
+            throw std::invalid_argument("No symbol found");
+        }
+        if (symbols.size() > 1) {
+            throw std::invalid_argument("Multi-assets not supported by MCPricer");
+        }
+        if (!symbols.contains(_symbol)) {
+            throw std::invalid_argument("Symbol not found: " + _symbol);
         }
         const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
-
-        // TODO store seed
-        mc::RNG rng;
-
-        const auto scenario = _processStateStepper.run(timeGrid, _nPaths, rng);
+        const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
         const auto sample = payoff::applyFixings(newPayoff, scenario);
-
-        const double dF = discountCurve->get(cashPayment->getSettlementDate());
+        const auto dF = discountCurve->get(cashPayment->getSettlementDate());
 
         return dF * sample.sum() / sample.size();
     }
 
    private:
+    const std::string _symbol;
     const mc::ProcessStateStepper<ProcessType> _processStateStepper;
     const int _nPaths;
+    mc::RNG _rng;
 };
 }  // namespace pricer

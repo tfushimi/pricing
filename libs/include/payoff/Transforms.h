@@ -20,6 +20,22 @@ PayoffNodePtr foldConstants(const PayoffNodePtr& payoff);
 // Find all fixings in the payoff
 std::set<Fixing> getFixings(const PayoffNodePtr& payoff);
 
+// Find all symbols and fixingDates in the payoff
+inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDates(
+    const PayoffNodePtr& payoff) {
+    const auto fixings = getFixings(payoff);
+
+    std::set<std::string> symbols;
+    std::vector<Date> fixingDates;
+    fixingDates.reserve(fixingDates.size());
+    for (const auto& fixing : fixings) {
+        symbols.emplace(fixing.getSymbol());
+        fixingDates.push_back(fixing.getDate());
+    }
+
+    return {symbols, fixingDates};
+}
+
 // Substitute fixings with MC sample and simplify constant expressions
 Sample applyFixings(const PayoffNodePtr& payoff, const Scenario& scenario);
 }  // namespace payoff
