@@ -44,7 +44,7 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     constexpr double K = 100.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto payoff = CashPayment(max(S - K, 0.0), settlementDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
     const GBMProcess gbm{forward, volAt(K)};
     const RNG rng(42);

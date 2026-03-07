@@ -14,8 +14,8 @@ using namespace market;
 
 namespace pricer {
 
-double BSPricer::price(const Payoff& payoff, const Market& market) {
-    const auto* cashPayment = dynamic_cast<const CashPayment*>(&payoff);
+double BSPricer::price(const PaymentNodePtr& payment, const Market& market) {
+    const auto* cashPayment = dynamic_cast<const CashPayment*>(payment.get());
 
     if (cashPayment) {
         return price(cashPayment->getAmount(), market, cashPayment->getSettlementDate());

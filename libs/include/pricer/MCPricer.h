@@ -5,7 +5,7 @@
 #include "mc/ProcessStateStepper.h"
 #include "mc/RNG.h"
 #include "mc/TimeGrid.h"
-#include "payoff/Payoff.h"
+#include "payoff/Payment.h"
 #include "payoff/Transforms.h"
 
 namespace pricer {
@@ -22,8 +22,8 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    double price(const payoff::Payoff& payoff, const market::Market& market) override {
-        const auto* cashPayment = dynamic_cast<const payoff::CashPayment*>(&payoff);
+    double price(const payoff::PaymentNodePtr& payment, const market::Market& market) override {
+        const auto* cashPayment = dynamic_cast<const payoff::CashPayment*>(payment.get());
 
         if (!cashPayment) {
             throw std::invalid_argument("not a CashPayment");
@@ -35,8 +35,8 @@ class MCPricer final : public PayoffPricer {
             throw std::invalid_argument("Discount curve not found");
         }
 
-        const auto newPayoff = payoff::applyMarket(cashPayment->getAmount(), market);
-        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
+        const auto payoff = payoff::applyMarket(cashPayment->getAmount(), market);
+        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(payoff);
 
         if (symbols.size() == 0) {
             throw std::invalid_argument("No symbol found");
@@ -49,7 +49,7 @@ class MCPricer final : public PayoffPricer {
         }
         const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
         const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
-        const auto sample = payoff::applyFixings(newPayoff, scenario);
+        const auto sample = payoff::applyFixings(payoff, scenario);
         const auto dF = discountCurve->get(cashPayment->getSettlementDate());
 
         return dF * sample.sum() / sample.size();

@@ -3,7 +3,7 @@
 
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
-#include "payoff/Payoff.h"
+#include "payoff/Payment.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
 #include "pricer/BSPricer.h"
@@ -40,7 +40,7 @@ int main() {
 
     const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
     const auto plf = toPiecewiseLinearFunction(payoff);
-    const auto payment = CashPayment(payoff, settlementDate);
+    const auto payment = cashPayment(payoff, settlementDate);
 
     const std::vector<double> spots = {50,  60,  70,  79,  80,  85,  90, 95,
                                        100, 105, 110, 115, 120, 130, 150};

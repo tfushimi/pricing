@@ -41,7 +41,7 @@ TEST_F(BSPricerTest, ATMCall) {
     constexpr double K = 100.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto payoff = CashPayment(max(S - K, 0.0), settlementDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
     const double pricerPrice = bsPrice(payoff, market);
     const double formulaPrice = blackCallFormula(forward, K, T, dF, volAt(K));
@@ -53,7 +53,7 @@ TEST_F(BSPricerTest, OTMCall) {
     constexpr double K = 110.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto payoff = CashPayment(max(S - K, 0.0), settlementDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
     const double pricerPrice = bsPrice(payoff, market);
     const double formulaPrice = blackCallFormula(forward, K, T, dF, volAt(K));
@@ -65,7 +65,7 @@ TEST_F(BSPricerTest, DigitalCall) {
     constexpr double K = 100.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto payoff = CashPayment(ite(S >= K, 1.0, 0.0), settlementDate);
+    const auto payoff = cashPayment(ite(S >= K, 1.0, 0.0), settlementDate);
 
     const double pricerPrice = bsPrice(payoff, market);
     const double formulaPrice = blackDigitalFormula(forward, K, T, dF, volAt(K), skewAt(K));
@@ -77,8 +77,8 @@ TEST_F(BSPricerTest, PutCallParity) {
     constexpr double K = 100.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto call = CashPayment(max(S - K, 0.0), settlementDate);
-    const auto put = CashPayment(max(K - S, 0.0), settlementDate);
+    const auto call = cashPayment(max(S - K, 0.0), settlementDate);
+    const auto put = cashPayment(max(K - S, 0.0), settlementDate);
 
     const double callPrice = bsPrice(call, market);
     const double putPrice = bsPrice(put, market);
@@ -90,7 +90,7 @@ TEST_F(BSPricerTest, ForwardContract) {
     constexpr double K = 105.0;
 
     const auto S = fixing("SPY", fixingDate);
-    const auto payoff = CashPayment(S - K, settlementDate);
+    const auto payoff = cashPayment(S - K, settlementDate);
 
     const double pricerPrice = bsPrice(payoff, market);
 
