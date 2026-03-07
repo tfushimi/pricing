@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "PayoffPricer.h"
 #include "market/Market.h"
 #include "mc/ProcessStateStepper.h"
@@ -13,46 +15,35 @@ namespace pricer {
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
    public:
-    MCPricer(const std::string& symbol, const ProcessType& process, const int nPaths,
+    MCPricer(std::string symbol, const ProcessType& process, const int nPaths,
              const mc::RNG& rng)
-        : _symbol(symbol),
+        : _symbol(std::move(symbol)),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
           _nPaths(nPaths),
           _rng(rng) {}
 
     ~MCPricer() override = default;
 
-    double price(const payoff::PayoffNodePtr& payment, const market::Market& market) override {
-        const auto* cashPayment = dynamic_cast<const payoff::CashPayment*>(payment.get());
+    double price(const payoff::PayoffNodePtr& _payoff, const market::Market& market) override {
 
-        if (!cashPayment) {
-            throw std::invalid_argument("not a CashPayment");
-        }
+      const auto newPayoff = payoff::applyMarket(_payoff, market);
+      const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
-        const auto discountCurve = market.getDiscountCurve();
+      if (symbols.empty()) {
+        throw std::invalid_argument("No symbol found");
+      }
+      if (symbols.size() > 1) {
+        throw std::invalid_argument("Multi-assets not supported by MCPricer");
+      }
+      if (!symbols.contains(_symbol)) {
+        throw std::invalid_argument("Symbol not found: " + _symbol);
+      }
 
-        if (!discountCurve) {
-            throw std::invalid_argument("Discount curve not found");
-        }
+      const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
+      const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
+      const auto sample = payoff::applyFixings(newPayoff, market, scenario);
 
-        const auto payoff = payoff::applyMarket(cashPayment->getAmountPtr(), market);
-        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(payoff);
-
-        if (symbols.size() == 0) {
-            throw std::invalid_argument("No symbol found");
-        }
-        if (symbols.size() > 1) {
-            throw std::invalid_argument("Multi-assets not supported by MCPricer");
-        }
-        if (!symbols.contains(_symbol)) {
-            throw std::invalid_argument("Symbol not found: " + _symbol);
-        }
-        const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
-        const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
-        const auto sample = payoff::applyFixings(payoff, scenario);
-        const auto dF = discountCurve->get(cashPayment->getSettlementDate());
-
-        return dF * sample.sum() / sample.size();
+      return sample.sum() / sample.size();
     }
 
    private:
