@@ -80,15 +80,15 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
 };
 }  // namespace
 
-std::set<Fixing> getFixings(const ObservableNodePtr& payoff) {
+std::set<Fixing> getFixings(const ObservableNodePtr& observable) {
     FixingCollector collector;
-    collector.evaluate(payoff);
+    collector.evaluate(observable);
     return collector.getFixings();
 }
 
-std::set<Fixing> getFixings(const PayoffNodePtr& payment) {
+std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
     FixingCollector collector;
-    collector.evaluate(payment);
+    collector.evaluate(payoff);
     return collector.getFixings();
 }
 };  // namespace payoff

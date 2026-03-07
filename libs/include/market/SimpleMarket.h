@@ -10,7 +10,7 @@
 #include "market/SVIVolSlice.h"
 
 namespace market {
-
+// TODO add ForwardCurve
 /**
  * A simple market implementation for testing and prototyping.
  * Combines a constant risk-free rate with a single SVI vol smile
@@ -36,7 +36,7 @@ class SimpleMarket final : public Market {
         return std::nullopt;
     }
 
-    std::shared_ptr<Curve> getDiscountCurve(const Date&) const override { return _discountCurve; }
+    std::shared_ptr<Curve> getDiscountCurve() const override { return _discountCurve; }
 
     std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date& date) const override {
         const auto T = yearFraction(_pricingDate, date);

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <optional>
-#include <stdexcept>
 #include <unordered_map>
 
 #include "PayoffTestUtils.h"
@@ -30,7 +29,7 @@ class MockMarket final : public Market {
         return std::nullopt;  // not observed — Fixing node kept as-is
     }
 
-    std::shared_ptr<Curve> getDiscountCurve(const Date&) const override { return nullptr; }
+    std::shared_ptr<Curve> getDiscountCurve() const override { return nullptr; }
 
     std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
         return nullptr;

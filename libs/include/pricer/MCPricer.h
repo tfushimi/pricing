@@ -29,7 +29,7 @@ class MCPricer final : public PayoffPricer {
             throw std::invalid_argument("not a CashPayment");
         }
 
-        const auto discountCurve = market.getDiscountCurve(market.getPricingDate());
+        const auto discountCurve = market.getDiscountCurve();
 
         if (!discountCurve) {
             throw std::invalid_argument("Discount curve not found");

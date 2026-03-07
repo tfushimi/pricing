@@ -14,21 +14,21 @@ numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
     const ObservableNodePtr& payoff);
 
 // Substitute observed fixings with constants and simplify constant expressions
-ObservableNodePtr applyMarket(const ObservableNodePtr& payoff, const market::Market& market);
+ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market);
 
 // Simplify constant subexpressions
-ObservableNodePtr foldConstants(const ObservableNodePtr& payoff);
+ObservableNodePtr foldConstants(const ObservableNodePtr& observable);
 
 // Find all fixings in the payoff
-std::set<Fixing> getFixings(const ObservableNodePtr& payoff);
-std::set<Fixing> getFixings(const PayoffNodePtr& payment);
+std::set<Fixing> getFixings(const ObservableNodePtr& observable);
+std::set<Fixing> getFixings(const PayoffNodePtr& payoff);
 
-// Find all symbols and fixingDates in the payoff
+// Find all symbols and fixingDates
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDatesInner(
     const std::set<Fixing>& fixings) {
     std::set<std::string> symbols;
     std::vector<Date> fixingDates;
-    fixingDates.reserve(fixingDates.size());
+    fixingDates.reserve(fixings.size());
     for (const auto& fixing : fixings) {
         symbols.emplace(fixing.getSymbol());
         fixingDates.push_back(fixing.getDate());
@@ -38,17 +38,19 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 }
 
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDates(
-    const ObservableNodePtr& payoff) {
-    const auto fixings = getFixings(payoff);
+    const ObservableNodePtr& observable) {
+    const auto fixings = getFixings(observable);
     return getSymbolsAndFixingDatesInner(fixings);
 }
 
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDates(
-    const PayoffNodePtr& payment) {
-    const auto fixings = getFixings(payment);
+    const PayoffNodePtr& payoff) {
+    const auto fixings = getFixings(payoff);
     return getSymbolsAndFixingDatesInner(fixings);
 }
 
 // Substitute fixings with MC sample and simplify constant expressions
-Sample applyFixings(const ObservableNodePtr& payoff, const Scenario& scenario);
+Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
+Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
+                    const Scenario& scenario);
 }  // namespace payoff

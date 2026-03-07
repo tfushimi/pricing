@@ -68,7 +68,7 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
 };
 }  // namespace
 
-ObservableNodePtr applyMarket(const ObservableNodePtr& payoff, const market::Market& market) {
-    return foldConstants(ApplyMarket(market).evaluate(payoff));
+ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market) {
+    return foldConstants(ApplyMarket(market).evaluate(observable));
 }
 }  // namespace payoff

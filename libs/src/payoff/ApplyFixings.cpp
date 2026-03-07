@@ -1,5 +1,6 @@
 #include <ranges>
 
+#include "market/Market.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
@@ -115,9 +116,46 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
     const Scenario& _scenario;
     std::size_t _dim;
 };
+
+class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
+   public:
+    explicit ApplyPayoffFixings(const market::Market& market, const Scenario& scenario)
+        : _discountCurve(market.getDiscountCurve()), _scenario(scenario) {
+        if (!_discountCurve) {
+            throw std::invalid_argument("DiscountCurve not found");
+        }
+    }
+    ~ApplyPayoffFixings() override = default;
+
+   protected:
+    Sample visit(const CashPayment& node) override {
+        const auto sample = applyFixings(node.getAmount(), _scenario);
+        return sample * _discountCurve->get(node.getSettlementDate());
+    }
+
+    Sample visit(const CombinedPayment& node) override {
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
+        return left + right;
+    }
+
+    Sample visit(const MultiPayment& node) override {
+        const auto sample = evaluate(node.getPayment());
+        return node.multiplier() * sample;
+    }
+
+   private:
+    std::shared_ptr<const Curve> _discountCurve;
+    const Scenario& _scenario;
+};
 }  // namespace
 
-Sample applyFixings(const ObservableNodePtr& payoff, const Scenario& scenario) {
-    return ApplyFixings(scenario).evaluate(payoff);
+Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario) {
+    return ApplyFixings(scenario).evaluate(observable);
+}
+
+Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
+                    const Scenario& scenario) {
+    return ApplyPayoffFixings(market, scenario).evaluate(payoff);
 }
 }  // namespace payoff

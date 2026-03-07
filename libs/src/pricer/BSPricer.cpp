@@ -43,7 +43,7 @@ double BSPricer::price(const ObservableNodePtr& payoff, const Market& market,
         throw std::invalid_argument("BSVolSlice not found in market");
     }
 
-    const auto discountCurve = market.getDiscountCurve(market.getPricingDate());
+    const auto discountCurve = market.getDiscountCurve();
 
     if (!discountCurve) {
         throw std::invalid_argument("Discount curve not found");

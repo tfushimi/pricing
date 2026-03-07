@@ -156,7 +156,7 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
 };
 }  // anonymous namespace
 
-ObservableNodePtr foldConstants(const ObservableNodePtr& payoff) {
-    return ConstantFold().evaluate(payoff);
+ObservableNodePtr foldConstants(const ObservableNodePtr& observable) {
+    return ConstantFold().evaluate(observable);
 }
 }  // namespace payoff
