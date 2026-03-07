@@ -7,7 +7,7 @@ using namespace payoff;
 
 const auto S = fixing("SPY", makeDate(2026, 3, 20));
 
-TEST(PayoffNodeTest, ArithmeticTest) {
+TEST(ObservableTest, ArithmeticTest) {
     const auto sum = constant(1.0) + constant(2.0);
     const auto sumPLF = toPiecewiseLinearFunction(sum);
     EXPECT_DOUBLE_EQ(sumPLF(-1e+10), 3.0);
@@ -33,7 +33,7 @@ TEST(PayoffNodeTest, ArithmeticTest) {
     EXPECT_DOUBLE_EQ(dividePLF(1e+10), 0.5);
 }
 
-TEST(PayoffNodeTest, FixingArithmeticTest) {
+TEST(ObservableTest, FixingArithmeticTest) {
     const auto sum = S + 50;
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(sum)(30.0), 80.0);
 
@@ -50,7 +50,7 @@ TEST(PayoffNodeTest, FixingArithmeticTest) {
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(divide)(6.0), 3.0);
 }
 
-TEST(PayoffNodeTest, GreaterThanTest) {
+TEST(ObservableTest, GreaterThanTest) {
     const auto greaterThanK = S > 50.0;
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(greaterThanK)(40.0), 0.0);
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(greaterThanK)(50.0), 0.0);
@@ -67,7 +67,7 @@ TEST(PayoffNodeTest, GreaterThanTest) {
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(one)(1e10), 1.0);
 }
 
-TEST(PayoffNodeTest, IfThenElseTest) {
+TEST(ObservableTest, IfThenElseTest) {
     const auto K = constant(100.0);
 
     const auto cond = S > K;
@@ -78,7 +78,7 @@ TEST(PayoffNodeTest, IfThenElseTest) {
     EXPECT_DOUBLE_EQ(toPiecewiseLinearFunction(call)(150.0), 50.0) << "call: above strike";
 }
 
-TEST(PayoffNodeTest, MaxMinTest) {
+TEST(ObservableTest, MaxMinTest) {
     const auto zero = constant(0.0);
 
     // call

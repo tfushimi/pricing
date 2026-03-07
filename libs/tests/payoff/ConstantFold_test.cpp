@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "PayoffTestUtils.h"
+#include "ObservableTestUtils.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 

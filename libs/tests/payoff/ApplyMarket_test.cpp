@@ -3,7 +3,7 @@
 #include <optional>
 #include <unordered_map>
 
-#include "PayoffTestUtils.h"
+#include "ObservableTestUtils.h"
 #include "market/Market.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
