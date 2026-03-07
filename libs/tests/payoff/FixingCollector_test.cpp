@@ -69,7 +69,6 @@ TEST(FixingCollectorTest, MultipleSymbols) {
 }
 
 TEST(FixingCollectorTest, CashPayment) {
-
     const Date fixingDate = makeDate(2026, 3, 20);
     const Date settlementDate = makeDate(2026, 3, 22);
 
@@ -84,7 +83,6 @@ TEST(FixingCollectorTest, CashPayment) {
 }
 
 TEST(FixingCollectorTest, CombinedPayment) {
-
     const auto fixingDate1 = makeDate(2026, 3, 20);
     const auto settlementDate1 = makeDate(2026, 3, 22);
     const auto fixingDate2 = makeDate(2027, 3, 20);
