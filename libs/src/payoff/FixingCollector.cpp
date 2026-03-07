@@ -1,13 +1,18 @@
 #include <set>
 
+#include "payoff/Payment.h"
 #include "payoff/PayoffNode.h"
 #include "payoff/Transforms.h"
 
 namespace payoff {
 namespace {
 
-class FixingCollector final : public PayoffVisitor<void> {
+class FixingCollector final : public PayoffVisitor<void>, public PaymentVisitor<void> {
    public:
+    // disambiguate evaluate
+    using PaymentVisitor::evaluate;
+    using PayoffVisitor::evaluate;
+
     FixingCollector() = default;
     ~FixingCollector() override = default;
 
@@ -61,6 +66,15 @@ class FixingCollector final : public PayoffVisitor<void> {
         evaluate(node.getElse());
     }
 
+    void visit(const CashPayment& node) override { evaluate(node.getAmount()); }
+
+    void visit(const CombinedPayment& node) override {
+        PaymentVisitor::evaluate(node.getLeft());
+        PaymentVisitor::evaluate(node.getRight());
+    }
+
+    void visit(const MultiPayment& node) override { evaluate(node.getPayment()); }
+
    private:
     std::set<Fixing> _fixings;
 };
@@ -69,6 +83,12 @@ class FixingCollector final : public PayoffVisitor<void> {
 std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
     FixingCollector collector;
     collector.evaluate(payoff);
+    return collector.getFixings();
+}
+
+std::set<Fixing> getFixings(const PaymentNodePtr& payment) {
+    FixingCollector collector;
+    collector.evaluate(payment);
     return collector.getFixings();
 }
 };  // namespace payoff

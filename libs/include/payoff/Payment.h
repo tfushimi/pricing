@@ -115,11 +115,11 @@ template <typename T>
 T PaymentVisitor<T>::evaluate(const PaymentNode& node) {
     switch (node.type()) {
         case PaymentNode::Type::CashPayment:
-            return visit(static_cast<const PaymentNode&>(node));
+            return visit(static_cast<const CashPayment&>(node));
         case PaymentNode::Type::CombinedPayment:
-            return visit(static_cast<const PaymentNode&>(node));
+            return visit(static_cast<const CombinedPayment&>(node));
         case PaymentNode::Type::MultiplyPayment:
-            return visit(static_cast<const PaymentNode&>(node));
+            return visit(static_cast<const MultiPayment&>(node));
     }
 
     throw std::invalid_argument("Unknown payment node type");
