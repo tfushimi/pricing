@@ -15,8 +15,7 @@ namespace pricer {
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
    public:
-    MCPricer(std::string symbol, const ProcessType& process, const int nPaths,
-             const mc::RNG& rng)
+    MCPricer(std::string symbol, const ProcessType& process, const int nPaths, const mc::RNG& rng)
         : _symbol(std::move(symbol)),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
           _nPaths(nPaths),
@@ -25,25 +24,24 @@ class MCPricer final : public PayoffPricer {
     ~MCPricer() override = default;
 
     double price(const payoff::PayoffNodePtr& _payoff, const market::Market& market) override {
+        const auto newPayoff = payoff::applyMarket(_payoff, market);
+        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
-      const auto newPayoff = payoff::applyMarket(_payoff, market);
-      const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
+        if (symbols.empty()) {
+            throw std::invalid_argument("No symbol found");
+        }
+        if (symbols.size() > 1) {
+            throw std::invalid_argument("Multi-assets not supported by MCPricer");
+        }
+        if (!symbols.contains(_symbol)) {
+            throw std::invalid_argument("Symbol not found: " + _symbol);
+        }
 
-      if (symbols.empty()) {
-        throw std::invalid_argument("No symbol found");
-      }
-      if (symbols.size() > 1) {
-        throw std::invalid_argument("Multi-assets not supported by MCPricer");
-      }
-      if (!symbols.contains(_symbol)) {
-        throw std::invalid_argument("Symbol not found: " + _symbol);
-      }
+        const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
+        const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
+        const auto sample = payoff::applyFixings(newPayoff, market, scenario);
 
-      const auto timeGrid = mc::TimeGrid{fixingDates, market.getPricingDate(), 1.0 / 12.0};
-      const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
-      const auto sample = payoff::applyFixings(newPayoff, market, scenario);
-
-      return sample.sum() / sample.size();
+        return sample.sum() / sample.size();
     }
 
    private:

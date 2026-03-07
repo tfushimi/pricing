@@ -7,18 +7,23 @@
 #include "payoff/Payoff.h"
 
 namespace pricer {
-class BSPricer final : public PayoffPricer {
+class BSPricer final : public PayoffPricer, public payoff::PayoffVisitor<double> {
    public:
-    double price(const payoff::PayoffNodePtr& payoff, const market::Market& market) override;
-    static double price(const payoff::ObservableNodePtr& payoff, const market::Market& market,
-                        Date settlementDate);
+    explicit BSPricer(const market::Market& market) : _market(market) {}
+    double price(const payoff::PayoffNodePtr& _payoff, const market::Market&) override {
+        return evaluate(_payoff);
+    }
 
    private:
+    const market::Market& _market;
+    double visit(const payoff::CashPayment& node) override;
+    double visit(const payoff::CombinedPayment& node) override;
+    double visit(const payoff::MultiPayment& node) override;
     static double priceSegment(const numerics::linear::Segment& segment, double dF,
                                const market::BSVolSlice& bsVolSlice);
 };
 
 inline double bsPrice(const payoff::PayoffNodePtr& payment, const market::Market& market) {
-    return BSPricer().price(payment, market);
+    return BSPricer(market).price(payment, market);
 }
 }  // namespace pricer

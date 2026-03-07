@@ -14,21 +14,10 @@ using namespace market;
 
 namespace pricer {
 
-double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
-    const auto* cashPayment = dynamic_cast<const CashPayment*>(payoff.get());
+double BSPricer::visit(const CashPayment& node) {
+    const auto cashPayment = applyMarket(node, _market);
 
-    if (cashPayment) {
-        return price(cashPayment->getAmountPtr(), market, cashPayment->getSettlementDate());
-    }
-
-    // TODO Support CombinePayment and MultiplyPayment
-    throw std::invalid_argument("invalid payoff");
-}
-
-double BSPricer::price(const ObservableNodePtr& payoff, const Market& market,
-                       const Date settlementDate) {
-    const auto newPayoff = applyMarket(payoff, market);
-    const auto fixingDates = getFixings(newPayoff);
+    const auto fixingDates = getFixings(cashPayment);
     if (fixingDates.size() != 1) {
         throw std::invalid_argument("Payoff should have a single fixing, found " +
                                     std::to_string(fixingDates.size()));
@@ -37,25 +26,25 @@ double BSPricer::price(const ObservableNodePtr& payoff, const Market& market,
     const auto symbol = fixingDates.begin()->getSymbol();
     const auto fixingDate = fixingDates.begin()->getDate();
 
-    const auto bsVolSlice = market.getBSVolSlice(symbol, fixingDate);
+    const auto bsVolSlice = _market.getBSVolSlice(symbol, fixingDate);
 
     if (!bsVolSlice) {
         throw std::invalid_argument("BSVolSlice not found in market");
     }
 
-    const auto discountCurve = market.getDiscountCurve();
+    const auto discountCurve = _market.getDiscountCurve();
 
     if (!discountCurve) {
         throw std::invalid_argument("Discount curve not found");
     }
 
-    const double dF = discountCurve->get(settlementDate);
+    const double dF = discountCurve->get(node.getSettlementDate());
 
     double price = 0.0;
 
-    const auto payoffPLF = toPiecewiseLinearFunction(newPayoff);
+    const auto plf = toPiecewiseLinearFunction(cashPayment.getAmountPtr());
 
-    for (const Segment& segment : payoffPLF.getSegments()) {
+    for (const Segment& segment : plf.getSegments()) {
         price += priceSegment(segment, dF, *bsVolSlice);
     }
 
@@ -102,5 +91,13 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
 
     return slope * (Call(lo) - Call(hi)) + leftEndPoint * DigitalCall(lo) -
            rightEndPoint * DigitalCall(hi);
+}
+
+double BSPricer::visit(const CombinedPayment& node) {
+    return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
+}
+
+double BSPricer::visit(const MultiPayment& node) {
+    return node.multiplier() * evaluate(node.getPaymentPtr());
 }
 }  // namespace pricer

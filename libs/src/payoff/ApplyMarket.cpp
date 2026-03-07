@@ -99,4 +99,12 @@ ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market:
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
     return ApplyPayoffMarket(market).evaluate(payoff);
 }
+
+PayoffNodePtr applyMarket(const PayoffNode& payoff, const market::Market& market) {
+    return ApplyPayoffMarket(market).evaluate(payoff);
+}
+
+CashPayment applyMarket(const CashPayment& payoff, const market::Market& market) {
+    return {applyMarket(payoff.getAmountPtr(), market), payoff.getSettlementDate()};
+}
 }  // namespace payoff

@@ -17,12 +17,16 @@ numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market);
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market);
 
+// specialized method to avoid casting
+CashPayment applyMarket(const CashPayment& payoff, const market::Market& market);
+
 // Simplify constant subexpressions
 ObservableNodePtr foldConstants(const ObservableNodePtr& observable);
 
 // Find all fixings in the payoff
 std::set<Fixing> getFixings(const ObservableNodePtr& observable);
 std::set<Fixing> getFixings(const PayoffNodePtr& payoff);
+std::set<Fixing> getFixings(const PayoffNode& observable);
 
 // Find all symbols and fixingDates
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDatesInner(

@@ -154,6 +154,7 @@ Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenari
     return ApplyFixings(scenario).evaluate(observable);
 }
 
+// TODO add unit tests
 Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
                     const Scenario& scenario) {
     return ApplyPayoffFixings(market, scenario).evaluate(payoff);

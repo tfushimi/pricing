@@ -9,6 +9,7 @@ class PayoffPricer {
     PayoffPricer() = default;
     virtual ~PayoffPricer() = default;
 
+    // TODO maybe no need to pass market here
     virtual double price(const payoff::PayoffNodePtr& payment, const market::Market& market) = 0;
 };
 

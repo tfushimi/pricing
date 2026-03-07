@@ -91,4 +91,10 @@ std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
     collector.evaluate(payoff);
     return collector.getFixings();
 }
+
+std::set<Fixing> getFixings(const PayoffNode& payoff) {
+    FixingCollector collector;
+    collector.evaluate(payoff);
+    return collector.getFixings();
+}
 };  // namespace payoff
