@@ -13,7 +13,7 @@ namespace {
 class ApplyFixings final : public ObservableVisitor<Sample> {
    public:
     explicit ApplyFixings(const Scenario& scenario) : _scenario(scenario) {
-        if (scenario.size() == 0) {
+        if (scenario.empty()) {
             throw std::invalid_argument("Scenario cannot be empty");
         }
 
