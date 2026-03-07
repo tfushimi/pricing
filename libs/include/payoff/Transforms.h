@@ -15,6 +15,7 @@ numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
 
 // Substitute observed fixings with constants and simplify constant expressions
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market);
+PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market);
 
 // Simplify constant subexpressions
 ObservableNodePtr foldConstants(const ObservableNodePtr& observable);

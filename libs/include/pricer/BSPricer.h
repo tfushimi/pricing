@@ -9,7 +9,7 @@
 namespace pricer {
 class BSPricer final : public PayoffPricer {
    public:
-    double price(const payoff::PayoffNodePtr& payment, const market::Market& market) override;
+    double price(const payoff::PayoffNodePtr& payoff, const market::Market& market) override;
     static double price(const payoff::ObservableNodePtr& payoff, const market::Market& market,
                         Date settlementDate);
 

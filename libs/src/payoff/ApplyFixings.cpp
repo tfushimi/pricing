@@ -129,7 +129,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
 
    protected:
     Sample visit(const CashPayment& node) override {
-        const auto sample = applyFixings(node.getAmount(), _scenario);
+        const auto sample = applyFixings(node.getAmountPtr(), _scenario);
         return sample * _discountCurve->get(node.getSettlementDate());
     }
 
@@ -140,7 +140,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
     }
 
     Sample visit(const MultiPayment& node) override {
-        const auto sample = evaluate(node.getPayment());
+        const auto sample = evaluate(node.getPayoff());
         return node.multiplier() * sample;
     }
 

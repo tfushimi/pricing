@@ -66,9 +66,37 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
    private:
     const market::Market& _market;
 };
+
+class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
+   public:
+    explicit ApplyPayoffMarket(const market::Market& market) : _market(market) {}
+    ~ApplyPayoffMarket() override = default;
+
+   protected:
+    PayoffNodePtr visit(const CashPayment& node) override {
+        const auto amount = applyMarket(node.getAmountPtr(), _market);
+        return std::make_shared<CashPayment>(amount, node.getSettlementDate());
+    }
+    PayoffNodePtr visit(const CombinedPayment& node) override {
+        const auto left = evaluate(node.getLeft());
+        const auto right = evaluate(node.getRight());
+        return std::make_shared<CombinedPayment>(left, right);
+    }
+    PayoffNodePtr visit(const MultiPayment& node) override {
+        const auto payoff = evaluate(node.getPayoff());
+        return std::make_shared<MultiPayment>(payoff, node.multiplier());
+    }
+
+   private:
+    const market::Market& _market;
+};
 }  // namespace
 
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market) {
     return foldConstants(ApplyMarket(market).evaluate(observable));
+}
+
+PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
+    return ApplyPayoffMarket(market).evaluate(payoff);
 }
 }  // namespace payoff

@@ -35,7 +35,7 @@ class MCPricer final : public PayoffPricer {
             throw std::invalid_argument("Discount curve not found");
         }
 
-        const auto payoff = payoff::applyMarket(cashPayment->getAmount(), market);
+        const auto payoff = payoff::applyMarket(cashPayment->getAmountPtr(), market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(payoff);
 
         if (symbols.size() == 0) {

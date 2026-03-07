@@ -14,11 +14,11 @@ using namespace market;
 
 namespace pricer {
 
-double BSPricer::price(const PayoffNodePtr& payment, const Market& market) {
-    const auto* cashPayment = dynamic_cast<const CashPayment*>(payment.get());
+double BSPricer::price(const PayoffNodePtr& payoff, const Market& market) {
+    const auto* cashPayment = dynamic_cast<const CashPayment*>(payoff.get());
 
     if (cashPayment) {
-        return price(cashPayment->getAmount(), market, cashPayment->getSettlementDate());
+        return price(cashPayment->getAmountPtr(), market, cashPayment->getSettlementDate());
     }
 
     // TODO Support CombinePayment and MultiplyPayment
