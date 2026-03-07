@@ -4,12 +4,11 @@
 #include <memory>
 #include <stdexcept>
 
-#include "PayoffNode.h"
 #include "common/types.h"
 
 namespace payoff {
 
-class PayoffNode;
+class ObservableNode;
 class Fixing;
 class Constant;
 class Sum;
@@ -21,58 +20,58 @@ class GreaterThan;
 class GreaterThanOrEqual;
 class IfThenElse;
 
-class PayoffNodePtr {
+class ObservableNodePtr {
    public:
-    PayoffNodePtr() = default;
+    ObservableNodePtr() = default;
 
     // implicit conversion from shared_ptr
-    template <typename T, typename = std::enable_if<std::is_base_of_v<PayoffNode, T>>>
-    PayoffNodePtr(std::shared_ptr<T> payoffNode) : _ptr(std::move(payoffNode)) {}
+    template <typename T, typename = std::enable_if<std::is_base_of_v<ObservableNode, T>>>
+    ObservableNodePtr(std::shared_ptr<T> payoffNode) : _ptr(std::move(payoffNode)) {}
 
     // implicit conversion from double
-    PayoffNodePtr(double value);
+    ObservableNodePtr(double value);
 
     // Pointer methods
-    const PayoffNode& operator*() const { return *_ptr; }
-    const PayoffNode* operator->() const { return _ptr.get(); }
-    [[nodiscard]] const PayoffNode* get() const { return _ptr.get(); }
+    const ObservableNode& operator*() const { return *_ptr; }
+    const ObservableNode* operator->() const { return _ptr.get(); }
+    [[nodiscard]] const ObservableNode* get() const { return _ptr.get(); }
     explicit operator bool() const { return _ptr.get() != nullptr; }
 
     // Arithmetic operators
-    PayoffNodePtr operator+(const PayoffNodePtr& other) const;
-    PayoffNodePtr operator-(const PayoffNodePtr& other) const;
-    PayoffNodePtr operator*(const PayoffNodePtr& other) const;
-    PayoffNodePtr operator/(const PayoffNodePtr& other) const;
-    PayoffNodePtr operator-() const;
-    PayoffNodePtr operator>(const PayoffNodePtr& other) const;
-    PayoffNodePtr operator>=(const PayoffNodePtr& other) const;
+    ObservableNodePtr operator+(const ObservableNodePtr& other) const;
+    ObservableNodePtr operator-(const ObservableNodePtr& other) const;
+    ObservableNodePtr operator*(const ObservableNodePtr& other) const;
+    ObservableNodePtr operator/(const ObservableNodePtr& other) const;
+    ObservableNodePtr operator-() const;
+    ObservableNodePtr operator>(const ObservableNodePtr& other) const;
+    ObservableNodePtr operator>=(const ObservableNodePtr& other) const;
 
    private:
-    std::shared_ptr<PayoffNode> _ptr;
+    std::shared_ptr<ObservableNode> _ptr;
 };
 
 // arithmetic operators for double hls
-inline PayoffNodePtr operator+(const double lhs, const PayoffNodePtr& rhs) {
-    return PayoffNodePtr(lhs) + rhs;
+inline ObservableNodePtr operator+(const double lhs, const ObservableNodePtr& rhs) {
+    return ObservableNodePtr(lhs) + rhs;
 }
-inline PayoffNodePtr operator-(const double lhs, const PayoffNodePtr& rhs) {
-    return PayoffNodePtr(lhs) - rhs;
+inline ObservableNodePtr operator-(const double lhs, const ObservableNodePtr& rhs) {
+    return ObservableNodePtr(lhs) - rhs;
 }
-inline PayoffNodePtr operator*(const double lhs, const PayoffNodePtr& rhs) {
-    return PayoffNodePtr(lhs) * rhs;
+inline ObservableNodePtr operator*(const double lhs, const ObservableNodePtr& rhs) {
+    return ObservableNodePtr(lhs) * rhs;
 }
 
 // Visitor
 template <typename T>
-class PayoffVisitor {
+class ObservableVisitor {
    public:
-    virtual ~PayoffVisitor() = default;
+    virtual ~ObservableVisitor() = default;
 
-    T evaluate(const PayoffNode& node);
-    T evaluate(const PayoffNodePtr& node) { return evaluate(*node); }
+    T evaluate(const ObservableNode& node);
+    T evaluate(const ObservableNodePtr& node) { return evaluate(*node); }
 
     // Delete rvalue overload to catch bugs at compile time
-    T evaluate(PayoffNodePtr&&) = delete;
+    T evaluate(ObservableNodePtr&&) = delete;
 
    protected:
     virtual T visit(const Fixing& node) = 0;
@@ -88,14 +87,14 @@ class PayoffVisitor {
 };
 
 // Base node
-class PayoffNode {
+class ObservableNode {
    public:
-    PayoffNode() = default;
-    explicit PayoffNode(const PayoffNodePtr& node) = delete;
-    explicit PayoffNode(PayoffNodePtr&& node) = delete;
-    PayoffNode& operator=(const PayoffNodePtr& node) = delete;
-    PayoffNodePtr& operator=(PayoffNodePtr&& node) = delete;
-    virtual ~PayoffNode() = default;
+    ObservableNode() = default;
+    explicit ObservableNode(const ObservableNodePtr& node) = delete;
+    explicit ObservableNode(ObservableNodePtr&& node) = delete;
+    ObservableNode& operator=(const ObservableNodePtr& node) = delete;
+    ObservableNodePtr& operator=(ObservableNodePtr&& node) = delete;
+    virtual ~ObservableNode() = default;
 
     enum class Type {
         Fixing,
@@ -113,7 +112,7 @@ class PayoffNode {
     virtual Type type() const = 0;
 };
 
-class Fixing final : public PayoffNode {
+class Fixing final : public ObservableNode {
    public:
     explicit Fixing(std::string symbol, Date date)
         : _symbol(std::move(symbol)), _date(std::move(date)) {}
@@ -138,7 +137,7 @@ class Fixing final : public PayoffNode {
     Date _date;
 };
 
-class Constant final : public PayoffNode {
+class Constant final : public ObservableNode {
    public:
     explicit Constant(const double value) : _value(value) {}
     double getValue() const { return _value; }
@@ -148,18 +147,18 @@ class Constant final : public PayoffNode {
     double _value;
 };
 
-class BinaryNode : public PayoffNode {
+class BinaryNode : public ObservableNode {
    public:
-    explicit BinaryNode(PayoffNodePtr left, PayoffNodePtr right)
+    explicit BinaryNode(ObservableNodePtr left, ObservableNodePtr right)
         : _left(std::move(left)), _right(std::move(right)) {}
-    const PayoffNode& getLeft() const { return *_left; }
-    const PayoffNode& getRight() const { return *_right; }
-    const PayoffNodePtr& getLeftPtr() const { return _left; }
-    const PayoffNodePtr& getRightPtr() const { return _right; }
+    const ObservableNode& getLeft() const { return *_left; }
+    const ObservableNode& getRight() const { return *_right; }
+    const ObservableNodePtr& getLeftPtr() const { return _left; }
+    const ObservableNodePtr& getRightPtr() const { return _right; }
 
    private:
-    PayoffNodePtr _left;
-    PayoffNodePtr _right;
+    ObservableNodePtr _left;
+    ObservableNodePtr _right;
 };
 
 class Sum final : public BinaryNode {
@@ -204,122 +203,124 @@ class GreaterThanOrEqual final : public BinaryNode {
     Type type() const override { return Type::GreaterThanOrEqual; }
 };
 
-class IfThenElse final : public PayoffNode {
+class IfThenElse final : public ObservableNode {
    public:
-    explicit IfThenElse(PayoffNodePtr cond, PayoffNodePtr then_, PayoffNodePtr else_)
+    explicit IfThenElse(ObservableNodePtr cond, ObservableNodePtr then_, ObservableNodePtr else_)
         : _cond(std::move(cond)), _then(std::move(then_)), _else(std::move(else_)) {}
-    const PayoffNode& getCond() const { return *_cond; }
-    const PayoffNode& getThen() const { return *_then; }
-    const PayoffNode& getElse() const { return *_else; }
-    const PayoffNodePtr& getCondPtr() const { return _cond; }
-    const PayoffNodePtr& getThenPtr() const { return _then; }
-    const PayoffNodePtr& getElsePtr() const { return _else; }
+    const ObservableNode& getCond() const { return *_cond; }
+    const ObservableNode& getThen() const { return *_then; }
+    const ObservableNode& getElse() const { return *_else; }
+    const ObservableNodePtr& getCondPtr() const { return _cond; }
+    const ObservableNodePtr& getThenPtr() const { return _then; }
+    const ObservableNodePtr& getElsePtr() const { return _else; }
     Type type() const override { return Type::IfThenElse; }
 
    private:
-    PayoffNodePtr _cond;
-    PayoffNodePtr _then;
-    PayoffNodePtr _else;
+    ObservableNodePtr _cond;
+    ObservableNodePtr _then;
+    ObservableNodePtr _else;
 };
 
 // Factory functions
-inline PayoffNodePtr fixing(std::string symbol, Date date) {
+inline ObservableNodePtr fixing(std::string symbol, Date date) {
     return std::make_shared<Fixing>(std::move(symbol), std::move(date));
 }
 
-inline PayoffNodePtr constant(double value) {
+inline ObservableNodePtr constant(double value) {
     return std::make_shared<Constant>(value);
 }
 
-inline PayoffNodePtr add(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr add(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Sum>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr multiply(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr multiply(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Multiply>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr divide(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr divide(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Divide>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr sub(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr sub(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Sum>(std::move(left), multiply(constant(-1.0), std::move(right)));
 }
 
-inline PayoffNodePtr max(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr max(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Max>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr min(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr min(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Min>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr greaterThan(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr greaterThan(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<GreaterThan>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr greaterThanOrEqual(PayoffNodePtr left, PayoffNodePtr right) {
+inline ObservableNodePtr greaterThanOrEqual(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<GreaterThanOrEqual>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr ite(PayoffNodePtr cond, PayoffNodePtr then_, PayoffNodePtr else_) {
+inline ObservableNodePtr ite(ObservableNodePtr cond, ObservableNodePtr then_,
+                             ObservableNodePtr else_) {
     return std::make_shared<IfThenElse>(std::move(cond), std::move(then_), std::move(else_));
 }
 
 // PayoffNodePtr operator implementations
-inline PayoffNodePtr::PayoffNodePtr(double value) : _ptr(std::make_shared<Constant>(value)) {}
+inline ObservableNodePtr::ObservableNodePtr(double value)
+    : _ptr(std::make_shared<Constant>(value)) {}
 
-inline PayoffNodePtr PayoffNodePtr::operator+(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator+(const ObservableNodePtr& other) const {
     return add(*this, other);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator-(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator-(const ObservableNodePtr& other) const {
     return sub(*this, other);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator*(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator*(const ObservableNodePtr& other) const {
     return multiply(*this, other);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator/(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator/(const ObservableNodePtr& other) const {
     return divide(*this, other);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator-() const {
+inline ObservableNodePtr ObservableNodePtr::operator-() const {
     return multiply(*this, -1.0);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator>(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator>(const ObservableNodePtr& other) const {
     return greaterThan(*this, other);
 }
 
-inline PayoffNodePtr PayoffNodePtr::operator>=(const PayoffNodePtr& other) const {
+inline ObservableNodePtr ObservableNodePtr::operator>=(const ObservableNodePtr& other) const {
     return greaterThanOrEqual(*this, other);
 }
 
 template <typename T>
-T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
+T ObservableVisitor<T>::evaluate(const ObservableNode& node) {
     switch (node.type()) {
-        case PayoffNode::Type::Fixing:
+        case ObservableNode::Type::Fixing:
             return visit(static_cast<const Fixing&>(node));
-        case PayoffNode::Type::Constant:
+        case ObservableNode::Type::Constant:
             return visit(static_cast<const Constant&>(node));
-        case PayoffNode::Type::Sum:
+        case ObservableNode::Type::Sum:
             return visit(static_cast<const Sum&>(node));
-        case PayoffNode::Type::Multiply:
+        case ObservableNode::Type::Multiply:
             return visit(static_cast<const Multiply&>(node));
-        case PayoffNode::Type::Divide:
+        case ObservableNode::Type::Divide:
             return visit(static_cast<const Divide&>(node));
-        case PayoffNode::Type::Max:
+        case ObservableNode::Type::Max:
             return visit(static_cast<const Max&>(node));
-        case PayoffNode::Type::Min:
+        case ObservableNode::Type::Min:
             return visit(static_cast<const Min&>(node));
-        case PayoffNode::Type::GreaterThan:
+        case ObservableNode::Type::GreaterThan:
             return visit(static_cast<const GreaterThan&>(node));
-        case PayoffNode::Type::GreaterThanOrEqual:
+        case ObservableNode::Type::GreaterThanOrEqual:
             return visit(static_cast<const GreaterThanOrEqual&>(node));
-        case PayoffNode::Type::IfThenElse:
+        case ObservableNode::Type::IfThenElse:
             return visit(static_cast<const IfThenElse&>(node));
     }
 

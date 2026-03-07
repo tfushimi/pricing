@@ -1,4 +1,4 @@
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 namespace payoff {
@@ -7,21 +7,21 @@ namespace {
 /**
  * Recursively fold Constant nodes to simply PayoffNode tree
  */
-class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
+class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
    public:
     ConstantFold() = default;
     ~ConstantFold() override = default;
 
    protected:
-    PayoffNodePtr visit(const Fixing& node) override {
+    ObservableNodePtr visit(const Fixing& node) override {
         return std::make_shared<Fixing>(node.getSymbol(), node.getDate());
     }
 
-    PayoffNodePtr visit(const Constant& node) override {
+    ObservableNodePtr visit(const Constant& node) override {
         return std::make_shared<Constant>(node.getValue());
     }
 
-    PayoffNodePtr visit(const Sum& node) override {
+    ObservableNodePtr visit(const Sum& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -32,7 +32,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Sum>(left, right);
     }
 
-    PayoffNodePtr visit(const Multiply& node) override {
+    ObservableNodePtr visit(const Multiply& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -56,7 +56,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Multiply>(left, right);
     }
 
-    PayoffNodePtr visit(const Divide& node) override {
+    ObservableNodePtr visit(const Divide& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -75,7 +75,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Divide>(left, right);
     }
 
-    PayoffNodePtr visit(const Max& node) override {
+    ObservableNodePtr visit(const Max& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -86,7 +86,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Max>(left, right);
     }
 
-    PayoffNodePtr visit(const Min& node) override {
+    ObservableNodePtr visit(const Min& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -97,7 +97,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<Min>(left, right);
     }
 
-    PayoffNodePtr visit(const GreaterThan& node) override {
+    ObservableNodePtr visit(const GreaterThan& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -109,7 +109,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<GreaterThan>(left, right);
     }
 
-    PayoffNodePtr visit(const GreaterThanOrEqual& node) override {
+    ObservableNodePtr visit(const GreaterThanOrEqual& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -121,7 +121,7 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<GreaterThanOrEqual>(left, right);
     }
 
-    PayoffNodePtr visit(const IfThenElse& node) override {
+    ObservableNodePtr visit(const IfThenElse& node) override {
         const auto cond = evaluate(node.getCond());
         const auto then_ = evaluate(node.getThen());
         const auto else_ = evaluate(node.getElse());
@@ -135,27 +135,28 @@ class ConstantFold final : public PayoffVisitor<PayoffNodePtr> {
     }
 
    private:
-    static bool isConstant(const PayoffNodePtr& node) {
+    static bool isConstant(const ObservableNodePtr& node) {
         return dynamic_cast<const Constant*>(node.get()) != nullptr;
     }
 
-    static bool isConstantValue(const PayoffNodePtr& node, const double value) {
+    static bool isConstantValue(const ObservableNodePtr& node, const double value) {
         auto* c = dynamic_cast<const Constant*>(node.get());
         return c != nullptr && std::abs(c->getValue() - value) < 1e-10;
     }
 
-    static double getValue(const PayoffNodePtr& node) {
+    static double getValue(const ObservableNodePtr& node) {
         return dynamic_cast<const Constant*>(node.get())->getValue();
     }
 
     template <typename F>
-    static PayoffNodePtr fold(const PayoffNodePtr& left, const PayoffNodePtr& right, F&& f) {
+    static ObservableNodePtr fold(const ObservableNodePtr& left, const ObservableNodePtr& right,
+                                  F&& f) {
         return std::make_shared<Constant>(std::forward<F>(f)(getValue(left), getValue(right)));
     }
 };
 }  // anonymous namespace
 
-PayoffNodePtr foldConstants(const PayoffNodePtr& payoff) {
+ObservableNodePtr foldConstants(const ObservableNodePtr& payoff) {
     return ConstantFold().evaluate(payoff);
 }
 }  // namespace payoff

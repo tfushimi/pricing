@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 namespace payoff {
@@ -9,7 +9,7 @@ namespace {
 /**
  * Recursively apply Sample to Fixing and fold PayoffNode tree
  */
-class ApplyFixings final : public PayoffVisitor<Sample> {
+class ApplyFixings final : public ObservableVisitor<Sample> {
    public:
     explicit ApplyFixings(const Scenario& scenario) : _scenario(scenario) {
         if (scenario.size() == 0) {
@@ -117,7 +117,7 @@ class ApplyFixings final : public PayoffVisitor<Sample> {
 };
 }  // namespace
 
-Sample applyFixings(const PayoffNodePtr& payoff, const Scenario& scenario) {
+Sample applyFixings(const ObservableNodePtr& payoff, const Scenario& scenario) {
     return ApplyFixings(scenario).evaluate(payoff);
 }
 }  // namespace payoff

@@ -4,7 +4,7 @@
 #include "market/Market.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/linear/Segment.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 #include "pricer/BSFormula.h"
 
@@ -14,7 +14,7 @@ using namespace market;
 
 namespace pricer {
 
-double BSPricer::price(const PaymentNodePtr& payment, const Market& market) {
+double BSPricer::price(const PayoffNodePtr& payment, const Market& market) {
     const auto* cashPayment = dynamic_cast<const CashPayment*>(payment.get());
 
     if (cashPayment) {
@@ -25,7 +25,7 @@ double BSPricer::price(const PaymentNodePtr& payment, const Market& market) {
     throw std::invalid_argument("invalid payoff");
 }
 
-double BSPricer::price(const PayoffNodePtr& payoff, const Market& market,
+double BSPricer::price(const ObservableNodePtr& payoff, const Market& market,
                        const Date settlementDate) {
     const auto newPayoff = applyMarket(payoff, market);
     const auto fixingDates = getFixings(newPayoff);

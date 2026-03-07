@@ -1,7 +1,7 @@
 #include <optional>
 
 #include "numerics/linear/PiecewiseLinearFunction.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 using namespace numerics::linear;
@@ -11,7 +11,7 @@ namespace {
 /**
  * Convert PayoffNodePtr tree into a piecewise linear function
  */
-class ToPiecewiseLinearFunction final : public PayoffVisitor<PiecewiseLinearFunction> {
+class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinearFunction> {
    protected:
     PiecewiseLinearFunction visit(const Fixing& node) override {
         if (_symbol.has_value() && _symbol != node.getSymbol()) {
@@ -72,7 +72,7 @@ class ToPiecewiseLinearFunction final : public PayoffVisitor<PiecewiseLinearFunc
 };
 }  // namespace
 
-PiecewiseLinearFunction toPiecewiseLinearFunction(const PayoffNodePtr& payoff) {
+PiecewiseLinearFunction toPiecewiseLinearFunction(const ObservableNodePtr& payoff) {
     return ToPiecewiseLinearFunction().evaluate(payoff);
 }
 }  // namespace payoff

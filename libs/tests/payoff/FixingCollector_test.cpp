@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 using namespace payoff;

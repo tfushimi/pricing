@@ -4,23 +4,24 @@
 #include "common/types.h"
 #include "market/Market.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
-#include "payoff/PayoffNode.h"
-#include "payoff/Payment.h"
+#include "payoff/Observable.h"
+#include "payoff/Payoff.h"
 
 namespace payoff {
 
 // Convert payoff to piecewise linear function
-numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(const PayoffNodePtr& payoff);
+numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
+    const ObservableNodePtr& payoff);
 
 // Substitute observed fixings with constants and simplify constant expressions
-PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market);
+ObservableNodePtr applyMarket(const ObservableNodePtr& payoff, const market::Market& market);
 
 // Simplify constant subexpressions
-PayoffNodePtr foldConstants(const PayoffNodePtr& payoff);
+ObservableNodePtr foldConstants(const ObservableNodePtr& payoff);
 
 // Find all fixings in the payoff
-std::set<Fixing> getFixings(const PayoffNodePtr& payoff);
-std::set<Fixing> getFixings(const PaymentNodePtr& payment);
+std::set<Fixing> getFixings(const ObservableNodePtr& payoff);
+std::set<Fixing> getFixings(const PayoffNodePtr& payment);
 
 // Find all symbols and fixingDates in the payoff
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDatesInner(
@@ -37,17 +38,17 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 }
 
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDates(
-    const PayoffNodePtr& payoff) {
+    const ObservableNodePtr& payoff) {
     const auto fixings = getFixings(payoff);
     return getSymbolsAndFixingDatesInner(fixings);
 }
 
 inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDates(
-    const PaymentNodePtr& payment) {
+    const PayoffNodePtr& payment) {
     const auto fixings = getFixings(payment);
     return getSymbolsAndFixingDatesInner(fixings);
 }
 
 // Substitute fixings with MC sample and simplify constant expressions
-Sample applyFixings(const PayoffNodePtr& payoff, const Scenario& scenario);
+Sample applyFixings(const ObservableNodePtr& payoff, const Scenario& scenario);
 }  // namespace payoff

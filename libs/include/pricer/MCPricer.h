@@ -5,7 +5,7 @@
 #include "mc/ProcessStateStepper.h"
 #include "mc/RNG.h"
 #include "mc/TimeGrid.h"
-#include "payoff/Payment.h"
+#include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 
 namespace pricer {
@@ -22,7 +22,7 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    double price(const payoff::PaymentNodePtr& payment, const market::Market& market) override {
+    double price(const payoff::PayoffNodePtr& payment, const market::Market& market) override {
         const auto* cashPayment = dynamic_cast<const payoff::CashPayment*>(payment.get());
 
         if (!cashPayment) {

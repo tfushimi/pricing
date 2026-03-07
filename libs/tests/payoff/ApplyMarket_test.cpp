@@ -6,7 +6,7 @@
 
 #include "PayoffTestUtils.h"
 #include "market/Market.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 using namespace market;

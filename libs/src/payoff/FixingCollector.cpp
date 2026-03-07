@@ -1,16 +1,16 @@
 #include <set>
 
-#include "payoff/Payment.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
+#include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 
 namespace payoff {
 namespace {
 
-class FixingCollector final : public PayoffVisitor<void>, public PaymentVisitor<void> {
+class FixingCollector final : public ObservableVisitor<void>, public PayoffVisitor<void> {
    public:
     // disambiguate evaluate
-    using PaymentVisitor::evaluate;
+    using ObservableVisitor::evaluate;
     using PayoffVisitor::evaluate;
 
     FixingCollector() = default;
@@ -69,8 +69,8 @@ class FixingCollector final : public PayoffVisitor<void>, public PaymentVisitor<
     void visit(const CashPayment& node) override { evaluate(node.getAmount()); }
 
     void visit(const CombinedPayment& node) override {
-        PaymentVisitor::evaluate(node.getLeft());
-        PaymentVisitor::evaluate(node.getRight());
+        PayoffVisitor::evaluate(node.getLeft());
+        PayoffVisitor::evaluate(node.getRight());
     }
 
     void visit(const MultiPayment& node) override { evaluate(node.getPayment()); }
@@ -80,13 +80,13 @@ class FixingCollector final : public PayoffVisitor<void>, public PaymentVisitor<
 };
 }  // namespace
 
-std::set<Fixing> getFixings(const PayoffNodePtr& payoff) {
+std::set<Fixing> getFixings(const ObservableNodePtr& payoff) {
     FixingCollector collector;
     collector.evaluate(payoff);
     return collector.getFixings();
 }
 
-std::set<Fixing> getFixings(const PaymentNodePtr& payment) {
+std::set<Fixing> getFixings(const PayoffNodePtr& payment) {
     FixingCollector collector;
     collector.evaluate(payment);
     return collector.getFixings();

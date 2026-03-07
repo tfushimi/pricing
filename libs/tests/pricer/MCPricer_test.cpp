@@ -5,7 +5,7 @@
 #include "market/ConstantForwardCurve.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
 
 using namespace market;

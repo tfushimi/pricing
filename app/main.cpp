@@ -3,8 +3,8 @@
 
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
-#include "payoff/Payment.h"
-#include "payoff/PayoffNode.h"
+#include "payoff/Observable.h"
+#include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 #include "pricer/BSPricer.h"
 
