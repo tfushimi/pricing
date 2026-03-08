@@ -139,7 +139,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
         return left + right;
     }
 
-    Sample visit(const MultiPayment& node) override {
+    Sample visit(const MultiplyPayment& node) override {
         const auto sample = evaluate(node.getPayoff());
         return node.multiplier() * sample;
     }

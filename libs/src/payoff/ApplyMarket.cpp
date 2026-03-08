@@ -82,9 +82,9 @@ class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
         const auto right = evaluate(node.getRight());
         return std::make_shared<CombinedPayment>(left, right);
     }
-    PayoffNodePtr visit(const MultiPayment& node) override {
+    PayoffNodePtr visit(const MultiplyPayment& node) override {
         const auto payoff = evaluate(node.getPayoff());
-        return std::make_shared<MultiPayment>(payoff, node.multiplier());
+        return std::make_shared<MultiplyPayment>(payoff, node.multiplier());
     }
 
    private:

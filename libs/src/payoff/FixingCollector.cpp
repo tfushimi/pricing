@@ -73,7 +73,7 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
         PayoffVisitor::evaluate(node.getRight());
     }
 
-    void visit(const MultiPayment& node) override { evaluate(node.getPayoff()); }
+    void visit(const MultiplyPayment& node) override { evaluate(node.getPayoff()); }
 
    private:
     std::set<Fixing> _fixings;

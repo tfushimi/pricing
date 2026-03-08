@@ -18,7 +18,7 @@ class BSPricer final : public PayoffPricer, public payoff::PayoffVisitor<double>
     const market::Market& _market;
     double visit(const payoff::CashPayment& node) override;
     double visit(const payoff::CombinedPayment& node) override;
-    double visit(const payoff::MultiPayment& node) override;
+    double visit(const payoff::MultiplyPayment& node) override;
     static double priceSegment(const numerics::linear::Segment& segment, double dF,
                                const market::BSVolSlice& bsVolSlice);
 };

@@ -8,7 +8,7 @@ namespace payoff {
 class PayoffNode;
 class CashPayment;
 class CombinedPayment;
-class MultiPayment;
+class MultiplyPayment;
 
 class PayoffNodePtr {
    public:
@@ -37,7 +37,7 @@ class PayoffVisitor {
    protected:
     virtual T visit(const CashPayment& node) = 0;
     virtual T visit(const CombinedPayment& node) = 0;
-    virtual T visit(const MultiPayment& node) = 0;
+    virtual T visit(const MultiplyPayment& node) = 0;
 };
 
 // Base node
@@ -87,9 +87,9 @@ class CombinedPayment final : public PayoffNode {
     PayoffNodePtr _right;
 };
 
-class MultiPayment final : public PayoffNode {
+class MultiplyPayment final : public PayoffNode {
    public:
-    MultiPayment(PayoffNodePtr payoff, const double multiplier)
+    MultiplyPayment(PayoffNodePtr payoff, const double multiplier)
         : _payment(std::move(payoff)), _multiplier(multiplier){};
 
     Type type() const override { return Type::MultiplyPayment; }
@@ -111,6 +111,10 @@ inline PayoffNodePtr combinedPayment(PayoffNodePtr left, PayoffNodePtr right) {
     return std::make_shared<CombinedPayment>(std::move(left), std::move(right));
 }
 
+inline PayoffNodePtr multiplyPayment(PayoffNodePtr payment, const double multiplier) {
+    return std::make_shared<MultiplyPayment>(std::move(payment), multiplier);
+}
+
 template <typename T>
 T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
     switch (node.type()) {
@@ -119,7 +123,7 @@ T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
         case PayoffNode::Type::CombinedPayment:
             return visit(static_cast<const CombinedPayment&>(node));
         case PayoffNode::Type::MultiplyPayment:
-            return visit(static_cast<const MultiPayment&>(node));
+            return visit(static_cast<const MultiplyPayment&>(node));
     }
 
     throw std::invalid_argument("Unknown payment node type");
