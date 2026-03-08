@@ -7,7 +7,7 @@
 namespace pricer {
 
 // TODO can we consolidate P0 and P1 somehow?
-std::complex<double> hestonP0(const double x, const double u, const double v0, const double T,
+inline std::complex<double> hestonP0(const double x, const double u, const double v0, const double T,
                               const double kappa, const double theta, const double xi,
                               const double rho) {
     using Complex = std::complex<double>;
@@ -27,7 +27,7 @@ std::complex<double> hestonP0(const double x, const double u, const double v0, c
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
 
-std::complex<double> hestonP1(const double x, const double u, const double v0, const double T,
+inline std::complex<double> hestonP1(const double x, const double u, const double v0, const double T,
                               const double kappa, const double theta, const double xi,
                               const double rho) {
     using Complex = std::complex<double>;
