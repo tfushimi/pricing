@@ -1,13 +1,43 @@
 #include <gtest/gtest.h>
 
 #include "common/types.h"
+#include "market/ConstantDiscountCurve.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 using namespace payoff;
+using namespace market;
 
+static const Date pricingDate = makeDate(2025, 1, 1);
 static const Date D1 = makeDate(2026, 1, 15);
 static const Date D2 = makeDate(2026, 6, 15);
+
+class FlatDiscountCurve final : public Curve {
+   public:
+    explicit FlatDiscountCurve(const double df) : Curve(pricingDate), _df(df) {}
+    double get(const double) const override { return _df; }
+
+   private:
+    double _df;
+};
+
+class FlatMarket final : public Market {
+   public:
+    explicit FlatMarket(const double dF)
+        : _discountCurve(std::make_shared<FlatDiscountCurve>(dF)) {}
+
+    std::shared_ptr<Curve> getDiscountCurve() const override { return _discountCurve; }
+    Date getPricingDate() const override { return pricingDate; }
+    std::optional<double> getPrice(const std::string&, const Date&) const override {
+        return std::nullopt;
+    }
+    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
+        return nullptr;
+    }
+
+   private:
+    std::shared_ptr<Curve> _discountCurve;
+};
 
 static Scenario makeScenario(Date date, std::initializer_list<double> values) {
     return {{date, Sample(std::data(values), values.size())}};
@@ -87,4 +117,73 @@ TEST(ApplyFixingsTest, BarrierEnhancedNote) {
     EXPECT_DOUBLE_EQ(result[1], 100.0);
     EXPECT_DOUBLE_EQ(result[2], 111.0);
     EXPECT_DOUBLE_EQ(result[3], 120.0);
+}
+
+TEST(ApplyPayoffFixingsTest, CashPayment) {
+    const auto scenario = makeScenario(D1, {110.0, 100.0, 90.0});
+    const FlatMarket market(0.95);
+
+    // fixingDate == settlementDate for simplicity
+    const auto S = fixing("SPY", D1);
+    const auto payoff = cashPayment(max(S - 100.0, 0.0), D1);
+    const auto result = applyFixings(payoff, market, scenario);
+
+    EXPECT_DOUBLE_EQ(result[0], 9.5);
+    EXPECT_DOUBLE_EQ(result[1], 0.0);
+    EXPECT_DOUBLE_EQ(result[2], 0.0);
+}
+
+TEST(ApplyPayoffFixingsTest, CombinedPayment) {
+    const auto scenario = makeScenario(D1, {110.0, 100.0, 90.0});
+    const FlatMarket market(0.95);
+
+    // fixingDate == settlementDate for simplicity
+    const auto S = fixing("SPY", D1);
+    const auto leg1 = cashPayment(max(S - 100.0, 0.0), D1);
+    const auto leg2 = cashPayment(max(100.0 - S, 0.0), D1);
+    const auto payoff = combinedPayment(leg1, leg2);
+    const auto result = applyFixings(payoff, market, scenario);
+
+    // call + put = |S - K| discounted
+    EXPECT_DOUBLE_EQ(result[0], 9.5);
+    EXPECT_DOUBLE_EQ(result[1], 0.0);
+    EXPECT_DOUBLE_EQ(result[2], 9.5);
+}
+
+TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
+    class TwoRateCurve final : public Curve {
+       public:
+        TwoRateCurve() : Curve(pricingDate) {}
+        double get(const double T) const override {
+            return T == yearFraction(pricingDate, D1) ? 0.95 : 0.90;
+        }
+    };
+
+    class TwoRateMarket final : public Market {
+       public:
+        std::shared_ptr<Curve> getDiscountCurve() const override {
+            return std::make_shared<TwoRateCurve>();
+        }
+        Date getPricingDate() const override { return pricingDate; }
+        std::optional<double> getPrice(const std::string&, const Date&) const override {
+            return std::nullopt;
+        }
+        std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
+            return nullptr;
+        }
+    };
+
+    const auto scenario = makeScenario2(D1, {110.0}, D2, {110.0});
+    const TwoRateMarket market;
+
+    // fixingDate == settlementDate for simplicity
+    const auto S1 = fixing("SPY", D1);
+    const auto S2 = fixing("SPY", D2);
+    const auto leg1 = cashPayment(max(S1 - 100.0, 0.0), D1);
+    const auto leg2 = cashPayment(max(S2 - 100.0, 0.0), D2);
+    const auto payoff = combinedPayment(leg1, leg2);
+    const auto result = applyFixings(payoff, market, scenario);
+
+    // leg1: (110-100) * 0.95 = 9.5, leg2: (110 - 100) * 0.9 = 0.9
+    EXPECT_DOUBLE_EQ(result[0], 18.5);
 }
