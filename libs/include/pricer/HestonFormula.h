@@ -5,12 +5,11 @@
 #include <functional>
 
 namespace pricer {
-namespace {
 
 // TODO can we consolidate P0 and P1 somehow?
-std::complex<double> hestonP0(const double x, const double u, const double v0,
-                                     const double T, const double kappa, const double theta,
-                                     const double xi, const double rho) {
+std::complex<double> hestonP0(const double x, const double u, const double v0, const double T,
+                              const double kappa, const double theta, const double xi,
+                              const double rho) {
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -28,9 +27,9 @@ std::complex<double> hestonP0(const double x, const double u, const double v0,
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
 
-std::complex<double> hestonP1(const double x, const double u, const double v0,
-                                     const double T, const double kappa, const double theta,
-                                     const double xi, const double rho) {
+std::complex<double> hestonP1(const double x, const double u, const double v0, const double T,
+                              const double kappa, const double theta, const double xi,
+                              const double rho) {
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -47,12 +46,11 @@ std::complex<double> hestonP1(const double x, const double u, const double v0,
 
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
-}
 
 // TODO move this to numerics/integration
 inline double integrate(const std::function<double(double)>& f) {
     constexpr double du = 0.001;
-    constexpr double uMax = 1000.0;
+    constexpr double uMax = 200.0;
     double sum = 0.0;
     for (double u = du; u < uMax; u += du) sum += f(u) * du;
     return sum;
