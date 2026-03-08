@@ -40,6 +40,7 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
             throw std::invalid_argument("Sample not found on " + toString(fixingDate));
         }
 
+        // TODO verify symbol matches _scenario
         return _scenario.at(fixingDate);
     }
 
