@@ -76,7 +76,7 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
         if (K == POS_INF) {
             return 0.0;
         }
-        return blackCallFormula(F, K, T, dF, bsVolSlice.vol(K));
+        return bsCallFormula(F, K, T, dF, bsVolSlice.vol(K));
     };
 
     auto DigitalCall = [&](const double K) -> double {
@@ -86,7 +86,7 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
         if (K == POS_INF) {
             return 0.0;
         }
-        return blackDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
+        return bsDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
     };
 
     const double leftEndPoint = slope * lo + intercept;

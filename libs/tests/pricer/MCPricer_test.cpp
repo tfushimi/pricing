@@ -51,7 +51,7 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
 
     MCPricer pricer{market, gbm, 1'000'000, rng};
     const double pricerPrice = pricer.price(payoff);
-    const double formulaPrice = blackCallFormula(forward.get(T), K, T, dF, volAt(K));
+    const double formulaPrice = bsCallFormula(forward.get(T), K, T, dF, volAt(K));
 
     EXPECT_NEAR(pricerPrice, formulaPrice, 1e-3);
 }

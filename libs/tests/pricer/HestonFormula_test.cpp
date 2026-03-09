@@ -25,7 +25,7 @@ TEST(HestonFormulaTest, Example) {
 TEST(HestonFormulaTest, CallReducesToBS) {
     constexpr double v0 = 0.05, kappa = 5.0, theta = 0.05, xi = 1e-4, rho = 0.0;
     const double hestonPrice = hestonCallFormula(F, K, T, dF, v0, kappa, theta, xi, rho);
-    const double bsPrice = blackCallFormula(F, K, T, dF, std::sqrt(v0));
+    const double bsPrice = bsCallFormula(F, K, T, dF, std::sqrt(v0));
     EXPECT_NEAR(hestonPrice, bsPrice, 1e-3);
 }
 
@@ -33,7 +33,7 @@ TEST(HestonFormulaTest, DigitalCallReducesToBS) {
     // xi -> 0 and rho = 0 means no skew
     constexpr double v0 = 0.05, kappa = 5.0, theta = 0.05, xi = 1e-4, rho = 0.0;
     const double hestonPrice = hestonDigitalCallFormula(F, K, T, dF, v0, kappa, theta, xi, rho);
-    const double bsPrice = blackDigitalFormula(F, K, T, dF, std::sqrt(v0), 0.0);
+    const double bsPrice = bsDigitalFormula(F, K, T, dF, std::sqrt(v0), 0.0);
     EXPECT_NEAR(hestonPrice, bsPrice, 1e-3);
 }
 
