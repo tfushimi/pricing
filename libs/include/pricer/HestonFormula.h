@@ -5,11 +5,11 @@
 #include <functional>
 
 namespace pricer {
-
+// TODO add struct HestonParams
 // TODO can we consolidate P0 and P1 somehow?
-inline std::complex<double> hestonP0(const double x, const double u, const double v0, const double T,
-                              const double kappa, const double theta, const double xi,
-                              const double rho) {
+inline std::complex<double> hestonP0(const double x, const double u, const double v0,
+                                     const double T, const double kappa, const double theta,
+                                     const double xi, const double rho) {
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -19,17 +19,17 @@ inline std::complex<double> hestonP0(const double x, const double u, const doubl
     const Complex rMinus = (beta - d) / (xi * xi);
     const Complex rPlus = (beta + d) / (xi * xi);
     const Complex g = rMinus / rPlus;
-    const Complex expdt = exp(-d * T);
+    const Complex expDt = exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - (2.0 / (xi * xi)) * log((1.0 - g * expdt) / (1.0 - g)));
-    const Complex D = rMinus * (1.0 - expdt) / (1.0 - g * expdt);
+    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
 
-inline std::complex<double> hestonP1(const double x, const double u, const double v0, const double T,
-                              const double kappa, const double theta, const double xi,
-                              const double rho) {
+inline std::complex<double> hestonP1(const double x, const double u, const double v0,
+                                     const double T, const double kappa, const double theta,
+                                     const double xi, const double rho) {
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -39,10 +39,10 @@ inline std::complex<double> hestonP1(const double x, const double u, const doubl
     const Complex rMinus = (beta - d) / (xi * xi);
     const Complex rPlus = (beta + d) / (xi * xi);
     const Complex g = rMinus / rPlus;
-    const Complex expdt = exp(-d * T);
+    const Complex expDt = exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - (2.0 / (xi * xi)) * log((1.0 - g * expdt) / (1.0 - g)));
-    const Complex D = rMinus * (1.0 - expdt) / (1.0 - g * expdt);
+    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
@@ -70,5 +70,17 @@ inline double hestonCallFormula(const double F, const double K, const double T, 
                             });
 
     return dF * (F * P1 - K * P0);
+}
+
+inline double hestonDigitalCallFormula(const double F, const double K, const double T,
+                                       const double dF, const double v0, const double kappa,
+                                       const double theta, const double xi, const double rho) {
+    const double x = std::log(F / K);
+
+    const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
+                                return hestonP0(x, u, v0, T, kappa, theta, xi, rho).real();
+                            });
+
+    return dF * P0;
 }
 }  // namespace pricer
