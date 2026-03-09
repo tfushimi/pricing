@@ -4,12 +4,19 @@
 #include <complex>
 #include <functional>
 
+#include "common/types.h"
+
 namespace pricer {
-// TODO add struct HestonParams
 // TODO can we consolidate P0 and P1 somehow?
-inline std::complex<double> hestonP0(const double x, const double u, const double v0,
-                                     const double T, const double kappa, const double theta,
-                                     const double xi, const double rho) {
+/**
+ * x = log-moneyness, log(F/K)
+ * u = integration paramete
+ * T = time to maturity
+ */
+inline std::complex<double> hestonP0(const double x, const double u, const double T,
+                                     const HestonParams& params) {
+    const auto [v0, kappa, theta, xi, rho] = params;
+
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -27,9 +34,15 @@ inline std::complex<double> hestonP0(const double x, const double u, const doubl
     return exp(C * theta + D * v0 + iu * x) / iu;
 }
 
-inline std::complex<double> hestonP1(const double x, const double u, const double v0,
-                                     const double T, const double kappa, const double theta,
-                                     const double xi, const double rho) {
+/**
+ * x = log-moneyness, log(F/K)
+ * u = integration paramete
+ * T = time to maturity
+ */
+inline std::complex<double> hestonP1(const double x, const double u, const double T,
+                                     const HestonParams& params) {
+    const auto [v0, kappa, theta, xi, rho] = params;
+
     using Complex = std::complex<double>;
     const Complex iu{0.0, u};
 
@@ -57,28 +70,26 @@ inline double integrate(const std::function<double(double)>& f) {
 }
 
 inline double hestonCallFormula(const double F, const double K, const double T, const double dF,
-                                const double v0, const double kappa, const double theta,
-                                const double xi, const double rho) {
+                                const HestonParams& params) {
     const double x = std::log(F / K);  // log-moneyness, rate already absorbed into F
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP0(x, u, v0, T, kappa, theta, xi, rho).real();
+                                return hestonP0(x, u, T, params).real();
                             });
 
     const double P1 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP1(x, u, v0, T, kappa, theta, xi, rho).real();
+                                return hestonP1(x, u, T, params).real();
                             });
 
     return dF * (F * P1 - K * P0);
 }
 
 inline double hestonDigitalCallFormula(const double F, const double K, const double T,
-                                       const double dF, const double v0, const double kappa,
-                                       const double theta, const double xi, const double rho) {
+                                       const double dF, const HestonParams& params) {
     const double x = std::log(F / K);
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP0(x, u, v0, T, kappa, theta, xi, rho).real();
+                                return hestonP0(x, u, T, params).real();
                             });
 
     return dF * P0;

@@ -66,7 +66,7 @@ TEST_F(ProcessTest, HestonZeroDiffusion) {
     constexpr double theta = v0;
     constexpr double dt = 1.0;
 
-    const HestonProcess heston(forward, v0, 2.0, theta, 0.3, -0.7);
+    const HestonProcess heston(forward, {v0, 2.0, theta, 0.3, -0.7});
     const auto state0 = heston.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1), Sample(0.0, 1)};
@@ -87,7 +87,7 @@ TEST_F(ProcessTest, HestonDiffusion) {
     constexpr double kappa = 2.0;
     constexpr double theta = v0;
 
-    const HestonProcess heston(forward, 0.04, 2.0, 0.04, 0.3, -0.7);
+    const HestonProcess heston(forward, {v0, kappa, theta, 0.3, -0.7});
 
     constexpr int nSteps = 12;
     constexpr double dt = T / nSteps;

@@ -129,8 +129,7 @@ TEST_F(BSPricerTest, MultiplyPayment) {
     const auto payoff = multiplyPayment(payment, multiplier);
 
     const double pricerPrice = bsPrice(payoff, market);
-    const double expected =
-        multiplier * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
+    const double expected = multiplier * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
 
     EXPECT_NEAR(pricerPrice, expected, 1e-10);
 }

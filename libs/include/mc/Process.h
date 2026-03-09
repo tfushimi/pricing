@@ -58,15 +58,14 @@ struct HestonState {
 
 class HestonProcess final : public Process<HestonState> {
    public:
-    HestonProcess(const Curve& forward, const double v0, const double kappa, const double theta,
-                  const double xi, const double rho)
+    HestonProcess(const Curve& forward, const HestonParams& params)
         : _forward(forward),
-          _v0(v0),
-          _kappa(kappa),
-          _theta(theta),
-          _xi(xi),
-          _rho(rho),
-          _rhoBar(std::sqrt(1.0 - rho * rho)) {}
+          _v0(params.v0),
+          _kappa(params.kappa),
+          _theta(params.theta),
+          _xi(params.xi),
+          _rho(params.rho),
+          _rhoBar(std::sqrt(1.0 - params.rho * params.rho)) {}
 
     std::size_t nNormals() const override { return 2; }
 

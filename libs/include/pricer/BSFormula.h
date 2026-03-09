@@ -18,20 +18,20 @@ inline std::pair<double, double> bsD1D2(double F, double K, double T, double sig
 
 // Black Formula
 inline double bsCallFormula(const double F, const double K, const double T, const double dF,
-                               const double vol) {
+                            const double vol) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
     return dF * (F * normCdf(d1) - K * normCdf(d2));
 }
 
 inline double bsVega(const double F, const double K, const double T, const double dF,
-                        const double vol) {
+                     const double vol) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
 
     return dF * F * normPdf(d1) * std::sqrt(T);
 }
 
 inline double bsDigitalFormula(const double F, const double K, const double T, const double dF,
-                                  const double vol, const double dVolDStrike) {
+                               const double vol, const double dVolDStrike) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
 
     return dF * normCdf(d2) - bsVega(F, K, T, dF, vol) * dVolDStrike;
