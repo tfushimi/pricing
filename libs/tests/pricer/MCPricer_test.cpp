@@ -22,7 +22,6 @@ class MCPricerTest : public ::testing::Test {
     const double rate = 0.05;
     const double T = yearFraction(pricingDate, fixingDate);
     const double dF = std::exp(-rate * yearFraction(pricingDate, settlementDate));
-    const ConstantForwardCurve forward{pricingDate, spot, rate};
 
     // Negative skew, some curvature
     const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
@@ -46,12 +45,14 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     const auto S = fixing("SPY", fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
-    const GBMProcess gbm{forward, volAt(K)};
+    const auto forward = market.getForwardCurve("SPY");
+
+    const GBMProcess gbm{*forward, volAt(K)};
     const RNG rng(42);
 
     MCPricer pricer{market, gbm, 1'000'000, rng};
     const double pricerPrice = pricer.price(payoff);
-    const double formulaPrice = bsCallFormula(forward.get(T), K, T, dF, volAt(K));
+    const double formulaPrice = bsCallFormula(forward->get(T), K, T, dF, volAt(K));
 
     EXPECT_NEAR(pricerPrice, formulaPrice, 1e-3);
 }

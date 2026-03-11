@@ -18,6 +18,7 @@ class Market {
     // TODO FixingType (e.g., CLOSE)
     virtual std::optional<double> getPrice(const std::string& symbol, const Date& date) const = 0;
     virtual std::shared_ptr<Curve> getDiscountCurve() const = 0;
+    virtual std::shared_ptr<Curve> getForwardCurve(const std::string& symbol) const = 0;
     virtual std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string& symbol,
                                                       const Date& date) const = 0;
 };

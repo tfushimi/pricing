@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 
+#include "ConstantForwardCurve.h"
 #include "common/types.h"
 #include "market/ConstantDiscountCurve.h"
 #include "market/Market.h"
@@ -24,6 +25,7 @@ class SimpleMarket final : public Market {
           _symbol(symbol),
           _spot(spot),
           _discountCurve(std::make_shared<ConstantDiscountCurve>(pricingDate, rate)),
+          _forwardCurve(std::make_shared<ConstantForwardCurve>(pricingDate, spot, rate)),
           _sviParams(std::move(sviParams)) {}
 
     Date getPricingDate() const override { return _pricingDate; }
@@ -38,11 +40,13 @@ class SimpleMarket final : public Market {
 
     std::shared_ptr<Curve> getDiscountCurve() const override { return _discountCurve; }
 
+    std::shared_ptr<Curve> getForwardCurve(const std::string&) const override {
+        return _forwardCurve;
+    }
+
     std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date& date) const override {
         const auto T = yearFraction(_pricingDate, date);
-        const auto disc = _discountCurve->get(T);
-        const auto forward = _spot / disc;
-        return std::make_shared<SVIVolSlice>(forward, T, _sviParams);
+        return std::make_shared<SVIVolSlice>(_forwardCurve->get(T), T, _sviParams);
     }
 
    private:
@@ -50,6 +54,7 @@ class SimpleMarket final : public Market {
     std::string _symbol;
     double _spot;
     std::shared_ptr<Curve> _discountCurve;
+    std::shared_ptr<Curve> _forwardCurve;
     vol::SVIParams _sviParams;
 };
 

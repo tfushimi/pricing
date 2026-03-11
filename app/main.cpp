@@ -72,8 +72,8 @@ int main() {
         }
 
         std::cout << std::fixed << std::setprecision(2) << std::setw(7) << spot << "  |"
-                  << std::setw(8) << plf(spot) << "  | " << std::setw(6) << bsPricer(payment, market)
-                  << "  | " << region << "\n";
+                  << std::setw(8) << plf(spot) << "  | " << std::setw(6)
+                  << bsPricer(payment, market) << "  | " << region << "\n";
     }
 
     return 0;

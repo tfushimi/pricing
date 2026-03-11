@@ -27,6 +27,7 @@ class FlatMarket final : public Market {
         : _discountCurve(std::make_shared<FlatDiscountCurve>(dF)) {}
 
     std::shared_ptr<Curve> getDiscountCurve() const override { return _discountCurve; }
+    std::shared_ptr<Curve> getForwardCurve(const std::string&) const override { return nullptr; }
     Date getPricingDate() const override { return pricingDate; }
     std::optional<double> getPrice(const std::string&, const Date&) const override {
         return std::nullopt;
@@ -163,6 +164,9 @@ TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
        public:
         std::shared_ptr<Curve> getDiscountCurve() const override {
             return std::make_shared<TwoRateCurve>();
+        }
+        std::shared_ptr<Curve> getForwardCurve(const std::string&) const override {
+            return nullptr;
         }
         Date getPricingDate() const override { return pricingDate; }
         std::optional<double> getPrice(const std::string&, const Date&) const override {
