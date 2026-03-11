@@ -10,7 +10,7 @@ namespace pricer {
 // TODO can we consolidate P0 and P1 somehow?
 /**
  * x = log-moneyness, log(F/K)
- * u = integration paramete
+ * u = integration parameter
  * T = time to maturity
  */
 inline std::complex<double> hestonP0(const double x, const double u, const double T,
@@ -36,7 +36,7 @@ inline std::complex<double> hestonP0(const double x, const double u, const doubl
 
 /**
  * x = log-moneyness, log(F/K)
- * u = integration paramete
+ * u = integration parameter
  * T = time to maturity
  */
 inline std::complex<double> hestonP1(const double x, const double u, const double T,

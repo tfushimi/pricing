@@ -7,6 +7,10 @@
 #include "payoff/Payoff.h"
 
 namespace pricer {
+
+/**
+ * Price piecewise linear payoff by applying BlackScholes formula to each segment.
+ */
 class BSPricer final : public PayoffPricer, public payoff::PayoffVisitor<double> {
    public:
     explicit BSPricer(const market::Market& market) : _market(market) {}
@@ -15,13 +19,17 @@ class BSPricer final : public PayoffPricer, public payoff::PayoffVisitor<double>
    private:
     const market::Market& _market;
     double visit(const payoff::CashPayment& node) override;
-    double visit(const payoff::CombinedPayment& node) override;
-    double visit(const payoff::MultiplyPayment& node) override;
+    double visit(const payoff::CombinedPayment& node) override {
+        return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
+    }
+    double visit(const payoff::MultiplyPayment& node) override {
+        return node.multiplier() * evaluate(node.getPaymentPtr());
+    }
     static double priceSegment(const numerics::linear::Segment& segment, double dF,
                                const market::BSVolSlice& bsVolSlice);
 };
 
-inline double bsPrice(const payoff::PayoffNodePtr& payment, const market::Market& market) {
+inline double bsPricer(const payoff::PayoffNodePtr& payment, const market::Market& market) {
     return BSPricer(market).price(payment);
 }
 }  // namespace pricer

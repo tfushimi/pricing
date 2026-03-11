@@ -49,7 +49,7 @@ TEST_F(BSPricerTest, ATMCall) {
     const auto S = fixing("SPY", fixingDate1);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate1);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double formulaPrice = bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
 
     EXPECT_DOUBLE_EQ(pricerPrice, formulaPrice);
@@ -61,7 +61,7 @@ TEST_F(BSPricerTest, OTMCall) {
     const auto S = fixing("SPY", fixingDate1);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate1);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double formulaPrice = bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
 
     EXPECT_NEAR(pricerPrice, formulaPrice, 1e-10);
@@ -73,7 +73,7 @@ TEST_F(BSPricerTest, DigitalCall) {
     const auto S = fixing("SPY", fixingDate1);
     const auto payoff = cashPayment(ite(S >= K, 1.0, 0.0), settlementDate1);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double formulaPrice =
         bsDigitalFormula(forward1, K, T1, dF1, volAt(K, fixingDate1), skewAt(K, fixingDate1));
 
@@ -87,8 +87,8 @@ TEST_F(BSPricerTest, PutCallParity) {
     const auto call = cashPayment(max(S - K, 0.0), settlementDate1);
     const auto put = cashPayment(max(K - S, 0.0), settlementDate1);
 
-    const double callPrice = bsPrice(call, market);
-    const double putPrice = bsPrice(put, market);
+    const double callPrice = bsPricer(call, market);
+    const double putPrice = bsPricer(put, market);
 
     EXPECT_NEAR(callPrice - putPrice, dF1 * (forward1 - K), 1e-10);
 }
@@ -99,7 +99,7 @@ TEST_F(BSPricerTest, ForwardContract) {
     const auto S = fixing("SPY", fixingDate1);
     const auto payoff = cashPayment(S - K, settlementDate1);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
 
     EXPECT_NEAR(pricerPrice, dF1 * (forward1 - K), 1e-10);
 }
@@ -114,7 +114,7 @@ TEST_F(BSPricerTest, CombinedPaymentTwoLegs) {
     const auto leg2 = cashPayment(max(S2 - K2, 0.0), settlementDate2);
     const auto payoff = combinedPayment(leg1, leg2);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double expected = bsCallFormula(forward1, K1, T1, dF1, volAt(K1, fixingDate1)) +
                             bsCallFormula(forward2, K2, T2, dF2, volAt(K2, fixingDate2));
     EXPECT_NEAR(pricerPrice, expected, 1e-10);
@@ -128,7 +128,7 @@ TEST_F(BSPricerTest, MultiplyPayment) {
     const auto payment = cashPayment(max(S - K, 0.0), settlementDate1);
     const auto payoff = multiplyPayment(payment, multiplier);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double expected = multiplier * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
 
     EXPECT_NEAR(pricerPrice, expected, 1e-10);
@@ -145,7 +145,7 @@ TEST_F(BSPricerTest, CombinedAndMultiPaymentNested) {
         multiplyPayment(cashPayment(max(S - cap, 0.0), settlementDate1), -notional);
     const auto payoff = combinedPayment(longLeg, shortLeg);
 
-    const double pricerPrice = bsPrice(payoff, market);
+    const double pricerPrice = bsPricer(payoff, market);
     const double expected =
         notional * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1)) -
         notional * bsCallFormula(forward1, cap, T1, dF1, volAt(cap, fixingDate1));

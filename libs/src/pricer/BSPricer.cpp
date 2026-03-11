@@ -14,9 +14,6 @@ using namespace market;
 
 namespace pricer {
 
-/**
- * Price piecewise linear payoff by applying BlackScholes formula to each segment.
- */
 double BSPricer::visit(const CashPayment& node) {
     const auto cashPayment = applyMarket(node, _market);
 
@@ -94,13 +91,5 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
 
     return slope * (Call(lo) - Call(hi)) + leftEndPoint * DigitalCall(lo) -
            rightEndPoint * DigitalCall(hi);
-}
-
-double BSPricer::visit(const CombinedPayment& node) {
-    return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
-}
-
-double BSPricer::visit(const MultiplyPayment& node) {
-    return node.multiplier() * evaluate(node.getPaymentPtr());
 }
 }  // namespace pricer
