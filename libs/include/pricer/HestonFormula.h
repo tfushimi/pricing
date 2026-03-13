@@ -8,9 +8,10 @@
 
 namespace pricer {
 /**
- * x = log-moneyness, log(F/K)
- * u = integration parameter
- * T = time to maturity
+ * @param x = log-moneyness, log(F/K)
+ * @param u = integration parameter
+ * @param T = time to maturity
+ * @param params = Heston parameters
  */
 inline std::complex<double> hestonP0(const double u, const double x, const double T,
                                      const HestonParams& params) {
@@ -34,9 +35,10 @@ inline std::complex<double> hestonP0(const double u, const double x, const doubl
 }
 
 /**
- * x = log-moneyness, log(F/K)
- * u = integration parameter
- * T = time to maturity
+ * @param x = log-moneyness, log(F/K)
+ * @param u = integration parameter
+ * @param T = time to maturity
+ * @param params = Heston parameters
  */
 inline std::complex<double> hestonP1(const double u, const double x, const double T,
                                      const HestonParams& params) {
@@ -71,11 +73,11 @@ inline double integrate(const std::function<double(double)>& f) {
 /**
  * Heston call formula (based on Gatheral's formulation)
  *
- * @param F forward price
- * @param K strike price
- * @param T time to maturity
- * @param dF discount factor
- * @param params Heston parameter
+ * @param F = forward price
+ * @param K = strike price
+ * @param T = time to maturity
+ * @param dF = discount factor
+ * @param params = Heston parameters
  * @return call price
  */
 inline double hestonCallFormula(const double F, const double K, const double T, const double dF,
@@ -96,12 +98,12 @@ inline double hestonCallFormula(const double F, const double K, const double T, 
 /**
  * Heston digital call formula (based on Gatheral's formulation)
  *
- * @param F forward price
- * @param K strike price
- * @param T time to maturity
- * @param dF discount factor
- * @param params Heston parameter
- * @return call price
+ * @param F = forward price
+ * @param K = strike price
+ * @param T = time to maturity
+ * @param dF = discount factor
+ * @param params = Heston parameters
+ * @return digital call price
  */
 inline double hestonDigitalCallFormula(const double F, const double K, const double T,
                                        const double dF, const HestonParams& params) {
