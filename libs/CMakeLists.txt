@@ -12,6 +12,7 @@ add_library(payoff STATIC
 add_library(market INTERFACE)
 add_library(pricer STATIC
         src/pricer/BSPricer.cpp
+        src/pricer/HestonPricer.cpp
 )
 add_library(mc INTERFACE)
 

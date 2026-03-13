@@ -7,13 +7,12 @@
 #include "common/types.h"
 
 namespace pricer {
-// TODO can we consolidate P0 and P1 somehow?
 /**
  * x = log-moneyness, log(F/K)
  * u = integration parameter
  * T = time to maturity
  */
-inline std::complex<double> hestonP0(const double x, const double u, const double T,
+inline std::complex<double> hestonP0(const double u, const double x, const double T,
                                      const HestonParams& params) {
     const auto [v0, kappa, theta, xi, rho] = params;
 
@@ -39,7 +38,7 @@ inline std::complex<double> hestonP0(const double x, const double u, const doubl
  * u = integration parameter
  * T = time to maturity
  */
-inline std::complex<double> hestonP1(const double x, const double u, const double T,
+inline std::complex<double> hestonP1(const double u, const double x, const double T,
                                      const HestonParams& params) {
     const auto [v0, kappa, theta, xi, rho] = params;
 
@@ -69,27 +68,47 @@ inline double integrate(const std::function<double(double)>& f) {
     return sum;
 }
 
+/**
+ * Heston call formula (based on Gatheral's formulation)
+ *
+ * @param F forward price
+ * @param K strike price
+ * @param T time to maturity
+ * @param dF discount factor
+ * @param params Heston parameter
+ * @return call price
+ */
 inline double hestonCallFormula(const double F, const double K, const double T, const double dF,
                                 const HestonParams& params) {
     const double x = std::log(F / K);  // log-moneyness, rate already absorbed into F
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP0(x, u, T, params).real();
+                                return hestonP0(u, x, T, params).real();
                             });
 
     const double P1 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP1(x, u, T, params).real();
+                                return hestonP1(u, x, T, params).real();
                             });
 
     return dF * (F * P1 - K * P0);
 }
 
+/**
+ * Heston digital call formula (based on Gatheral's formulation)
+ *
+ * @param F forward price
+ * @param K strike price
+ * @param T time to maturity
+ * @param dF discount factor
+ * @param params Heston parameter
+ * @return call price
+ */
 inline double hestonDigitalCallFormula(const double F, const double K, const double T,
                                        const double dF, const HestonParams& params) {
     const double x = std::log(F / K);
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
-                                return hestonP0(x, u, T, params).real();
+                                return hestonP0(u, x, T, params).real();
                             });
 
     return dF * P0;
