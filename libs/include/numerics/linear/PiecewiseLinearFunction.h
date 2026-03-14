@@ -14,6 +14,8 @@
 namespace numerics::linear {
 class PiecewiseLinearFunction {
    public:
+    using const_iterator = std::vector<Segment>::const_iterator;
+
     explicit PiecewiseLinearFunction(std::vector<Segment> segments)
         : _segments(std::move(segments)) {
         validate();
@@ -31,9 +33,9 @@ class PiecewiseLinearFunction {
     static PiecewiseLinearFunction linear(double slope, double intercept);
     static PiecewiseLinearFunction constant(double x);
 
-    // Accessors
-    const std::vector<Segment>& getSegments() const { return _segments; }
-    std::vector<double> getBreakPoints() const;
+    // iterator
+    const_iterator begin() const { return _segments.begin(); }
+    const_iterator end() const { return _segments.end(); }
 
     // operator
     double operator()(double x) const;
@@ -60,8 +62,16 @@ class PiecewiseLinearFunction {
 
     std::string toString() const;
 
+    int numSegments() const { return _segments.size(); };
+
+    int numBreakPoints() const { return _segments.size() - 1; };
+
    private:
     void validate() const;
+
+    // Accessors
+    const std::vector<Segment>& getSegments() const { return _segments; }
+    std::vector<double> getBreakPoints() const;
 
     // create a pair of new PLs with shared breakpoints
     static std::pair<PiecewiseLinearFunction, PiecewiseLinearFunction> align(

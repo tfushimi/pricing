@@ -38,7 +38,7 @@ double HestonPricer::visit(const CashPayment& node) {
 
     const auto plf = toPiecewiseLinearFunction(cashPayment.getAmountPtr());
 
-    for (const Segment& segment : plf.getSegments()) {
+    for (const Segment& segment : plf) {
         price += priceSegment(segment, dF, *bsVolSlice);
     }
 

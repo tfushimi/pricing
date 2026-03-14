@@ -47,7 +47,7 @@ TEST(PLFTest, TestConstruction) {
     // f(x) = 1
     const auto constant = PLF::constant(1.0);
     EXPECT_DOUBLE_EQ(constant(1e10), 1.0) << "constant PLF";
-    EXPECT_EQ(constant.getBreakPoints().size(), 0) << "constant has no breakpoints";
+    EXPECT_EQ(constant.numBreakPoints(), 0) << "constant has no breakpoints";
 
     // f(x) = 2x + 1
     const auto linear = PLF::linear(2.0, 1.0);
@@ -72,7 +72,7 @@ TEST(PLFTest, TestArithmetic) {
 
     // merge: sum of two constants collapses to one segment
     const auto sum = PLF::constant(2.0) + PLF::constant(3.0);
-    EXPECT_EQ(sum.getSegments().size(), 1) << "merged: sum of constants is one segment";
+    EXPECT_EQ(sum.numSegments(), 1) << "merged: sum of constants is one segment";
 
     // errors
     bool threw = false;
@@ -117,7 +117,7 @@ TEST(PLFTest, TestIfThenElse) {
 
     EXPECT_DOUBLE_EQ(call(50.0), 0.0) << "call: below strike";
     EXPECT_DOUBLE_EQ(call(150.0), 50.0) << "call: above strike";
-    EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
+    EXPECT_EQ(call.numBreakPoints(), 1) << "call: one breakpoint";
 }
 
 TEST(PLFTest, TestMaxMin) {
@@ -129,7 +129,7 @@ TEST(PLFTest, TestMaxMin) {
 
     EXPECT_DOUBLE_EQ(call(50.0), 0.0) << "call: below strike";
     EXPECT_DOUBLE_EQ(call(150.0), 50.0) << "call: above strike";
-    EXPECT_EQ(call.getBreakPoints().size(), 1) << "call: one breakpoint";
+    EXPECT_EQ(call.numBreakPoints(), 1) << "call: one breakpoint";
 
     // min(200, max(S - 100, 10)) — floor=10, cap at S=200, linear in between
     const auto inner = PLF::max(S - PLF::constant(100.0), PLF::constant(10.0));
@@ -138,5 +138,5 @@ TEST(PLFTest, TestMaxMin) {
     EXPECT_DOUBLE_EQ(capped(50.0), 10.0) << "floored+capped: floor region";
     EXPECT_DOUBLE_EQ(capped(150.0), 50.0) << "floored+capped: linear region";
     EXPECT_DOUBLE_EQ(capped(400.0), 200.0) << "floored+capped: cap region";
-    EXPECT_EQ(capped.getBreakPoints().size(), 2) << "floored+capped: two breakpoints";
+    EXPECT_EQ(capped.numBreakPoints(), 2) << "floored+capped: two breakpoints";
 }
