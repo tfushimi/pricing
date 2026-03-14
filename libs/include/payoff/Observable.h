@@ -20,6 +20,19 @@ class GreaterThan;
 class GreaterThanOrEqual;
 class IfThenElse;
 
+/**
+ * Payoff DSL is a DAG of ObservableNodePtr.
+ *
+ * Directed = child ObservableNodes hold no pointers back to their parents,
+ *            edges flow strictly from parent to child.
+ *
+ * Acyclic = ObservableNodes are immutable after construction (no setters exposed),
+ *           and a parent node can only reference already-constructed children.
+ *           Therefore, no node can be its own ancestor.
+ *
+ * The DSL factory methods copy shared_ptr, which increments ref counts and ensures shared ownership
+ * of the underlying ObservableNode.
+ */
 class ObservableNodePtr {
    public:
     ObservableNodePtr() = default;
@@ -50,18 +63,10 @@ class ObservableNodePtr {
     std::shared_ptr<ObservableNode> _ptr;
 };
 
-// arithmetic operators for double hls
-inline ObservableNodePtr operator+(const double lhs, const ObservableNodePtr& rhs) {
-    return ObservableNodePtr(lhs) + rhs;
-}
-inline ObservableNodePtr operator-(const double lhs, const ObservableNodePtr& rhs) {
-    return ObservableNodePtr(lhs) - rhs;
-}
-inline ObservableNodePtr operator*(const double lhs, const ObservableNodePtr& rhs) {
-    return ObservableNodePtr(lhs) * rhs;
-}
-
-// Visitor
+/**
+ * ObservableVisitor traverses a Payoff DSL tree, and subclasses can perform custom operations for
+ * each node type.
+ */
 template <typename T>
 class ObservableVisitor {
    public:
@@ -86,7 +91,9 @@ class ObservableVisitor {
     virtual T visit(const IfThenElse& node) = 0;
 };
 
-// Base node
+/**
+ * All subclasses of ObservableNode must be immutable to ensure the correctness of shared ownership.
+ */
 class ObservableNode {
    public:
     ObservableNode() = default;
@@ -112,6 +119,7 @@ class ObservableNode {
     virtual Type type() const = 0;
 };
 
+// TODO support FixingType such as CLOSE (i.e., close price)
 class Fixing final : public ObservableNode {
    public:
     explicit Fixing(std::string symbol, Date date)
@@ -221,7 +229,9 @@ class IfThenElse final : public ObservableNode {
     ObservableNodePtr _else;
 };
 
-// Factory functions
+/**
+ * DSL factory methods should take ObservableNodePtr by value to copy the underlying shared_ptr.
+ */
 inline ObservableNodePtr fixing(std::string symbol, Date date) {
     return std::make_shared<Fixing>(std::move(symbol), std::move(date));
 }
@@ -267,7 +277,10 @@ inline ObservableNodePtr ite(ObservableNodePtr cond, ObservableNodePtr then_,
     return std::make_shared<IfThenElse>(std::move(cond), std::move(then_), std::move(else_));
 }
 
-// PayoffNodePtr operator implementations
+/**
+ * ObservableNodePtr's arithmetic operators should call the factory method to ensure the shared
+ * ownership of ObservableNode.
+ */
 inline ObservableNodePtr::ObservableNodePtr(double value)
     : _ptr(std::make_shared<Constant>(value)) {}
 
@@ -297,6 +310,20 @@ inline ObservableNodePtr ObservableNodePtr::operator>(const ObservableNodePtr& o
 
 inline ObservableNodePtr ObservableNodePtr::operator>=(const ObservableNodePtr& other) const {
     return greaterThanOrEqual(*this, other);
+}
+
+// arithmetic operators for double left
+inline ObservableNodePtr operator+(const double left, const ObservableNodePtr& right) {
+    return add(left, right);
+}
+inline ObservableNodePtr operator-(const double left, const ObservableNodePtr& right) {
+    return sub(left, right);
+}
+inline ObservableNodePtr operator*(const double left, const ObservableNodePtr& right) {
+    return multiply(left, right);
+}
+inline ObservableNodePtr operator/(const double left, const ObservableNodePtr& right) {
+    return divide(left, right);
 }
 
 template <typename T>
