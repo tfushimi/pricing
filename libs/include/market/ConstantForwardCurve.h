@@ -11,7 +11,7 @@ class ConstantForwardCurve final : public Curve {
     explicit ConstantForwardCurve(const Date pricingDate, const double spot, const double rate)
         : Curve(pricingDate), _spot(spot), _rate(rate) {}
 
-    double get(const double T) const override { return _spot * std::exp(_rate * T); }
+    double operator()(const double T) const override { return _spot * std::exp(_rate * T); }
 
    private:
     const double _spot;

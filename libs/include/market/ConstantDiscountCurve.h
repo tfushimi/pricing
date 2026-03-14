@@ -11,7 +11,7 @@ class ConstantDiscountCurve final : public Curve {
     explicit ConstantDiscountCurve(const Date pricingDate, const double rate)
         : Curve(pricingDate), _rate(rate) {}
 
-    double get(const double T) const override { return std::exp(-_rate * T); }
+    double operator()(const double T) const override { return std::exp(-_rate * T); }
 
    private:
     double _rate;

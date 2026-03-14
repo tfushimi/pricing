@@ -15,7 +15,7 @@ class ProcessStateStepperTest : public ::testing::Test {
    protected:
     const Date pricingDate = makeDate(2025, 1, 1);
     const ConstantForwardCurve forward{pricingDate, 100, 0.01};
-    const GBMProcess gbm{[&](const double T) { return forward.get(T); }, 0.2};
+    const GBMProcess gbm{forward, 0.2};
     ConstantRNG constRng{0.0};
 
     TimeGrid makeAnnualGrid(const int years) const {
@@ -49,7 +49,7 @@ TEST_F(ProcessStateStepperTest, GBMPureDriftPath) {
 
     constexpr auto simulationDate = 2025y / January / 1d;
     const Sample& spotAtT = scenario.at(simulationDate);
-    EXPECT_NEAR(mean(spotAtT), forward.get(yearFraction(pricingDate, simulationDate)), 1e-4);
+    EXPECT_NEAR(mean(spotAtT), forward(yearFraction(pricingDate, simulationDate)), 1e-4);
 }
 
 // TODO use random number

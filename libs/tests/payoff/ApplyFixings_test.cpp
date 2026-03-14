@@ -12,15 +12,6 @@ static const Date pricingDate = makeDate(2025, 1, 1);
 static const Date D1 = makeDate(2026, 1, 15);
 static const Date D2 = makeDate(2026, 6, 15);
 
-class FlatDiscountCurve final : public Curve {
-   public:
-    explicit FlatDiscountCurve(const double df) : Curve(pricingDate), _df(df) {}
-    double get(const double) const override { return _df; }
-
-   private:
-    double _df;
-};
-
 class FlatMarket final : public Market {
    public:
     explicit FlatMarket(const double dF) : _dF(dF) {}

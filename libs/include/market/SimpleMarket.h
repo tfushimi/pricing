@@ -36,10 +36,10 @@ class SimpleMarket final : public Market {
         return std::nullopt;
     }
 
-    double getDiscountFactor(const double T) const override { return _discountCurve.get(T); }
+    double getDiscountFactor(const double T) const override { return _discountCurve(T); }
 
     double getForward(const std::string&, const double T) const override {
-        return _forwardCurve.get(T);
+        return _forwardCurve(T);
     }
 
     const BSVolSlice& getBSVolSlice(const std::string& symbol, const Date& date) const override {
@@ -54,7 +54,7 @@ class SimpleMarket final : public Market {
         }
         const auto T = yearFraction(_pricingDate, date);
         auto [inserted_it, _] = _bsVolSlices.emplace(
-            key, std::make_unique<SVIVolSlice>(_forwardCurve.get(T), T, _sviParams));
+            key, std::make_unique<SVIVolSlice>(_forwardCurve(T), T, _sviParams));
         return *inserted_it->second;
     }
 
