@@ -32,13 +32,7 @@ double HestonPricer::visit(const CashPayment& node) {
         throw std::invalid_argument("BSVolSlice not found in market");
     }
 
-    const auto discountCurve = _market.getDiscountCurve();
-
-    if (!discountCurve) {
-        throw std::invalid_argument("Discount curve not found");
-    }
-
-    const double dF = discountCurve->get(node.getSettlementDate());
+    const double dF = _market.getDiscountFactor(node.getSettlementDate());
 
     double price = 0.0;
 

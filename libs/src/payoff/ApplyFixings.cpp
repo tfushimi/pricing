@@ -4,6 +4,8 @@
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
+using namespace market;
+
 namespace payoff {
 namespace {
 
@@ -120,18 +122,14 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
 
 class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
    public:
-    explicit ApplyPayoffFixings(const market::Market& market, const Scenario& scenario)
-        : _discountCurve(market.getDiscountCurve()), _scenario(scenario) {
-        if (!_discountCurve) {
-            throw std::invalid_argument("DiscountCurve not found");
-        }
-    }
+    explicit ApplyPayoffFixings(const Market& market, const Scenario& scenario)
+        : _market(market), _scenario(scenario) {}
     ~ApplyPayoffFixings() override = default;
 
    protected:
     Sample visit(const CashPayment& node) override {
         const auto sample = applyFixings(node.getAmountPtr(), _scenario);
-        return sample * _discountCurve->get(node.getSettlementDate());
+        return sample * _market.getDiscountFactor(node.getSettlementDate());
     }
 
     Sample visit(const CombinedPayment& node) override {
@@ -146,7 +144,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
     }
 
    private:
-    std::shared_ptr<const Curve> _discountCurve;
+    const Market& _market;
     const Scenario& _scenario;
 };
 }  // namespace

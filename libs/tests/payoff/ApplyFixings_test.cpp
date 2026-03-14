@@ -23,11 +23,10 @@ class FlatDiscountCurve final : public Curve {
 
 class FlatMarket final : public Market {
    public:
-    explicit FlatMarket(const double dF)
-        : _discountCurve(std::make_shared<FlatDiscountCurve>(dF)) {}
+    explicit FlatMarket(const double dF) : _dF(dF) {}
 
-    std::shared_ptr<Curve> getDiscountCurve() const override { return _discountCurve; }
-    std::shared_ptr<Curve> getForwardCurve(const std::string&) const override { return nullptr; }
+    double getDiscountFactor(const double) const override { return _dF; }
+    double getForward(const std::string&, const double) const override { return 0.0; }
     Date getPricingDate() const override { return pricingDate; }
     std::optional<double> getPrice(const std::string&, const Date&) const override {
         return std::nullopt;
@@ -37,7 +36,7 @@ class FlatMarket final : public Market {
     }
 
    private:
-    std::shared_ptr<Curve> _discountCurve;
+    double _dF;
 };
 
 static Scenario makeScenario(Date date, std::initializer_list<double> values) {
@@ -152,22 +151,12 @@ TEST(ApplyPayoffFixingsTest, CombinedPayment) {
 }
 
 TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
-    class TwoRateCurve final : public Curve {
-       public:
-        TwoRateCurve() : Curve(pricingDate) {}
-        double get(const double T) const override {
-            return T == yearFraction(pricingDate, D1) ? 0.95 : 0.90;
-        }
-    };
-
     class TwoRateMarket final : public Market {
        public:
-        std::shared_ptr<Curve> getDiscountCurve() const override {
-            return std::make_shared<TwoRateCurve>();
+        double getDiscountFactor(const double T) const override {
+            return T == yearFraction(pricingDate, D1) ? 0.95 : 0.90;
         }
-        std::shared_ptr<Curve> getForwardCurve(const std::string&) const override {
-            return nullptr;
-        }
+        double getForward(const std::string&, const double) const override { return 0.0; }
         Date getPricingDate() const override { return pricingDate; }
         std::optional<double> getPrice(const std::string&, const Date&) const override {
             return std::nullopt;

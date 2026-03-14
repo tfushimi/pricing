@@ -45,14 +45,12 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     const auto S = fixing("SPY", fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
-    const auto forward = market.getForwardCurve("SPY");
-
-    const GBMProcess gbm{*forward, volAt(K)};
+    const GBMProcess gbm{[&](const double t) { return market.getForward("SPY", t); }, volAt(K)};
     const RNG rng(42);
 
     MCPricer pricer{market, gbm, 1'000'000, rng};
     const double pricerPrice = pricer.price(payoff);
-    const double formulaPrice = bsCallFormula(forward->get(T), K, T, dF, volAt(K));
+    const double formulaPrice = bsCallFormula(market.getForward("SPY", T), K, T, dF, volAt(K));
 
     EXPECT_NEAR(pricerPrice, formulaPrice, 1e-3);
 }

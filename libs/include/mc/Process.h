@@ -1,9 +1,6 @@
 #pragma once
 
-#include <iostream>
-
 #include "common/types.h"
-#include "market/Curve.h"
 
 namespace mc {
 
@@ -27,7 +24,9 @@ struct GBMState {
 
 class GBMProcess final : public Process<GBMState> {
    public:
-    explicit GBMProcess(const Curve& forward, const double vol) : _forward(forward), _vol(vol) {}
+    using ForwardCurve = std::function<double(double)>;
+    explicit GBMProcess(ForwardCurve forward, const double vol)
+        : _forward(std::move(forward)), _vol(vol) {}
 
     GBMState initialState(const std::size_t nPaths) const override { return {Sample(0.0, nPaths)}; }
 
@@ -42,11 +41,11 @@ class GBMProcess final : public Process<GBMState> {
         const auto Z = exp(state.logZ);
         const auto avg = Z.sum() / Z.size();
 
-        return (_forward.get(time) / avg) * Z;
+        return (_forward(time) / avg) * Z;
     }
 
    private:
-    const Curve& _forward;
+    const ForwardCurve _forward;
     const double _vol;
 };
 
@@ -58,8 +57,9 @@ struct HestonState {
 
 class HestonProcess final : public Process<HestonState> {
    public:
-    HestonProcess(const Curve& forward, const HestonParams& params)
-        : _forward(forward),
+    using ForwardCurve = std::function<double(double)>;
+    HestonProcess(ForwardCurve forward, const HestonParams& params)
+        : _forward(std::move(forward)),
           _v0(params.v0),
           _kappa(params.kappa),
           _theta(params.theta),
@@ -102,11 +102,11 @@ class HestonProcess final : public Process<HestonState> {
         const auto Z = exp(state.logZ);
         const auto avg = Z.sum() / Z.size();
 
-        return (_forward.get(time) / avg) * Z;
+        return (_forward(time) / avg) * Z;
     }
 
    private:
-    const Curve& _forward;
+    const ForwardCurve _forward;
     const double _v0;
     const double _kappa, _theta, _xi;
     const double _rho, _rhoBar;  // rhoBar precomputed once in constructor

@@ -15,7 +15,7 @@ class ProcessTest : public ::testing::Test {
 };
 
 TEST_F(ProcessTest, InitialState) {
-    const GBMProcess gbm(forward, 0.2);
+    const GBMProcess gbm([&](const double T) { return forward.get(T); }, 0.2);
     const auto [logS] = gbm.initialState(1000);
     EXPECT_NEAR(mean(logS), 0.0, 1e-10);
     EXPECT_EQ(gbm.nNormals(), 1);
@@ -24,7 +24,7 @@ TEST_F(ProcessTest, InitialState) {
 TEST_F(ProcessTest, GBMZeroDiffusion) {
     constexpr double dt = 1.0;
 
-    const GBMProcess gbm(forward, 0.2);
+    const GBMProcess gbm([&](const double T) { return forward.get(T); }, 0.2);
     const auto state0 = gbm.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1)};
@@ -41,7 +41,7 @@ TEST_F(ProcessTest, GBMDiffusion) {
     constexpr double T = 1.0;
     constexpr double vol = 0.2;
 
-    const GBMProcess gbm(forward, vol);
+    const GBMProcess gbm([&](const double t) { return forward.get(t); }, vol);
 
     constexpr int nSteps = 12;
     constexpr double dt = T / nSteps;
@@ -66,7 +66,8 @@ TEST_F(ProcessTest, HestonZeroDiffusion) {
     constexpr double theta = v0;
     constexpr double dt = 1.0;
 
-    const HestonProcess heston(forward, {v0, 2.0, theta, 0.3, -0.7});
+    const HestonProcess heston([&](const double T) { return forward.get(T); },
+                               {v0, 2.0, theta, 0.3, -0.7});
     const auto state0 = heston.initialState(1);
 
     const std::vector dW = {Sample(0.0, 1), Sample(0.0, 1)};
@@ -87,7 +88,8 @@ TEST_F(ProcessTest, HestonDiffusion) {
     constexpr double kappa = 2.0;
     constexpr double theta = v0;
 
-    const HestonProcess heston(forward, {v0, kappa, theta, 0.3, -0.7});
+    const HestonProcess heston([&](const double t) { return forward.get(t); },
+                               {v0, kappa, theta, 0.3, -0.7});
 
     constexpr int nSteps = 12;
     constexpr double dt = T / nSteps;
