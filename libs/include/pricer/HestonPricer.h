@@ -1,35 +1,35 @@
 #pragma once
 
 #include "PayoffPricer.h"
+#include "PlfPayoffPricer.h"
 #include "common/types.h"
 #include "market/Market.h"
-#include "numerics/linear/Segment.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
+#include "pricer/HestonFormula.h"
 
 namespace pricer {
 
 /**
  * Price piecewise linear payoff by applying Heston formula to each segment.
  */
-class HestonPricer final : public PayoffPricer, public payoff::PayoffVisitor<double> {
+class HestonPricer final : public PLFPayoffPricer {
    public:
     explicit HestonPricer(const market::Market& market, const HestonParams& params)
-        : _market(market), _params(params) {}
-    double price(const payoff::PayoffNodePtr& _payoff) override { return evaluate(_payoff); }
+        : PLFPayoffPricer(market), _params(params) {}
 
    private:
-    const market::Market& _market;
     const HestonParams& _params;
-    double visit(const payoff::CashPayment& node) override;
-    double visit(const payoff::CombinedPayment& node) override {
-        return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
+
+    double callFormula(const double F, const double K, const double T, const double dF,
+                       const market::BSVolSlice&) const override {
+        return hestonCallFormula(F, K, T, dF, _params);
     }
-    double visit(const payoff::MultiplyPayment& node) override {
-        return node.multiplier() * evaluate(node.getPaymentPtr());
+
+    double digitalCallFormula(double F, double K, double T, double dF,
+                              const market::BSVolSlice&) const override {
+        return hestonDigitalCallFormula(F, K, T, dF, _params);
     }
-    double priceSegment(const numerics::linear::Segment& segment, double dF,
-                        const market::BSVolSlice& bsVolSlice) const;
 };
 
 inline double hestonPricer(const payoff::PayoffNodePtr& payment, const market::Market& market,

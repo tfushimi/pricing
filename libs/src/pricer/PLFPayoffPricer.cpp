@@ -1,4 +1,4 @@
-#include "pricer/BSPricer.h"
+#include "pricer/PLFPayoffPricer.h"
 
 #include "common/types.h"
 #include "market/Market.h"
@@ -6,7 +6,6 @@
 #include "numerics/linear/Segment.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
-#include "pricer/BSFormula.h"
 
 using namespace payoff;
 using namespace numerics::linear;
@@ -14,7 +13,7 @@ using namespace market;
 
 namespace pricer {
 
-double BSPricer::visit(const CashPayment& node) {
+double PLFPayoffPricer::visit(const CashPayment& node) {
     const auto cashPayment = applyMarket(node, _market);
 
     const auto fixingDates = getFixings(cashPayment);
@@ -37,8 +36,8 @@ double BSPricer::visit(const CashPayment& node) {
     return price;
 }
 
-double BSPricer::priceSegment(const Segment& segment, const double dF,
-                              const BSVolSlice& bsVolSlice) {
+double PLFPayoffPricer::priceSegment(const Segment& segment, const double dF,
+                                     const BSVolSlice& bsVolSlice) {
     const auto F = bsVolSlice.forward();
     const auto T = bsVolSlice.time();
     const auto slope = segment.getSlope();
@@ -59,7 +58,7 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
         if (K == POS_INF) {
             return 0.0;
         }
-        return bsCallFormula(F, K, T, dF, bsVolSlice.vol(K));
+        return callFormula(F, K, T, dF, bsVolSlice);
     };
 
     auto DigitalCall = [&](const double K) -> double {
@@ -69,7 +68,7 @@ double BSPricer::priceSegment(const Segment& segment, const double dF,
         if (K == POS_INF) {
             return 0.0;
         }
-        return bsDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
+        return digitalCallFormula(F, K, T, dF, bsVolSlice);
     };
 
     const double leftEndPoint = slope * lo + intercept;

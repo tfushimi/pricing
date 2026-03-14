@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PayoffPricer.h"
+#include "BSFormula.h"
+#include "PLFPayoffPricer.h"
 #include "market/Market.h"
-#include "numerics/linear/Segment.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 
@@ -11,22 +11,20 @@ namespace pricer {
 /**
  * Price piecewise linear payoff by applying BlackScholes formula to each segment.
  */
-class BSPricer final : public PayoffPricer, public payoff::PayoffVisitor<double> {
+class BSPricer final : public PLFPayoffPricer {
    public:
-    explicit BSPricer(const market::Market& market) : _market(market) {}
-    double price(const payoff::PayoffNodePtr& _payoff) override { return evaluate(_payoff); }
+    explicit BSPricer(const market::Market& market) : PLFPayoffPricer(market) {}
 
    private:
-    const market::Market& _market;
-    double visit(const payoff::CashPayment& node) override;
-    double visit(const payoff::CombinedPayment& node) override {
-        return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
+    double callFormula(const double F, const double K, const double T, const double dF,
+                       const market::BSVolSlice& bsVolSlice) const override {
+        return bsCallFormula(F, K, T, dF, bsVolSlice.vol(K));
     }
-    double visit(const payoff::MultiplyPayment& node) override {
-        return node.multiplier() * evaluate(node.getPaymentPtr());
+
+    double digitalCallFormula(const double F, const double K, const double T, const double dF,
+                              const market::BSVolSlice& bsVolSlice) const override {
+        return bsDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
     }
-    static double priceSegment(const numerics::linear::Segment& segment, double dF,
-                               const market::BSVolSlice& bsVolSlice);
 };
 
 inline double bsPricer(const payoff::PayoffNodePtr& payment, const market::Market& market) {
