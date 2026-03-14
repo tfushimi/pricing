@@ -25,15 +25,11 @@ double HestonPricer::visit(const CashPayment& node) {
 
     const auto symbol = fixingDates.begin()->getSymbol();
     const auto fixingDate = fixingDates.begin()->getDate();
-
     const auto& bsVolSlice = _market.getBSVolSlice(symbol, fixingDate);
-
     const double dF = _market.getDiscountFactor(node.getSettlementDate());
-
-    double price = 0.0;
-
     const auto plf = toPiecewiseLinearFunction(cashPayment.getAmountPtr());
 
+    double price = 0.0;
     for (const Segment& segment : plf) {
         price += priceSegment(segment, dF, bsVolSlice);
     }
