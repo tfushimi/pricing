@@ -33,7 +33,6 @@ class SimpleMarket final : public Market {
         if (symbol == _symbol && date <= _pricingDate) {
             return _spot;
         }
-
         return std::nullopt;
     }
 
@@ -43,14 +42,26 @@ class SimpleMarket final : public Market {
         return _forwardCurve.get(T);
     }
 
-    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date& date) const override {
+    const BSVolSlice& getBSVolSlice(const std::string& symbol, const Date& date) const override {
+        return *_bsVolSlices.at({symbol, date});
+    }
+
+    const BSVolSlice& getOrCreateBSVolSlice(const std::string& symbol, const Date& date) {
+        const auto key = std::make_pair(symbol, date);
+        const auto it = _bsVolSlices.find(key);
+        if (it != _bsVolSlices.end()) {
+            return *it->second;
+        }
         const auto T = yearFraction(_pricingDate, date);
-        return std::make_shared<SVIVolSlice>(_forwardCurve.get(T), T, _sviParams);
+        auto [inserted_it, _] = _bsVolSlices.emplace(
+            key, std::make_unique<SVIVolSlice>(_forwardCurve.get(T), T, _sviParams));
+        return *inserted_it->second;
     }
 
    private:
     Date _pricingDate;
     std::string _symbol;
+    std::map<std::pair<std::string, Date>, std::unique_ptr<BSVolSlice>> _bsVolSlices;
     double _spot;
     ConstantDiscountCurve _discountCurve;
     ConstantForwardCurve _forwardCurve;

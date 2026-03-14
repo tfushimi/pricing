@@ -15,6 +15,7 @@ using namespace mc;
 
 class MCPricerTest : public ::testing::Test {
    protected:
+    const std::string symbol = "SPY";
     const Date pricingDate = makeDate(2025, 1, 15);
     const Date fixingDate = makeDate(2026, 1, 15);
     const Date settlementDate = makeDate(2026, 1, 17);
@@ -26,31 +27,33 @@ class MCPricerTest : public ::testing::Test {
     // Negative skew, some curvature
     const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
 
-    SimpleMarket market{pricingDate, "SPY", spot, rate, sviParams};
+    SimpleMarket market{pricingDate, symbol, spot, rate, sviParams};
 
     double volAt(const double K) const {
-        const auto slice = market.getBSVolSlice("SPY", fixingDate);
-        return slice->vol(K);
+        const auto& slice = market.getBSVolSlice(symbol, fixingDate);
+        return slice.vol(K);
     }
 
     double skewAt(const double K) const {
-        const auto slice = market.getBSVolSlice("SPY", fixingDate);
-        return slice->dVolDStrike(K);
+        const auto& slice = market.getBSVolSlice(symbol, fixingDate);
+        return slice.dVolDStrike(K);
     }
+
+    void SetUp() override { market.getOrCreateBSVolSlice(symbol, fixingDate); }
 };
 
 TEST_F(MCPricerTest, GBMPricerATMCall) {
     constexpr double K = 100.0;
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
 
-    const GBMProcess gbm{[&](const double t) { return market.getForward("SPY", t); }, volAt(K)};
+    const GBMProcess gbm{[&](const double t) { return market.getForward(symbol, t); }, volAt(K)};
     const RNG rng(42);
 
     MCPricer pricer{market, gbm, 1'000'000, rng};
     const double pricerPrice = pricer.price(payoff);
-    const double formulaPrice = bsCallFormula(market.getForward("SPY", T), K, T, dF, volAt(K));
+    const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
     EXPECT_NEAR(pricerPrice, formulaPrice, 1e-3);
 }

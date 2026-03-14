@@ -60,6 +60,9 @@ int main() {
     for (const double spot : spots) {
         SimpleMarket market{pricingDate, "SPY", spot, rate, sviParams};
 
+        // create BSVolSlice on fixingDate
+        market.getOrCreateBSVolSlice("SPY", fixingDate);
+
         std::string region;
         if (spot < barrier) {
             region = "breached";

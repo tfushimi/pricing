@@ -31,8 +31,8 @@ class FlatMarket final : public Market {
     std::optional<double> getPrice(const std::string&, const Date&) const override {
         return std::nullopt;
     }
-    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
-        return nullptr;
+    const BSVolSlice& getBSVolSlice(const std::string&, const Date&) const override {
+        throw new std::runtime_error("getBSVolSlice not implemented");
     }
 
    private:
@@ -161,8 +161,8 @@ TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
         std::optional<double> getPrice(const std::string&, const Date&) const override {
             return std::nullopt;
         }
-        std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
-            return nullptr;
+        const BSVolSlice& getBSVolSlice(const std::string&, const Date&) const override {
+            throw new std::runtime_error("getBSVolSlice not implemented");
         }
     };
 

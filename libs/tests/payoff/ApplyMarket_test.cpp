@@ -33,8 +33,8 @@ class MockMarket final : public Market {
 
     double getForward(const std::string&, const double) const override { return 0.0; }
 
-    std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string&, const Date&) const override {
-        return nullptr;
+    const BSVolSlice& getBSVolSlice(const std::string&, const Date&) const override {
+        throw new std::runtime_error("getBSVolSlice not implemented");
     }
 
    private:

@@ -26,11 +26,7 @@ double HestonPricer::visit(const CashPayment& node) {
     const auto symbol = fixingDates.begin()->getSymbol();
     const auto fixingDate = fixingDates.begin()->getDate();
 
-    const auto bsVolSlice = _market.getBSVolSlice(symbol, fixingDate);
-
-    if (!bsVolSlice) {
-        throw std::invalid_argument("BSVolSlice not found in market");
-    }
+    const auto& bsVolSlice = _market.getBSVolSlice(symbol, fixingDate);
 
     const double dF = _market.getDiscountFactor(node.getSettlementDate());
 
@@ -39,7 +35,7 @@ double HestonPricer::visit(const CashPayment& node) {
     const auto plf = toPiecewiseLinearFunction(cashPayment.getAmountPtr());
 
     for (const Segment& segment : plf) {
-        price += priceSegment(segment, dF, *bsVolSlice);
+        price += priceSegment(segment, dF, bsVolSlice);
     }
 
     return price;

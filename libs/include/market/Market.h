@@ -1,12 +1,10 @@
 #pragma once
 
-#include <common/types.h>
-
-#include <memory>
 #include <optional>
 #include <string>
 
 #include "BSVolSlice.h"
+#include "common/types.h"
 
 namespace market {
 class Market {
@@ -24,7 +22,6 @@ class Market {
     double getForward(const std::string& symbol, const Date date) const {
         return getForward(symbol, yearFraction(getPricingDate(), date));
     }
-    virtual std::shared_ptr<BSVolSlice> getBSVolSlice(const std::string& symbol,
-                                                      const Date& date) const = 0;
+    virtual const BSVolSlice& getBSVolSlice(const std::string& symbol, const Date& date) const = 0;
 };
 }  // namespace market
