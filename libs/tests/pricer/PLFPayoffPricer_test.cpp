@@ -1,10 +1,10 @@
-#include "pricer/BSPricer.h"
-#include "pricer/HestonPricer.h"
 #include <gtest/gtest.h>
 
 #include "market/SimpleMarket.h"
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
+#include "pricer/BSPricer.h"
+#include "pricer/HestonPricer.h"
 
 using namespace market;
 using namespace payoff;
@@ -183,7 +183,8 @@ TEST_F(PLFPayoffPricerTest, MultiplyPayment) {
 
     {
         const double pricerPrice = bsPricer(payoff, market);
-        const double expected = multiplier * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
+        const double expected =
+            multiplier * bsCallFormula(forward1, K, T1, dF1, volAt(K, fixingDate1));
 
         EXPECT_NEAR(pricerPrice, expected, 1e-10);
     }
@@ -218,9 +219,8 @@ TEST_F(PLFPayoffPricerTest, CombinedAndMultiPaymentNested) {
 
     {
         const double pricerPrice = hestonPricer(payoff, market, hestonParams);
-        const double expected =
-            notional * hestonCallFormula(forward1, K, T1, dF1, hestonParams) -
-            notional * hestonCallFormula(forward1, cap, T1, dF1, hestonParams);
+        const double expected = notional * hestonCallFormula(forward1, K, T1, dF1, hestonParams) -
+                                notional * hestonCallFormula(forward1, cap, T1, dF1, hestonParams);
 
         EXPECT_NEAR(pricerPrice, expected, 1e-10);
     }

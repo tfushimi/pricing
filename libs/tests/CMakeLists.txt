@@ -64,7 +64,7 @@ target_link_libraries(test_fixing_collector PRIVATE
 
 add_executable(test_process mc/Process_test.cpp)
 target_link_libraries(test_process PRIVATE
-    mc
+        mc
         GTest::gtest_main
 )
 
