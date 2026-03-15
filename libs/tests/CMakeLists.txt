@@ -17,8 +17,8 @@ target_link_libraries(test_heston_formula PRIVATE
         GTest::gtest_main
 )
 
-add_executable(test_bs_pricer pricer/BSPricer_test.cpp)
-target_link_libraries(test_bs_pricer PRIVATE
+add_executable(test_plf_payoff_pricer pricer/PLFPayoffPricer_test.cpp)
+target_link_libraries(test_plf_payoff_pricer PRIVATE
         payoff
         pricer
         GTest::gtest_main
@@ -78,7 +78,7 @@ include(GoogleTest)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
 gtest_discover_tests(test_heston_formula)
-gtest_discover_tests(test_bs_pricer)
+gtest_discover_tests(test_plf_payoff_pricer)
 gtest_discover_tests(test_mc_pricer)
 gtest_discover_tests(test_constant_fold)
 gtest_discover_tests(test_observable)
