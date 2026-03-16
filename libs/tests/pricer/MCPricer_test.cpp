@@ -38,8 +38,6 @@ class MCPricerTest : public ::testing::Test {
         const auto& slice = market.getBSVolSlice(symbol, fixingDate);
         return slice.dVolDStrike(K);
     }
-
-    void SetUp() override { market.getOrCreateBSVolSlice(symbol, fixingDate); }
 };
 
 TEST_F(MCPricerTest, GBMPricerATMCall) {

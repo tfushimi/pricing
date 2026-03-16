@@ -45,11 +45,6 @@ class PLFPayoffPricerTest : public ::testing::Test {
         const auto& slice = market.getBSVolSlice(symbol, fixingDate);
         return slice.dVolDStrike(K);
     }
-
-    void SetUp() override {
-        market.getOrCreateBSVolSlice(symbol, fixingDate1);
-        market.getOrCreateBSVolSlice(symbol, fixingDate2);
-    }
 };
 
 TEST_F(PLFPayoffPricerTest, ATMCall) {
