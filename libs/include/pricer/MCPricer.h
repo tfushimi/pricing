@@ -24,7 +24,7 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    double price(const payoff::PayoffNodePtr& _payoff) override {
+    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
@@ -32,12 +32,14 @@ class MCPricer final : public PayoffPricer {
             throw std::invalid_argument("No symbol found in payoff");
         }
 
-        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), 1.0 / 12.0};
+        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), maxDt};
         const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
         const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
 
         return sample.sum() / sample.size();
     }
+
+    double price(const payoff::PayoffNodePtr& _payoff) override { return price(_payoff, 1 / 12.0); }
 
    private:
     const market::Market& _market;

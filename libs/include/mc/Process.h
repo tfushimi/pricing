@@ -91,18 +91,17 @@ class HestonProcess final : public Process<HestonState> {
         const Sample dW_Z = dW[0];
         const Sample dW_v = _rho * dW[0] + _rhoBar * dW[1];
 
-        const Sample logZ_next = currentState.logZ + sqrtV * sqrtDt * dW_Z;
-        const Sample v_next = vPos + _kappa * (_theta - vPos) * dt + _xi * sqrtV * sqrtDt * dW_v;
+        const Sample logZ_next = currentState.logZ - vPos * 0.5 * dt + sqrtV * sqrtDt * dW_Z;
 
+        // Milstein schema
+        const Sample v_next = vPos + _kappa * (_theta - vPos) * dt + _xi * sqrtV * sqrtDt * dW_v +
+                              0.25 * _xi * _xi * (dW_v * dW_v * dt - dt);
         // floor v_next too
         return {logZ_next, (v_next + abs(v_next)) * 0.5};
     }
 
     const Sample value(const HestonState& state, const double time) const override {
-        const auto Z = exp(state.logZ);
-        const auto avg = Z.sum() / Z.size();
-
-        return (_forward(time) / avg) * Z;
+        return _forward(time) * exp(state.logZ);
     }
 
    private:
