@@ -12,8 +12,7 @@ namespace payoff {
 // Convert payoff to piecewise linear function
 numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
     const ObservableNodePtr& payoff);
-numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
-    const ObservableNode& payoff);
+numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(const ObservableNode& payoff);
 
 // Substitute observed fixings with constants and simplify constant expressions
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market);

@@ -143,6 +143,19 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
         return node.multiplier() * sample;
     }
 
+    Sample visit(const BranchPayment& node) override {
+        const auto cond = applyFixings(node.getCondition(), _scenario);
+        const auto then_ = evaluate(node.getThenPayoff());
+        const auto else_ = evaluate(node.getElsePayoff());
+
+        Sample result(cond.size());
+        for (size_t i = 0; i < cond.size(); ++i) {
+            result[i] = cond[i] > 0.0 ? then_[i] : else_[i];
+        }
+
+        return result;
+    }
+
    private:
     const Market& _market;
     const Scenario& _scenario;
@@ -157,8 +170,7 @@ Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenari
     return ApplyFixings(scenario).evaluate(observable);
 }
 
-Sample applyFixings(const PayoffNodePtr& payoff, const Market& market,
-                    const Scenario& scenario) {
+Sample applyFixings(const PayoffNodePtr& payoff, const Market& market, const Scenario& scenario) {
     return ApplyPayoffFixings(market, scenario).evaluate(payoff);
 }
 }  // namespace payoff

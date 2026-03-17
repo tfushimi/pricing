@@ -26,6 +26,9 @@ class PLFPayoffPricer : public PayoffPricer, public payoff::PayoffVisitor<double
     double visit(const payoff::MultiplyPayment& node) override {
         return node.multiplier() * evaluate(node.getPayment());
     }
+    double visit(const payoff::BranchPayment&) override {
+        throw std::runtime_error("PiecewiseLinearPayoff should not have BranchPayment");
+    }
     double priceSegment(const numerics::linear::Segment& segment, double dF,
                         const market::BSVolSlice& bsVolSlice);
     virtual double callFormula(double F, double K, double T, double dF,

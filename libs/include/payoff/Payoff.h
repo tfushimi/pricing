@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Payoff.h"
 #include "common/types.h"
 #include "payoff/Observable.h"
 
@@ -9,6 +10,7 @@ class PayoffNode;
 class CashPayment;
 class CombinedPayment;
 class MultiplyPayment;
+class BranchPayment;
 
 class PayoffNodePtr {
    public:
@@ -38,6 +40,7 @@ class PayoffVisitor {
     virtual T visit(const CashPayment& node) = 0;
     virtual T visit(const CombinedPayment& node) = 0;
     virtual T visit(const MultiplyPayment& node) = 0;
+    virtual T visit(const BranchPayment& node) = 0;
 };
 
 // Base node
@@ -50,7 +53,7 @@ class PayoffNode {
     PayoffNodePtr& operator=(PayoffNodePtr&& node) = delete;
     virtual ~PayoffNode() = default;
 
-    enum class Type { CashPayment, CombinedPayment, MultiplyPayment };
+    enum class Type { CashPayment, CombinedPayment, MultiplyPayment, BranchPayment };
 
     virtual Type type() const = 0;
 };
@@ -99,6 +102,24 @@ class MultiplyPayment final : public PayoffNode {
     double _multiplier;
 };
 
+class BranchPayment final : public PayoffNode {
+   public:
+    BranchPayment(ObservableNodePtr condition, PayoffNodePtr thenPayoff, PayoffNodePtr elsePayoff)
+        : _condition(std::move(condition)),
+          _thenPayoff(std::move(thenPayoff)),
+          _elsePayoff(std::move(elsePayoff)) {}
+
+    Type type() const override { return Type::BranchPayment; }
+    const ObservableNode& getCondition() const { return *_condition; }
+    const PayoffNodePtr& getThenPayoff() const { return _thenPayoff; }
+    const PayoffNodePtr& getElsePayoff() const { return _elsePayoff; }
+
+   private:
+    ObservableNodePtr _condition;
+    PayoffNodePtr _thenPayoff;
+    PayoffNodePtr _elsePayoff;
+};
+
 inline PayoffNodePtr cashPayment(ObservableNodePtr amount, const Date& settlementDate) {
     return std::make_shared<CashPayment>(std::move(amount), settlementDate);
 }
@@ -120,6 +141,8 @@ T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
             return visit(static_cast<const CombinedPayment&>(node));
         case PayoffNode::Type::MultiplyPayment:
             return visit(static_cast<const MultiplyPayment&>(node));
+        case PayoffNode::Type::BranchPayment:
+            return visit(static_cast<const BranchPayment&>(node));
     }
 
     throw std::invalid_argument("Unknown payment node type");
