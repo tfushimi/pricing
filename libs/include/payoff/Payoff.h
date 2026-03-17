@@ -21,7 +21,7 @@ class PayoffNodePtr {
     const PayoffNode& operator*() const { return *_ptr; }
     const PayoffNode* operator->() const { return _ptr.get(); }
     const PayoffNode* get() const { return _ptr.get(); }
-    // TODO support + and *
+    // TODO support +
    private:
     std::shared_ptr<PayoffNode> _ptr;
 };
