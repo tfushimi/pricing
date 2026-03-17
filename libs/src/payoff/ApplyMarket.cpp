@@ -74,7 +74,7 @@ class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
 
    protected:
     PayoffNodePtr visit(const CashPayment& node) override {
-        const auto amount = applyMarket(node.getAmountPtr(), _market);
+        const auto amount = applyMarket(node.getAmount(), _market);
         return std::make_shared<CashPayment>(amount, node.getSettlementDate());
     }
     PayoffNodePtr visit(const CombinedPayment& node) override {
@@ -83,7 +83,7 @@ class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
         return std::make_shared<CombinedPayment>(left, right);
     }
     PayoffNodePtr visit(const MultiplyPayment& node) override {
-        const auto payoff = evaluate(node.getPayoff());
+        const auto payoff = evaluate(node.getPayment());
         return std::make_shared<MultiplyPayment>(payoff, node.multiplier());
     }
 
@@ -95,7 +95,9 @@ class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market) {
     return foldConstants(ApplyMarket(market).evaluate(observable));
 }
-
+ObservableNodePtr applyMarket(const ObservableNode& observable, const market::Market& market) {
+    return foldConstants(ApplyMarket(market).evaluate(observable));
+}
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
     return ApplyPayoffMarket(market).evaluate(payoff);
 }
@@ -105,6 +107,6 @@ PayoffNodePtr applyMarket(const PayoffNode& payoff, const market::Market& market
 }
 
 CashPayment applyMarket(const CashPayment& payoff, const market::Market& market) {
-    return {applyMarket(payoff.getAmountPtr(), market), payoff.getSettlementDate()};
+    return {applyMarket(payoff.getAmount(), market), payoff.getSettlementDate()};
 }
 }  // namespace payoff

@@ -62,7 +62,6 @@ class CashPayment final : public PayoffNode {
 
     Type type() const override { return Type::CashPayment; }
     const ObservableNode& getAmount() const { return *_amount; }
-    const ObservableNodePtr& getAmountPtr() const { return _amount; };
     Date getSettlementDate() const { return _settlementDate; };
 
    private:
@@ -79,8 +78,6 @@ class CombinedPayment final : public PayoffNode {
 
     const PayoffNode& getLeft() const { return *_left; }
     const PayoffNode& getRight() const { return *_right; }
-    const PayoffNodePtr& getLeftPtr() const { return _left; }
-    const PayoffNodePtr& getRightPtr() const { return _right; }
 
    private:
     PayoffNodePtr _left;
@@ -94,8 +91,7 @@ class MultiplyPayment final : public PayoffNode {
 
     Type type() const override { return Type::MultiplyPayment; }
 
-    const PayoffNode& getPayoff() const { return *_payment; }
-    const PayoffNodePtr& getPaymentPtr() const { return _payment; };
+    const PayoffNode& getPayment() const { return *_payment; }
     double multiplier() const { return _multiplier; }
 
    private:

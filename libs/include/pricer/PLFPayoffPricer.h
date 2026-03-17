@@ -21,10 +21,10 @@ class PLFPayoffPricer : public PayoffPricer, public payoff::PayoffVisitor<double
     const market::Market& _market;
     double visit(const payoff::CashPayment& node) override;
     double visit(const payoff::CombinedPayment& node) override {
-        return evaluate(node.getLeftPtr()) + evaluate(node.getRightPtr());
+        return evaluate(node.getLeft()) + evaluate(node.getRight());
     }
     double visit(const payoff::MultiplyPayment& node) override {
-        return node.multiplier() * evaluate(node.getPaymentPtr());
+        return node.multiplier() * evaluate(node.getPayment());
     }
     double priceSegment(const numerics::linear::Segment& segment, double dF,
                         const market::BSVolSlice& bsVolSlice);

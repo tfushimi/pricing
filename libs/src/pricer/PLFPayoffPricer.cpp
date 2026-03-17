@@ -26,7 +26,7 @@ double PLFPayoffPricer::visit(const CashPayment& node) {
     const auto fixingDate = fixingDates.begin()->getDate();
     const auto& bsVolSlice = _market.getBSVolSlice(symbol, fixingDate);
     const double dF = _market.getDiscountFactor(node.getSettlementDate());
-    const auto plf = toPiecewiseLinearFunction(cashPayment.getAmountPtr());
+    const auto plf = toPiecewiseLinearFunction(cashPayment.getAmount());
 
     double price = 0.0;
     for (const Segment& segment : plf) {

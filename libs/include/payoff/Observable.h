@@ -161,8 +161,6 @@ class BinaryNode : public ObservableNode {
         : _left(std::move(left)), _right(std::move(right)) {}
     const ObservableNode& getLeft() const { return *_left; }
     const ObservableNode& getRight() const { return *_right; }
-    const ObservableNodePtr& getLeftPtr() const { return _left; }
-    const ObservableNodePtr& getRightPtr() const { return _right; }
 
    private:
     ObservableNodePtr _left;
@@ -218,9 +216,6 @@ class IfThenElse final : public ObservableNode {
     const ObservableNode& getCond() const { return *_cond; }
     const ObservableNode& getThen() const { return *_then; }
     const ObservableNode& getElse() const { return *_else; }
-    const ObservableNodePtr& getCondPtr() const { return _cond; }
-    const ObservableNodePtr& getThenPtr() const { return _then; }
-    const ObservableNodePtr& getElsePtr() const { return _else; }
     Type type() const override { return Type::IfThenElse; }
 
    private:

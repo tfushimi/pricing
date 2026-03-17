@@ -12,10 +12,14 @@ namespace payoff {
 // Convert payoff to piecewise linear function
 numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
     const ObservableNodePtr& payoff);
+numerics::linear::PiecewiseLinearFunction toPiecewiseLinearFunction(
+    const ObservableNode& payoff);
 
 // Substitute observed fixings with constants and simplify constant expressions
 ObservableNodePtr applyMarket(const ObservableNodePtr& observable, const market::Market& market);
+ObservableNodePtr applyMarket(const ObservableNode& observable, const market::Market& market);
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market);
+PayoffNodePtr applyMarket(const PayoffNode& payoff, const market::Market& market);
 
 // specialized method to avoid casting
 CashPayment applyMarket(const CashPayment& payoff, const market::Market& market);
@@ -55,6 +59,7 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 }
 
 // Substitute fixings with MC sample and simplify constant expressions
+Sample applyFixings(const ObservableNode& observable, const Scenario& scenario);
 Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
 Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
                     const Scenario& scenario);

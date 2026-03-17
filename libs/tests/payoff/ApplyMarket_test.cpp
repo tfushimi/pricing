@@ -111,7 +111,7 @@ TEST(ApplyMarketTest, CashPaymentReplaceObservedFixing) {
     ASSERT_NE(cash, nullptr);
     EXPECT_EQ(cash->getSettlementDate(), settlementDate);
 
-    const auto* c = asConstant(cash->getAmountPtr());
+    const auto* c = asConstant(cash->getAmount());
     ASSERT_NE(c, nullptr);
     EXPECT_DOUBLE_EQ(c->getValue(), 5.0);
 }
@@ -133,7 +133,7 @@ TEST(ApplyMarketTest, CashPaymentKeepUnobservedFixing) {
     EXPECT_EQ(cash->getSettlementDate(), settlementDate);
 
     // Should remain as Fixing
-    const auto* f = asFixing(cash->getAmountPtr());
+    const auto* f = asFixing(cash->getAmount());
     ASSERT_NE(f, nullptr);
     EXPECT_EQ(f->getDate(), fixingDate);
 }
@@ -157,15 +157,15 @@ TEST(ApplyMarketTest, CombinedPaymentReplacesBothLegs) {
     const auto* combined = asCombinedPayment(result);
     ASSERT_NE(combined, nullptr);
 
-    const auto* cash1 = asCashPayment(combined->getLeftPtr());
+    const auto* cash1 = asCashPayment(combined->getLeft());
     ASSERT_NE(cash1, nullptr);
-    const auto* c1 = asConstant(cash1->getAmountPtr());
+    const auto* c1 = asConstant(cash1->getAmount());
     ASSERT_NE(c1, nullptr);
     EXPECT_DOUBLE_EQ(c1->getValue(), 5.0);
 
-    const auto* cash2 = asCashPayment(combined->getRightPtr());
+    const auto* cash2 = asCashPayment(combined->getRight());
     ASSERT_NE(cash2, nullptr);
-    const auto* c2 = asConstant(cash2->getAmountPtr());
+    const auto* c2 = asConstant(cash2->getAmount());
     ASSERT_NE(c2, nullptr);
     EXPECT_DOUBLE_EQ(c2->getValue(), 10.0);
 }
@@ -191,15 +191,15 @@ TEST(ApplyMarketTest, CombinedPaymentPartiallyObserved) {
     ASSERT_NE(combined, nullptr);
 
     // First leg fully folded
-    const auto* cash1 = asCashPayment(combined->getLeftPtr());
+    const auto* cash1 = asCashPayment(combined->getLeft());
     ASSERT_NE(cash1, nullptr);
-    const auto* c1 = asConstant(cash1->getAmountPtr());
+    const auto* c1 = asConstant(cash1->getAmount());
     ASSERT_NE(c1, nullptr);
     EXPECT_DOUBLE_EQ(c1->getValue(), 5.0);
 
     // Second leg still has a Fixing node
-    const auto* cash2 = asCashPayment(combined->getRightPtr());
+    const auto* cash2 = asCashPayment(combined->getRight());
     ASSERT_NE(cash2, nullptr);
-    const auto* c2 = asConstant(cash2->getAmountPtr());
+    const auto* c2 = asConstant(cash2->getAmount());
     EXPECT_EQ(c2, nullptr);
 }

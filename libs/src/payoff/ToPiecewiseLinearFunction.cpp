@@ -62,7 +62,7 @@ class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinear
     }
 
     PiecewiseLinearFunction visit(const IfThenElse& node) override {
-        return PiecewiseLinearFunction::ite(evaluate(node.getCond()), evaluate(node.getThenPtr()),
+        return PiecewiseLinearFunction::ite(evaluate(node.getCond()), evaluate(node.getThen()),
                                             evaluate(node.getElse()));
     }
 
@@ -72,6 +72,9 @@ class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinear
 };
 }  // namespace
 
+PiecewiseLinearFunction toPiecewiseLinearFunction(const ObservableNode& payoff) {
+    return ToPiecewiseLinearFunction().evaluate(payoff);
+}
 PiecewiseLinearFunction toPiecewiseLinearFunction(const ObservableNodePtr& payoff) {
     return ToPiecewiseLinearFunction().evaluate(payoff);
 }

@@ -128,7 +128,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
 
    protected:
     Sample visit(const CashPayment& node) override {
-        const auto sample = applyFixings(node.getAmountPtr(), _scenario);
+        const auto sample = applyFixings(node.getAmount(), _scenario);
         return sample * _market.getDiscountFactor(node.getSettlementDate());
     }
 
@@ -139,7 +139,7 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
     }
 
     Sample visit(const MultiplyPayment& node) override {
-        const auto sample = evaluate(node.getPayoff());
+        const auto sample = evaluate(node.getPayment());
         return node.multiplier() * sample;
     }
 
@@ -149,11 +149,15 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
 };
 }  // namespace
 
+Sample applyFixings(const ObservableNode& observable, const Scenario& scenario) {
+    return ApplyFixings(scenario).evaluate(observable);
+}
+
 Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario) {
     return ApplyFixings(scenario).evaluate(observable);
 }
 
-Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
+Sample applyFixings(const PayoffNodePtr& payoff, const Market& market,
                     const Scenario& scenario) {
     return ApplyPayoffFixings(market, scenario).evaluate(payoff);
 }
