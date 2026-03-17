@@ -73,8 +73,6 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
         evaluate(node.getRight());
     }
 
-    void visit(const MultiplyPayment& node) override { evaluate(node.getPayment()); }
-
     void visit(const BranchPayment& node) override {
         evaluate(node.getCondition());
         evaluate(node.getThenPayoff());

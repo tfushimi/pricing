@@ -9,7 +9,6 @@ namespace payoff {
 class PayoffNode;
 class CashPayment;
 class CombinedPayment;
-class MultiplyPayment;
 class BranchPayment;
 
 class PayoffNodePtr {
@@ -39,7 +38,6 @@ class PayoffVisitor {
    protected:
     virtual T visit(const CashPayment& node) = 0;
     virtual T visit(const CombinedPayment& node) = 0;
-    virtual T visit(const MultiplyPayment& node) = 0;
     virtual T visit(const BranchPayment& node) = 0;
 };
 
@@ -53,7 +51,7 @@ class PayoffNode {
     PayoffNodePtr& operator=(PayoffNodePtr&& node) = delete;
     virtual ~PayoffNode() = default;
 
-    enum class Type { CashPayment, CombinedPayment, MultiplyPayment, BranchPayment };
+    enum class Type { CashPayment, CombinedPayment, BranchPayment };
 
     virtual Type type() const = 0;
 };
@@ -87,21 +85,6 @@ class CombinedPayment final : public PayoffNode {
     PayoffNodePtr _right;
 };
 
-class MultiplyPayment final : public PayoffNode {
-   public:
-    MultiplyPayment(PayoffNodePtr payoff, const double multiplier)
-        : _payment(std::move(payoff)), _multiplier(multiplier){};
-
-    Type type() const override { return Type::MultiplyPayment; }
-
-    const PayoffNode& getPayment() const { return *_payment; }
-    double multiplier() const { return _multiplier; }
-
-   private:
-    PayoffNodePtr _payment;
-    double _multiplier;
-};
-
 class BranchPayment final : public PayoffNode {
    public:
     BranchPayment(ObservableNodePtr condition, PayoffNodePtr thenPayoff, PayoffNodePtr elsePayoff)
@@ -128,10 +111,6 @@ inline PayoffNodePtr combinedPayment(PayoffNodePtr left, PayoffNodePtr right) {
     return std::make_shared<CombinedPayment>(std::move(left), std::move(right));
 }
 
-inline PayoffNodePtr multiplyPayment(PayoffNodePtr payment, const double multiplier) {
-    return std::make_shared<MultiplyPayment>(std::move(payment), multiplier);
-}
-
 template <typename T>
 T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
     switch (node.type()) {
@@ -139,8 +118,6 @@ T PayoffVisitor<T>::evaluate(const PayoffNode& node) {
             return visit(static_cast<const CashPayment&>(node));
         case PayoffNode::Type::CombinedPayment:
             return visit(static_cast<const CombinedPayment&>(node));
-        case PayoffNode::Type::MultiplyPayment:
-            return visit(static_cast<const MultiplyPayment&>(node));
         case PayoffNode::Type::BranchPayment:
             return visit(static_cast<const BranchPayment&>(node));
     }

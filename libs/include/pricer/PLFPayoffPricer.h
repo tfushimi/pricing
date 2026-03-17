@@ -23,9 +23,6 @@ class PLFPayoffPricer : public PayoffPricer, public payoff::PayoffVisitor<double
     double visit(const payoff::CombinedPayment& node) override {
         return evaluate(node.getLeft()) + evaluate(node.getRight());
     }
-    double visit(const payoff::MultiplyPayment& node) override {
-        return node.multiplier() * evaluate(node.getPayment());
-    }
     double visit(const payoff::BranchPayment&) override {
         throw std::runtime_error("PiecewiseLinearPayoff should not have BranchPayment");
     }

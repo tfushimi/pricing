@@ -138,11 +138,6 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
         return left + right;
     }
 
-    Sample visit(const MultiplyPayment& node) override {
-        const auto sample = evaluate(node.getPayment());
-        return node.multiplier() * sample;
-    }
-
     Sample visit(const BranchPayment& node) override {
         const auto cond = applyFixings(node.getCondition(), _scenario);
         const auto then_ = evaluate(node.getThenPayoff());
