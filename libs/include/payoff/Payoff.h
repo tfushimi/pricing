@@ -94,8 +94,8 @@ class BranchPayment final : public PayoffNode {
 
     Type type() const override { return Type::BranchPayment; }
     const ObservableNode& getCondition() const { return *_condition; }
-    const PayoffNodePtr& getThenPayoff() const { return _thenPayoff; }
-    const PayoffNodePtr& getElsePayoff() const { return _elsePayoff; }
+    const PayoffNode& getThenPayoff() const { return *_thenPayoff; }
+    const PayoffNode& getElsePayoff() const { return *_elsePayoff; }
 
    private:
     ObservableNodePtr _condition;
