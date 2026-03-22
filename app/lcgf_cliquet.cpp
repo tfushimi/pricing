@@ -48,28 +48,28 @@ ObservableNodePtr getAnnualCoupon(const std::vector<Date>& fixingDates, const do
 
     auto coupon = constant(0.0);
     for (std::size_t i = 0; i < fixingDates.size() - 1; ++i) {
-        coupon = coupon + getLocallyCappedReturn(fixingDates[i], fixingDates[i + 1]);
+        coupon += getLocallyCappedReturn(fixingDates[i], fixingDates[i + 1]);
     }
 
     return max(coupon, minCoupon);
 }
 
-std::vector<Date> getFixingDates(int couponYear) {
+std::vector<Date> getFixingDates(const int y) {
     using namespace std::chrono;
 
     std::vector<Date> fixingDates;
     fixingDates.reserve(13);
 
     // Dec 2 of prior year — anchor fixing
-    fixingDates.emplace_back(year{couponYear - 1} / month{12} / day{2});
+    fixingDates.emplace_back(year{y - 1} / month{12} / day{2});
 
     // Jan 2 through Nov 2 of coupon year
     for (unsigned int m = 1; m <= 11; ++m) {
-        fixingDates.emplace_back(year{couponYear} / month{m} / day{2});
+        fixingDates.emplace_back(year{y} / month{m} / day{2});
     }
 
     // Nov 25 — final fixing, one week before Dec 2 payment
-    fixingDates.emplace_back(year{couponYear} / month{11} / day{25});
+    fixingDates.emplace_back(year{y} / month{11} / day{25});
 
     return fixingDates;
 }
@@ -109,7 +109,7 @@ int main() {
             cashPayment(getAnnualCoupon(fixingDates2, minCoupon), makeDate(2004, 12, 2));
         const auto payoff3 =
             cashPayment(getAnnualCoupon(fixingDates3, minCoupon), makeDate(2005, 12, 2));
-        const auto payoff = combinedPayment(payoff1, combinedPayment(payoff2, payoff3));
+        const auto payoff = payoff1 + payoff2 + payoff3;
 
         if (i == 0) {
             scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);

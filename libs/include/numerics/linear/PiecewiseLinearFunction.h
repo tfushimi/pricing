@@ -95,6 +95,6 @@ class PiecewiseLinearFunction {
                                                     const PiecewiseLinearFunction& g,
                                                     bool isStrict);
 
-    std::vector<Segment> _segments;
+    std::vector<Segment> _segments{};
 };
 }  // namespace numerics::linear

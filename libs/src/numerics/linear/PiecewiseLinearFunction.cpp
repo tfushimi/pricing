@@ -355,7 +355,7 @@ PiecewiseLinearFunction PiecewiseLinearFunction::applyMaxMin(const PiecewiseLine
 
 PiecewiseLinearFunction PiecewiseLinearFunction::greaterThanInner(const PiecewiseLinearFunction& f,
                                                                   const PiecewiseLinearFunction& g,
-                                                                  bool isStrict) {
+                                                                  const bool isStrict) {
     auto [plfF, plfG] = align(f, g);
 
     std::vector<Segment> segments;

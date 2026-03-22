@@ -21,7 +21,8 @@ class PayoffNodePtr {
     const PayoffNode& operator*() const { return *_ptr; }
     const PayoffNode* operator->() const { return _ptr.get(); }
     const PayoffNode* get() const { return _ptr.get(); }
-    // TODO support +
+    PayoffNodePtr operator+(const PayoffNodePtr& right) const;
+
    private:
     std::shared_ptr<PayoffNode> _ptr;
 };
@@ -85,6 +86,7 @@ class CombinedPayment final : public PayoffNode {
     PayoffNodePtr _right;
 };
 
+// TODO add unit tests
 class BranchPayment final : public PayoffNode {
    public:
     BranchPayment(ObservableNodePtr condition, PayoffNodePtr thenPayoff, PayoffNodePtr elsePayoff)
@@ -109,6 +111,15 @@ inline PayoffNodePtr cashPayment(ObservableNodePtr amount, const Date& settlemen
 
 inline PayoffNodePtr combinedPayment(PayoffNodePtr left, PayoffNodePtr right) {
     return std::make_shared<CombinedPayment>(std::move(left), std::move(right));
+}
+
+inline PayoffNodePtr branchPayment(ObservableNodePtr condition, PayoffNodePtr left,
+                                   PayoffNodePtr right) {
+    return std::make_shared<BranchPayment>(std::move(condition), std::move(left), std::move(right));
+}
+
+inline PayoffNodePtr PayoffNodePtr::operator+(const PayoffNodePtr& right) const {
+    return combinedPayment(*this, right);
 }
 
 template <typename T>

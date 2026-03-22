@@ -321,6 +321,17 @@ inline ObservableNodePtr operator/(const double left, const ObservableNodePtr& r
     return divide(left, right);
 }
 
+// compound assignment operators
+inline ObservableNodePtr& operator+=(ObservableNodePtr& lhs, const ObservableNodePtr& rhs) {
+    lhs = lhs + rhs;
+    return lhs;
+}
+
+inline ObservableNodePtr& operator-=(ObservableNodePtr& lhs, const ObservableNodePtr& rhs) {
+    lhs = lhs - rhs;
+    return lhs;
+}
+
 template <typename T>
 T ObservableVisitor<T>::evaluate(const ObservableNode& node) {
     switch (node.type()) {
