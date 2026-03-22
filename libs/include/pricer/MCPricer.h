@@ -24,7 +24,7 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
+    Scenario generateScenario(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
@@ -33,10 +33,19 @@ class MCPricer final : public PayoffPricer {
         }
 
         const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), maxDt};
-        const auto scenario = _processStateStepper.run(timeGrid, _nPaths, _rng);
+        return _processStateStepper.run(timeGrid, _nPaths, _rng);
+    }
+
+    double priceFromScenario(const payoff::PayoffNodePtr& _payoff, const Scenario& scenario) const {
+        const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
 
         return sample.sum() / sample.size();
+    }
+
+    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
+        const auto scenario = generateScenario(_payoff, maxDt);
+        return priceFromScenario(_payoff, scenario);
     }
 
     double price(const payoff::PayoffNodePtr& _payoff) override { return price(_payoff, 1 / 12.0); }
