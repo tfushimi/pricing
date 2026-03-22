@@ -3,11 +3,11 @@
 #include <cmath>
 
 namespace pricer {
-inline double normCdf(const double x) {
+inline double normalCdf(const double x) {
     return 0.5 * std::erfc(-x / std::sqrt(2.0));
 }
 
-inline double normPdf(const double x) {
+inline double normalPdf(const double x) {
     return std::exp(-0.5 * x * x) / std::sqrt(2.0 * M_PI);
 }
 
@@ -20,20 +20,20 @@ inline std::pair<double, double> bsD1D2(double F, double K, double T, double sig
 inline double bsCallFormula(const double F, const double K, const double T, const double dF,
                             const double vol) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
-    return dF * (F * normCdf(d1) - K * normCdf(d2));
+    return dF * (F * normalCdf(d1) - K * normalCdf(d2));
 }
 
 inline double bsVega(const double F, const double K, const double T, const double dF,
                      const double vol) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
 
-    return dF * F * normPdf(d1) * std::sqrt(T);
+    return dF * F * normalPdf(d1) * std::sqrt(T);
 }
 
 inline double bsDigitalFormula(const double F, const double K, const double T, const double dF,
                                const double vol, const double dVolDStrike) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
 
-    return dF * normCdf(d2) - bsVega(F, K, T, dF, vol) * dVolDStrike;
+    return dF * normalCdf(d2) - bsVega(F, K, T, dF, vol) * dVolDStrike;
 }
 }  // namespace pricer

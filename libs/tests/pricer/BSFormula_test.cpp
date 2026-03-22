@@ -21,7 +21,7 @@ TEST(BSTest, PutCallParity) {
 TEST(BSTest, DigitalCallFlatVol) {
     // With zero skew, digital = dF * N(d2)
     auto [d1, d2] = bsD1D2(F, K, T, vol);
-    const double expected = dF * normCdf(d2);
+    const double expected = dF * normalCdf(d2);
     const double actual = bsDigitalFormula(F, K, T, dF, vol, /*dVolDStrike=*/0.0);
     EXPECT_NEAR(actual, expected, 1e-10);
 }

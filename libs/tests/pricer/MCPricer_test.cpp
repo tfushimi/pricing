@@ -55,11 +55,11 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     const RNG rng(42);
 
     MCPricer pricer{market, gbm, 100'000, rng};
-    const double pricerPrice = pricer.price(payoff);
+    const double mcPrice = pricer.price(payoff);
     const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
     // SE is approximately F*vol*sqrt(T) / sqrt(N) = 100*0.2*1.0 / sqrt(100'000) = 0.063
-    EXPECT_NEAR(pricerPrice, formulaPrice, 0.1);
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
 
 TEST_F(MCPricerTest, GBMPricerOTMCall) {
@@ -73,33 +73,88 @@ TEST_F(MCPricerTest, GBMPricerOTMCall) {
     const RNG rng(42);
 
     MCPricer pricer{market, gbm, 100'000, rng};
-    const double pricerPrice = pricer.price(payoff);
+    const double mcPrice = pricer.price(payoff);
     const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
-    EXPECT_NEAR(pricerPrice, formulaPrice, 0.1);
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
 
-TEST_F(MCPricerTest, HestonPricerCalls) {
-    constexpr double K_atm = 100.0;
-    constexpr double K_otm = 110.0;
+TEST_F(MCPricerTest, GBMPricerDigitalCall) {
+    constexpr double K = 100.0;
 
     const auto S = fixing(symbol, fixingDate);
-    const auto payoff_atm = cashPayment(max(S - K_atm, 0.0), settlementDate);
-    const auto payoff_otm = cashPayment(max(S - K_otm, 0.0), settlementDate);
+    const auto payoff_digital = cashPayment(S > K, settlementDate);
+    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
+
+    const GBMProcess gbm{forward, volAt(K)};
+    const RNG rng(42);
+
+    MCPricer pricer{market, gbm, 100'000, rng};
+    const double mcPrice = pricer.price(payoff_digital);
+
+    // GBM is flat vol so digital = dF * N(d2) with volAt(K)
+    const double vol = volAt(K);
+    const double F = market.getForward(symbol, T);
+    const double d2 = std::log(F / K) / (vol * std::sqrt(T)) - 0.5 * vol * std::sqrt(T);
+    const double formulaPrice = dF * normalCdf(d2);
+
+    // Digital payoff is >=0 and <= 1 so std(payoff) <= 0.5
+    // SE <= 0.5 / sqrt(100'000) = 0.0016
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
+}
+
+TEST_F(MCPricerTest, HestonPricerATMCall) {
+    constexpr double K = 100.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
     const RNG rng(42);
 
     MCPricer pricer{market, heston, 100'000, rng};
-    const double atmPrice = pricer.price(payoff_atm);
-    const double otmPrice = pricer.price(payoff_otm);
+    const double mcPrice = pricer.price(payoff);
 
-    const double atmFormula =
-        hestonCallFormula(market.getForward(symbol, T), K_atm, T, dF, hestonParams);
-    const double otmFormula =
-        hestonCallFormula(market.getForward(symbol, T), K_otm, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
-    EXPECT_NEAR(atmPrice, atmFormula, 0.1);
-    EXPECT_NEAR(otmPrice, otmFormula, 0.1);
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
+}
+
+TEST_F(MCPricerTest, HestonPricerOTMCall) {
+    constexpr double K = 110.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
+
+    const HestonProcess heston{forward, hestonParams};
+    const RNG rng(42);
+
+    MCPricer pricer{market, heston, 100'000, rng};
+    const double mcPrice = pricer.price(payoff);
+
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
+}
+
+TEST_F(MCPricerTest, HestonPricerDigitalCall) {
+    constexpr double K = 100.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff_digital = cashPayment(S > K, settlementDate);
+    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
+
+    const HestonProcess heston{forward, hestonParams};
+    const RNG rng(42);
+
+    MCPricer pricer{market, heston, 100'000, rng};
+    const double mcPrice = pricer.price(payoff_digital);
+    const double formulaPrice =
+        hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
 }
