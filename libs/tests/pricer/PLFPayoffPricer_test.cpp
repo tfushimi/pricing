@@ -34,7 +34,7 @@ class PLFPayoffPricerTest : public ::testing::Test {
     // Negative skew, some curvature
     const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
 
-    SimpleMarket market{pricingDate, symbol, spot, rate, sviParams};
+    SimpleMarket market{pricingDate, symbol, spot, rate, 0.0, sviParams};
 
     double volAt(const double K, const Date fixingDate) const {
         const auto& slice = market.getBSVolSlice(symbol, fixingDate);

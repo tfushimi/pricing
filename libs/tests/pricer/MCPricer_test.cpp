@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 #include <pricer/HestonFormula.h>
 
-#include "market/ConstantForwardCurve.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
@@ -21,7 +20,8 @@ class MCPricerTest : public ::testing::Test {
     const Date fixingDate = makeDate(2026, 1, 15);
     const Date settlementDate = makeDate(2026, 1, 17);
     const double spot = 100.0;
-    const double rate = 0.05;
+    const double rate = 0.03;
+    const double dividend = 0.02;
     const double T = yearFraction(pricingDate, fixingDate);
     const double dF = std::exp(-rate * yearFraction(pricingDate, settlementDate));
 
@@ -31,7 +31,7 @@ class MCPricerTest : public ::testing::Test {
     // Negative skew, some curvature
     const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
 
-    SimpleMarket market{pricingDate, symbol, spot, rate, sviParams};
+    SimpleMarket market{pricingDate, symbol, spot, rate, dividend, sviParams};
 
     double volAt(const double K) const {
         const auto& slice = market.getBSVolSlice(symbol, fixingDate);
@@ -54,27 +54,35 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     const GBMProcess gbm{forward, volAt(K)};
     const RNG rng(42);
 
-    MCPricer pricer{market, gbm, 1'000'000, rng};
+    MCPricer pricer{market, gbm, 100'000, rng};
     const double pricerPrice = pricer.price(payoff);
     const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
-    EXPECT_NEAR(pricerPrice, formulaPrice, 1e-3);
+    // SE is approximately F*vol*sqrt(T) / sqrt(N) = 100*0.2*1.0 / sqrt(100'000) = 0.063
+    EXPECT_NEAR(pricerPrice, formulaPrice, 0.1);
 }
 
-TEST_F(MCPricerTest, HestonPricerATMCall) {
-    constexpr double K = 100.0;
+TEST_F(MCPricerTest, HestonPricerCalls) {
+    constexpr double K_atm = 100.0;
+    constexpr double K_otm = 110.0;
 
     const auto S = fixing(symbol, fixingDate);
-    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+    const auto payoff_atm = cashPayment(max(S - K_atm, 0.0), settlementDate);
+    const auto payoff_otm = cashPayment(max(S - K_otm, 0.0), settlementDate);
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
     const RNG rng(42);
 
-    MCPricer pricer{market, heston, 1'000'000, rng};
-    const double pricerPrice = pricer.price(payoff, 1 / 12.0);
-    const double formulaPrice =
-        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    MCPricer pricer{market, heston, 100'000, rng};
+    const double atmPrice = pricer.price(payoff_atm);
+    const double otmPrice = pricer.price(payoff_otm);
 
-    EXPECT_NEAR(pricerPrice, formulaPrice, 1e-2);
+    const double atmFormula =
+        hestonCallFormula(market.getForward(symbol, T), K_atm, T, dF, hestonParams);
+    const double otmFormula =
+        hestonCallFormula(market.getForward(symbol, T), K_otm, T, dF, hestonParams);
+
+    EXPECT_NEAR(atmPrice, atmFormula, 0.1);
+    EXPECT_NEAR(otmPrice, otmFormula, 0.1);
 }

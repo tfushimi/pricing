@@ -19,12 +19,12 @@ namespace market {
 class SimpleMarket final : public Market {
    public:
     SimpleMarket(const Date pricingDate, const std::string& symbol, const double spot,
-                 const double rate, vol::SVIParams sviParams)
+                 const double rate, const double dividend, vol::SVIParams sviParams)
         : _pricingDate(pricingDate),
           _symbol(symbol),
           _spot(spot),
           _discountCurve(ConstantDiscountCurve(pricingDate, rate)),
-          _forwardCurve(ConstantForwardCurve(pricingDate, spot, rate)),
+          _forwardCurve(ConstantForwardCurve(pricingDate, spot, rate - dividend)),
           _sviParams(std::move(sviParams)) {}
 
     Date getPricingDate() const override { return _pricingDate; }

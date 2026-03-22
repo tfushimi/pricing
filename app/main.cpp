@@ -58,7 +58,7 @@ int main() {
     std::cout << "--------------------------------------\n";
 
     for (const double spot : spots) {
-        SimpleMarket market{pricingDate, "SPY", spot, rate, sviParams};
+        SimpleMarket market{pricingDate, "SPY", spot, rate, 0.0, sviParams};
 
         std::string region;
         if (spot < barrier) {

@@ -34,14 +34,11 @@ class GBMProcess final : public Process<GBMState> {
 
     GBMState step(const GBMState& currentState, const double, const double dt,
                   const std::vector<Sample>& dW) const override {
-        return {currentState.logZ + _vol * std::sqrt(dt) * dW[0]};
+        return {currentState.logZ + (-0.5 * _vol * _vol * dt) + _vol * std::sqrt(dt) * dW[0]};
     }
 
     const Sample value(const GBMState& state, const double time) const override {
-        const auto Z = exp(state.logZ);
-        const auto avg = Z.sum() / Z.size();
-
-        return (_forward(time) / avg) * Z;
+        return _forward(time) * exp(state.logZ);
     }
 
    private:
@@ -96,6 +93,7 @@ class HestonProcess final : public Process<HestonState> {
         // Milstein schema
         const Sample v_next = vPos + _kappa * (_theta - vPos) * dt + _xi * sqrtV * sqrtDt * dW_v +
                               0.25 * _xi * _xi * (dW_v * dW_v * dt - dt);
+
         // floor v_next too
         return {logZ_next, (v_next + abs(v_next)) * 0.5};
     }
