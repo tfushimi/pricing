@@ -62,6 +62,23 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     EXPECT_NEAR(pricerPrice, formulaPrice, 0.1);
 }
 
+TEST_F(MCPricerTest, GBMPricerOTMCall) {
+    constexpr double K = 110.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
+
+    const GBMProcess gbm{forward, volAt(K)};
+    const RNG rng(42);
+
+    MCPricer pricer{market, gbm, 100'000, rng};
+    const double pricerPrice = pricer.price(payoff);
+    const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
+
+    EXPECT_NEAR(pricerPrice, formulaPrice, 0.1);
+}
+
 TEST_F(MCPricerTest, HestonPricerCalls) {
     constexpr double K_atm = 100.0;
     constexpr double K_otm = 110.0;
