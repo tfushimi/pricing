@@ -30,6 +30,12 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
         evaluate(node.getRight());
     }
 
+    void visit(const Sum& node) override {
+        for (const auto& element : node) {
+            evaluate(element);
+        }
+    }
+
     void visit(const Multiply& node) override {
         evaluate(node.getLeft());
         evaluate(node.getRight());
@@ -80,7 +86,7 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
     }
 
    private:
-    std::set<Fixing> _fixings;
+    std::set<Fixing> _fixings{};
 };
 }  // namespace
 

@@ -32,6 +32,34 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
         return std::make_shared<Add>(left, right);
     }
 
+    ObservableNodePtr visit(const Sum& node) override {
+        std::vector<ObservableNodePtr> result;
+        double sum = 0;
+        for (const auto& element : node) {
+            const auto value = evaluate(element);
+            if (isConstant(value)) {
+                sum += getValue(value);
+            } else {
+                result.push_back(value);
+            }
+        }
+
+        // entire Sum is reduced to a constant
+        if (result.empty()) {
+            return std::make_shared<Constant>(sum);
+        }
+
+        if (sum != 0.0) {
+            result.push_back(std::make_shared<Constant>(sum));
+        }
+
+        if (result.size() == 1) {
+            return result[0];
+        }
+
+        return std::make_shared<Sum>(std::move(result));
+    }
+
     ObservableNodePtr visit(const Multiply& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());

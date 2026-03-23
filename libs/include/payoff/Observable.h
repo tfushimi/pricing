@@ -12,6 +12,7 @@ class ObservableNode;
 class Fixing;
 class Constant;
 class Add;
+class Sum;
 class Multiply;
 class Divide;
 class Max;
@@ -82,6 +83,7 @@ class ObservableVisitor {
     virtual T visit(const Fixing& node) = 0;
     virtual T visit(const Constant& node) = 0;
     virtual T visit(const Add& node) = 0;
+    virtual T visit(const Sum& node) = 0;
     virtual T visit(const Multiply& node) = 0;
     virtual T visit(const Divide& node) = 0;
     virtual T visit(const Max& node) = 0;
@@ -107,6 +109,7 @@ class ObservableNode {
         Fixing,
         Constant,
         Add,
+        Sum,
         Multiply,
         Divide,
         Max,
@@ -208,6 +211,25 @@ class GreaterThanOrEqual final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::GreaterThanOrEqual; }
+};
+
+class VectorNode : public ObservableNode {
+public:
+    explicit VectorNode(std::vector<ObservableNodePtr> nodes)
+        : _nodes(std::move(nodes)) {}
+    using const_iterator = std::vector<ObservableNodePtr>::const_iterator;
+    const_iterator begin() const { return _nodes.begin(); }
+    const_iterator end() const { return _nodes.end(); }
+    size_t size() const { return _nodes.size(); }
+
+private:
+    std::vector<ObservableNodePtr> _nodes{};
+};
+
+class Sum final : public VectorNode {
+public:
+    using VectorNode::VectorNode;
+    Type type() const override { return Type::Sum; }
 };
 
 class IfThenElse final : public ObservableNode {
@@ -342,6 +364,8 @@ T ObservableVisitor<T>::evaluate(const ObservableNode& node) {
             return visit(static_cast<const Constant&>(node));
         case ObservableNode::Type::Add:
             return visit(static_cast<const Add&>(node));
+        case ObservableNode::Type::Sum:
+            return visit(static_cast<const Sum&>(node));
         case ObservableNode::Type::Multiply:
             return visit(static_cast<const Multiply&>(node));
         case ObservableNode::Type::Divide:

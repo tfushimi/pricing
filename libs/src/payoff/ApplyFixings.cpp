@@ -54,6 +54,14 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
         return left + right;
     }
 
+    Sample visit(const Sum& node) override {
+        Sample result = evaluate(*node.begin());
+        for (auto it = std::next(node.begin()); it != node.end(); ++it) {
+            result += evaluate(*it);
+        }
+        return result;
+    }
+
     Sample visit(const Multiply& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());

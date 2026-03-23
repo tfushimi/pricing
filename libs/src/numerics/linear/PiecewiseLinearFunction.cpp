@@ -148,6 +148,13 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator>=(
     return greaterThanInner(*this, other, false);
 }
 
+// Compound Assignment Operators
+PiecewiseLinearFunction PiecewiseLinearFunction::operator+=(const PiecewiseLinearFunction& other) {
+    *this = *this + other;
+    return *this;
+}
+
+
 // Max/Min
 PiecewiseLinearFunction PiecewiseLinearFunction::max(const PiecewiseLinearFunction& f,
                                                      const PiecewiseLinearFunction& g) {

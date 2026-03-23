@@ -49,6 +49,9 @@ class PiecewiseLinearFunction {
     PiecewiseLinearFunction operator>(const PiecewiseLinearFunction& other) const;
     PiecewiseLinearFunction operator>=(const PiecewiseLinearFunction& other) const;
 
+    // Compound assignment operators
+    PiecewiseLinearFunction operator+=(const PiecewiseLinearFunction& other);
+
     // Max/Min/IfThenElse
     static PiecewiseLinearFunction max(const PiecewiseLinearFunction& f,
                                        const PiecewiseLinearFunction& g);

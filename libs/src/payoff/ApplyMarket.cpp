@@ -33,6 +33,15 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
         return std::make_shared<Add>(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
 
+    ObservableNodePtr visit(const Sum& node) override {
+        std::vector<ObservableNodePtr> elements{};
+        elements.reserve(node.size());
+        for (const auto& element : node) {
+            elements.push_back(evaluate(element));
+        }
+        return std::make_shared<Sum>(std::move(elements));
+    }
+
     ObservableNodePtr visit(const Multiply& node) override {
         return std::make_shared<Multiply>(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
