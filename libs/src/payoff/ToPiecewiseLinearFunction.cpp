@@ -33,7 +33,7 @@ class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinear
         return PiecewiseLinearFunction::constant(node.getValue());
     }
 
-    PiecewiseLinearFunction visit(const Sum& node) override {
+    PiecewiseLinearFunction visit(const Add& node) override {
         return evaluate(node.getLeft()) + evaluate(node.getRight());
     }
 

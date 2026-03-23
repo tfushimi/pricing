@@ -11,7 +11,7 @@ namespace payoff {
 class ObservableNode;
 class Fixing;
 class Constant;
-class Sum;
+class Add;
 class Multiply;
 class Divide;
 class Max;
@@ -81,7 +81,7 @@ class ObservableVisitor {
    protected:
     virtual T visit(const Fixing& node) = 0;
     virtual T visit(const Constant& node) = 0;
-    virtual T visit(const Sum& node) = 0;
+    virtual T visit(const Add& node) = 0;
     virtual T visit(const Multiply& node) = 0;
     virtual T visit(const Divide& node) = 0;
     virtual T visit(const Max& node) = 0;
@@ -106,7 +106,7 @@ class ObservableNode {
     enum class Type {
         Fixing,
         Constant,
-        Sum,
+        Add,
         Multiply,
         Divide,
         Max,
@@ -167,10 +167,10 @@ class BinaryNode : public ObservableNode {
     ObservableNodePtr _right;
 };
 
-class Sum final : public BinaryNode {
+class Add final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
-    Type type() const override { return Type::Sum; }
+    Type type() const override { return Type::Add; }
 };
 
 class Multiply final : public BinaryNode {
@@ -185,6 +185,7 @@ class Divide final : public BinaryNode {
     Type type() const override { return Type::Divide; }
 };
 
+// TODO Max, Min, Sum should take a vector ObservableNodePtr
 class Max final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
@@ -236,7 +237,7 @@ inline ObservableNodePtr constant(double value) {
 }
 
 inline ObservableNodePtr add(ObservableNodePtr left, ObservableNodePtr right) {
-    return std::make_shared<Sum>(std::move(left), std::move(right));
+    return std::make_shared<Add>(std::move(left), std::move(right));
 }
 
 inline ObservableNodePtr multiply(ObservableNodePtr left, ObservableNodePtr right) {
@@ -248,7 +249,7 @@ inline ObservableNodePtr divide(ObservableNodePtr left, ObservableNodePtr right)
 }
 
 inline ObservableNodePtr sub(ObservableNodePtr left, ObservableNodePtr right) {
-    return std::make_shared<Sum>(std::move(left), multiply(constant(-1.0), std::move(right)));
+    return std::make_shared<Add>(std::move(left), multiply(constant(-1.0), std::move(right)));
 }
 
 inline ObservableNodePtr max(ObservableNodePtr left, ObservableNodePtr right) {
@@ -339,8 +340,8 @@ T ObservableVisitor<T>::evaluate(const ObservableNode& node) {
             return visit(static_cast<const Fixing&>(node));
         case ObservableNode::Type::Constant:
             return visit(static_cast<const Constant&>(node));
-        case ObservableNode::Type::Sum:
-            return visit(static_cast<const Sum&>(node));
+        case ObservableNode::Type::Add:
+            return visit(static_cast<const Add&>(node));
         case ObservableNode::Type::Multiply:
             return visit(static_cast<const Multiply&>(node));
         case ObservableNode::Type::Divide:

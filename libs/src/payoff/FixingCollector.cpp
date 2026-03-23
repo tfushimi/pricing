@@ -25,7 +25,7 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
         // no-op
     }
 
-    void visit(const Sum& node) override {
+    void visit(const Add& node) override {
         evaluate(node.getLeft());
         evaluate(node.getRight());
     }

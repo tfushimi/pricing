@@ -29,8 +29,8 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
         return std::make_shared<Constant>(node.getValue());
     }
 
-    ObservableNodePtr visit(const Sum& node) override {
-        return std::make_shared<Sum>(evaluate(node.getLeft()), evaluate(node.getRight()));
+    ObservableNodePtr visit(const Add& node) override {
+        return std::make_shared<Add>(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
 
     ObservableNodePtr visit(const Multiply& node) override {

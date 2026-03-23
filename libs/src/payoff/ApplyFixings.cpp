@@ -48,7 +48,7 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
 
     Sample visit(const Constant& node) override { return Sample(node.getValue(), _dim); }
 
-    Sample visit(const Sum& node) override {
+    Sample visit(const Add& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
         return left + right;

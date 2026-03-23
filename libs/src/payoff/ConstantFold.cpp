@@ -21,7 +21,7 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
         return std::make_shared<Constant>(node.getValue());
     }
 
-    ObservableNodePtr visit(const Sum& node) override {
+    ObservableNodePtr visit(const Add& node) override {
         const auto left = evaluate(node.getLeft());
         const auto right = evaluate(node.getRight());
 
@@ -29,7 +29,7 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
             return fold(left, right, [](const double x, const double y) { return x + y; });
         }
 
-        return std::make_shared<Sum>(left, right);
+        return std::make_shared<Add>(left, right);
     }
 
     ObservableNodePtr visit(const Multiply& node) override {
