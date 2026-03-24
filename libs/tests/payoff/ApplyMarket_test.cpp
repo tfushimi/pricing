@@ -53,7 +53,7 @@ TEST(ApplyMarketTest, ReplaceObservedFixing) {
     const auto payoff = max(S - constant(100.0), constant(0.0));
     const auto result = applyMarket(payoff, market);
 
-    const auto* c = asConstant(result);
+    const auto* c = asNode<Constant>(result);
     ASSERT_NE(c, nullptr);
     EXPECT_DOUBLE_EQ(c->getValue(), 5.0);
 }
@@ -69,7 +69,7 @@ TEST(ApplyMarketTest, KeepsUnobservedFixing) {
     const auto result = applyMarket(S, market);
 
     // Should remain as Fixing
-    const auto* f = asFixing(result);
+    const auto* f = asNode<Fixing>(result);
     ASSERT_NE(f, nullptr);
     EXPECT_EQ(f->getDate(), fixingDate);
 }
@@ -86,13 +86,76 @@ TEST(ApplyMarketTest, MultipleFixings) {
 
     const auto S1 = fixing("SPY", date1);
     const auto S2 = fixing("SPY", date2);
-    const auto payoff = S1 + S2;
-    const auto result = foldConstants(applyMarket(payoff, market));
 
-    // S1 replaced with 105, S2 kept as Fixing
-    // Sum(Constant(105), Fixing) cannot be folded further
-    const auto* c = asConstant(result);
-    EXPECT_EQ(c, nullptr);  // not fully constant
+    {
+        const auto payoff = S1 + S2;
+        const auto result = foldConstants(applyMarket(payoff, market));
+
+        // S1 replaced with 105, S2 kept as Fixing
+        // Add(Constant(105), Fixing) cannot be folded further
+        const auto* addPtr = asNode<Add>(result);
+        EXPECT_NE(addPtr, nullptr);
+    }
+
+    {
+        const auto payoff = sum(S1, S2);
+        const auto result = foldConstants(applyMarket(payoff, market));
+
+        // S1 replaced with 105, S2 kept as Fixing
+        // Sum(Constant(105), Fixing) cannot be folded further
+        const auto* sumPtr = asNode<Sum>(result);
+        EXPECT_NE(sumPtr, nullptr);
+        EXPECT_EQ(sumPtr->size(), 2);
+
+        const auto* fixing = asNode<Fixing>(*sumPtr->begin());
+        ASSERT_NE(fixing, nullptr);
+        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getDate(), date2);
+
+        const auto* folded = asNode<Constant>(*std::next(sumPtr->begin()));
+        ASSERT_NE(folded, nullptr);
+        EXPECT_EQ(folded->getValue(), 105.0);
+    }
+
+    {
+        const auto payoff = min(S1, S2);
+        const auto result = foldConstants(applyMarket(payoff, market));
+
+        // S1 replaced with 105, S2 kept as Fixing
+        // Min(Constant(105), Fixing) cannot be folded further
+        const auto* minPtr = asNode<Min>(result);
+        EXPECT_NE(minPtr, nullptr);
+        EXPECT_EQ(minPtr->size(), 2);
+
+        const auto* fixing = asNode<Fixing>(*minPtr->begin());
+        ASSERT_NE(fixing, nullptr);
+        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getDate(), date2);
+
+        const auto* folded = asNode<Constant>(*std::next(minPtr->begin()));
+        ASSERT_NE(folded, nullptr);
+        EXPECT_EQ(folded->getValue(), 105.0);
+    }
+
+    {
+        const auto payoff = max(S1, S2);
+        const auto result = foldConstants(applyMarket(payoff, market));
+
+        // S1 replaced with 105, S2 kept as Fixing
+        // Max(Constant(105), Fixing) cannot be folded further
+        const auto* maxPtr = asNode<Max>(result);
+        EXPECT_NE(maxPtr, nullptr);
+        EXPECT_EQ(maxPtr->size(), 2);
+
+        const auto* fixing = asNode<Fixing>(*maxPtr->begin());
+        ASSERT_NE(fixing, nullptr);
+        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getDate(), date2);
+
+        const auto* folded = asNode<Constant>(*std::next(maxPtr->begin()));
+        ASSERT_NE(folded, nullptr);
+        EXPECT_EQ(folded->getValue(), 105.0);
+    }
 }
 
 TEST(ApplyMarketTest, CashPaymentReplaceObservedFixing) {
@@ -107,11 +170,11 @@ TEST(ApplyMarketTest, CashPaymentReplaceObservedFixing) {
     const auto payoff = cashPayment(max(S - constant(100.0), constant(0.0)), settlementDate);
     const auto result = applyMarket(payoff, market);
 
-    const auto* cash = asCashPayment(result);
+    const auto* cash = asNode<CashPayment>(result);
     ASSERT_NE(cash, nullptr);
     EXPECT_EQ(cash->getSettlementDate(), settlementDate);
 
-    const auto* c = asConstant(cash->getAmount());
+    const auto* c = asNode<Constant>(cash->getAmount());
     ASSERT_NE(c, nullptr);
     EXPECT_DOUBLE_EQ(c->getValue(), 5.0);
 }
@@ -128,12 +191,12 @@ TEST(ApplyMarketTest, CashPaymentKeepUnobservedFixing) {
     const auto payoff = cashPayment(S, settlementDate);
     const auto result = applyMarket(payoff, market);
 
-    const auto* cash = asCashPayment(result);
+    const auto* cash = asNode<CashPayment>(result);
     ASSERT_NE(cash, nullptr);
     EXPECT_EQ(cash->getSettlementDate(), settlementDate);
 
     // Should remain as Fixing
-    const auto* f = asFixing(cash->getAmount());
+    const auto* f = asNode<Fixing>(cash->getAmount());
     ASSERT_NE(f, nullptr);
     EXPECT_EQ(f->getDate(), fixingDate);
 }
@@ -154,18 +217,18 @@ TEST(ApplyMarketTest, CombinedPaymentReplacesBothLegs) {
     const auto payoff = combinedPayment(leg1, leg2);
     const auto result = applyMarket(payoff, market);
 
-    const auto* combined = asCombinedPayment(result);
+    const auto* combined = asNode<CombinedPayment>(result);
     ASSERT_NE(combined, nullptr);
 
-    const auto* cash1 = asCashPayment(combined->getLeft());
+    const auto* cash1 = asNode<CashPayment>(combined->getLeft());
     ASSERT_NE(cash1, nullptr);
-    const auto* c1 = asConstant(cash1->getAmount());
+    const auto* c1 = asNode<Constant>(cash1->getAmount());
     ASSERT_NE(c1, nullptr);
     EXPECT_DOUBLE_EQ(c1->getValue(), 5.0);
 
-    const auto* cash2 = asCashPayment(combined->getRight());
+    const auto* cash2 = asNode<CashPayment>(combined->getRight());
     ASSERT_NE(cash2, nullptr);
-    const auto* c2 = asConstant(cash2->getAmount());
+    const auto* c2 = asNode<Constant>(cash2->getAmount());
     ASSERT_NE(c2, nullptr);
     EXPECT_DOUBLE_EQ(c2->getValue(), 10.0);
 }
@@ -187,19 +250,19 @@ TEST(ApplyMarketTest, CombinedPaymentPartiallyObserved) {
     const auto payoff = combinedPayment(leg1, leg2);
     const auto result = applyMarket(payoff, market);
 
-    const auto* combined = asCombinedPayment(result);
+    const auto* combined = asNode<CombinedPayment>(result);
     ASSERT_NE(combined, nullptr);
 
     // First leg fully folded
-    const auto* cash1 = asCashPayment(combined->getLeft());
+    const auto* cash1 = asNode<CashPayment>(combined->getLeft());
     ASSERT_NE(cash1, nullptr);
-    const auto* c1 = asConstant(cash1->getAmount());
+    const auto* c1 = asNode<Constant>(cash1->getAmount());
     ASSERT_NE(c1, nullptr);
     EXPECT_DOUBLE_EQ(c1->getValue(), 5.0);
 
     // Second leg still has a Fixing node
-    const auto* cash2 = asCashPayment(combined->getRight());
+    const auto* cash2 = asNode<CashPayment>(combined->getRight());
     ASSERT_NE(cash2, nullptr);
-    const auto* c2 = asConstant(cash2->getAmount());
+    const auto* c2 = asNode<Constant>(cash2->getAmount());
     EXPECT_EQ(c2, nullptr);
 }
