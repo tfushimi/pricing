@@ -87,15 +87,27 @@ TEST(ApplyMarketTest, MultipleFixings) {
     const auto S1 = fixing("SPY", date1);
     const auto S2 = fixing("SPY", date2);
 
-    {
-        const auto payoff = S1 + S2;
-        const auto result = foldConstants(applyMarket(payoff, market));
+    const auto payoff = S1 + S2;
+    const auto result = foldConstants(applyMarket(payoff, market));
 
-        // S1 replaced with 105, S2 kept as Fixing
-        // Add(Constant(105), Fixing) cannot be folded further
-        const auto* addPtr = asNode<Add>(result);
-        EXPECT_NE(addPtr, nullptr);
-    }
+    // S1 replaced with 105, S2 kept as Fixing
+    // Add(Constant(105), Fixing) cannot be folded further
+    const auto* addPtr = asNode<Add>(result);
+    EXPECT_NE(addPtr, nullptr);
+}
+
+TEST(ApplyMarketTest, VectorNodes) {
+    const auto pricingDate = makeDate(2026, 1, 15);
+    const auto date1 = makeDate(2026, 3, 20);
+    const auto date2 = makeDate(2026, 6, 20);
+
+    const MockMarket market(pricingDate, {
+                                             {date1, 105.0},  // observed
+                                             // date2 not observed
+                                         });
+
+    const auto S1 = fixing("SPY", date1);
+    const auto S2 = fixing("SPY", date2);
 
     {
         const auto payoff = sum(S1, S2);

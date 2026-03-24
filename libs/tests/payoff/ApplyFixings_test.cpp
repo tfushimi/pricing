@@ -95,7 +95,6 @@ TEST(ApplyFixingsTest, WorstOfCall) {
 }
 
 TEST(ApplyFixingsTest, AverageCall) {
-
     const auto scenario = makeScenario2(D1, {120.0, 105.0, 90.0}, D2, {115.0, 108.0, 85.0});
     constexpr double K = 100.0;
 

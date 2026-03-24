@@ -54,7 +54,6 @@ ObservableNodePtr getCoupon(const std::vector<Date>& fixingDates, const double m
     std::vector<ObservableNodePtr> coupons;
     coupons.reserve(fixingDates.size());
     for (std::size_t i = 0; i < fixingDates.size() - 1; ++i) {
-
         const auto ret = getReverseReturn(fixingDates[i], fixingDates[i + 1]);
         coupons.push_back(min(0.0, ret));
     }
