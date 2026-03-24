@@ -30,7 +30,7 @@ class FlatMarket final : public Market {
     double _dF;
 };
 
-static Scenario makeScenario(Date date, std::initializer_list<double> values) {
+static Scenario makeScenario(Date date, const std::initializer_list<double> values) {
     return {{date, Sample(std::data(values), values.size())}};
 }
 
@@ -80,7 +80,7 @@ TEST(ApplyFixingsTest, BullSpread) {
     EXPECT_DOUBLE_EQ(result[2], 10.0);
 }
 
-TEST(ApplyFixingsTest, AverageCall) {
+TEST(ApplyFixingsTest, WorstOfCall) {
     const auto scenario = makeScenario2(D1, {120.0, 105.0, 90.0}, D2, {115.0, 108.0, 85.0});
     constexpr double K = 100.0;
 
@@ -91,6 +91,21 @@ TEST(ApplyFixingsTest, AverageCall) {
 
     EXPECT_DOUBLE_EQ(result[0], 15.0);
     EXPECT_DOUBLE_EQ(result[1], 5.0);
+    EXPECT_DOUBLE_EQ(result[2], 0.0);
+}
+
+TEST(ApplyFixingsTest, AverageCall) {
+
+    const auto scenario = makeScenario2(D1, {120.0, 105.0, 90.0}, D2, {115.0, 108.0, 85.0});
+    constexpr double K = 100.0;
+
+    const auto S1 = fixing("SPY", D1);
+    const auto S2 = fixing("SPY", D2);
+    const auto payoff = max(sum(S1, S2) / 2.0 - constant(K), constant(0.0));
+    const auto result = applyFixings(payoff, scenario);
+
+    EXPECT_DOUBLE_EQ(result[0], 17.5);
+    EXPECT_DOUBLE_EQ(result[1], 6.5);
     EXPECT_DOUBLE_EQ(result[2], 0.0);
 }
 
