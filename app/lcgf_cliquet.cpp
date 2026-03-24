@@ -46,12 +46,13 @@ ObservableNodePtr getLocallyCappedReturn(const Date fixingDate1, const Date fixi
 ObservableNodePtr getCoupon(const std::vector<Date>& fixingDates, const double minCoupon) {
     assert(fixingDates.size() == 13);
 
-    auto coupon = constant(0.0);
+    std::vector<ObservableNodePtr> coupons;
+    coupons.reserve(fixingDates.size());
     for (std::size_t i = 0; i < fixingDates.size() - 1; ++i) {
-        coupon += getLocallyCappedReturn(fixingDates[i], fixingDates[i + 1]);
+        coupons.push_back(getLocallyCappedReturn(fixingDates[i], fixingDates[i + 1]));
     }
 
-    return max(coupon, minCoupon);
+    return max(sum(coupons), minCoupon);
 }
 
 std::vector<Date> getFixingDates(const int y) {

@@ -5,9 +5,21 @@
 
 using namespace payoff;
 
+template <typename T>
+const T* asNode(const ObservableNodePtr& node) {
+    return dynamic_cast<const T*>(node.get());
+}
+
+template <typename T>
+const T* asNode(const ObservableNode& node) {
+    return dynamic_cast<const T*>(&node);
+}
+
+// TODO delete
 inline const Constant* asConstant(const ObservableNodePtr& node) {
     return dynamic_cast<const Constant*>(node.get());
 }
+
 inline const Constant* asConstant(const ObservableNode& node) {
     return dynamic_cast<const Constant*>(&node);
 }

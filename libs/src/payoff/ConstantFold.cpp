@@ -111,8 +111,7 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
             const auto newElement = evaluate(element);
             if (isConstant(newElement)) {
                 maxValue = std::max(maxValue, getValue(newElement));
-            }
-            else {
+            } else {
                 result.push_back(element);
             }
         }
@@ -140,8 +139,7 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
             const auto newElement = evaluate(element);
             if (isConstant(newElement)) {
                 minValue = std::min(minValue, getValue(newElement));
-            }
-            else {
+            } else {
                 result.push_back(element);
             }
         }

@@ -201,33 +201,31 @@ class GreaterThanOrEqual final : public BinaryNode {
 };
 
 class VectorNode : public ObservableNode {
-public:
-    explicit VectorNode(std::vector<ObservableNodePtr> nodes)
-        : _nodes(std::move(nodes)) {}
+   public:
+    explicit VectorNode(std::vector<ObservableNodePtr> nodes) : _nodes(std::move(nodes)) {}
     using const_iterator = std::vector<ObservableNodePtr>::const_iterator;
     const_iterator begin() const { return _nodes.begin(); }
     const_iterator end() const { return _nodes.end(); }
     size_t size() const { return _nodes.size(); }
 
-private:
+   private:
     std::vector<ObservableNodePtr> _nodes{};
 };
 
 class Max final : public VectorNode {
-public:
+   public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Max; }
 };
 
 class Min final : public VectorNode {
-public:
+   public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Min; }
 };
 
-
 class Sum final : public VectorNode {
-public:
+   public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Sum; }
 };
@@ -260,6 +258,19 @@ inline ObservableNodePtr constant(double value) {
 
 inline ObservableNodePtr add(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Add>(std::move(left), std::move(right));
+}
+
+template <typename... Args>
+ObservableNodePtr sum(ObservableNodePtr first, Args&&... rest) {
+    std::vector<ObservableNodePtr> nodes;
+    nodes.reserve(1 + sizeof...(rest));
+    nodes.push_back(std::move(first));
+    (nodes.push_back(std::forward<Args>(rest)), ...);
+    return std::make_shared<Sum>(std::move(nodes));
+}
+
+inline ObservableNodePtr sum(std::vector<ObservableNodePtr> nodes) {
+    return std::make_shared<Sum>(std::move(nodes));
 }
 
 inline ObservableNodePtr multiply(ObservableNodePtr left, ObservableNodePtr right) {

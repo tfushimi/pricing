@@ -154,7 +154,6 @@ PiecewiseLinearFunction PiecewiseLinearFunction::operator+=(const PiecewiseLinea
     return *this;
 }
 
-
 // Max/Min
 PiecewiseLinearFunction PiecewiseLinearFunction::max(const PiecewiseLinearFunction& f,
                                                      const PiecewiseLinearFunction& g) {
