@@ -45,7 +45,7 @@ constexpr std::string SYMBOL = "BASKET";
 
 ObservableNodePtr getReverseReturn(const Date earlier, const Date later) {
     // r_i = (basket_i - basket_{i-1}) / basket_i = 1 - basket_{i-1} / basket_i
-    return constant(1.0) - fixing(SYMBOL, earlier) / fixing(SYMBOL, later);
+    return 1.0 - fixing(SYMBOL, earlier) / fixing(SYMBOL, later);
 }
 
 ObservableNodePtr getCoupon(const std::vector<Date>& fixingDates, const double maxCoupon) {
@@ -104,7 +104,7 @@ int main() {
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.1;
 
-        const auto payoff = cashPayment(getCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
+        const auto payoff = cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
 
         if (i == 0) {
             scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);

@@ -303,6 +303,10 @@ ObservableNodePtr min(ObservableNodePtr first, Args&&... rest) {
     return std::make_shared<Min>(std::move(nodes));
 }
 
+inline ObservableNodePtr min(std::vector<ObservableNodePtr> nodes) {
+    return std::make_shared<Min>(std::move(nodes));
+}
+
 inline ObservableNodePtr greaterThan(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<GreaterThan>(std::move(left), std::move(right));
 }
