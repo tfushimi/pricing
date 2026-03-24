@@ -188,19 +188,6 @@ class Divide final : public BinaryNode {
     Type type() const override { return Type::Divide; }
 };
 
-// TODO Max, Min, Sum should take a vector ObservableNodePtr
-class Max final : public BinaryNode {
-   public:
-    using BinaryNode::BinaryNode;
-    Type type() const override { return Type::Max; }
-};
-
-class Min final : public BinaryNode {
-   public:
-    using BinaryNode::BinaryNode;
-    Type type() const override { return Type::Min; }
-};
-
 class GreaterThan final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
@@ -225,6 +212,19 @@ public:
 private:
     std::vector<ObservableNodePtr> _nodes{};
 };
+
+class Max final : public VectorNode {
+public:
+    using VectorNode::VectorNode;
+    Type type() const override { return Type::Max; }
+};
+
+class Min final : public VectorNode {
+public:
+    using VectorNode::VectorNode;
+    Type type() const override { return Type::Min; }
+};
+
 
 class Sum final : public VectorNode {
 public:
@@ -274,12 +274,22 @@ inline ObservableNodePtr sub(ObservableNodePtr left, ObservableNodePtr right) {
     return std::make_shared<Add>(std::move(left), multiply(constant(-1.0), std::move(right)));
 }
 
-inline ObservableNodePtr max(ObservableNodePtr left, ObservableNodePtr right) {
-    return std::make_shared<Max>(std::move(left), std::move(right));
+template <typename... Args>
+ObservableNodePtr max(ObservableNodePtr first, Args&&... rest) {
+    std::vector<ObservableNodePtr> nodes;
+    nodes.reserve(1 + sizeof...(rest));
+    nodes.push_back(std::move(first));
+    (nodes.push_back(std::forward<Args>(rest)), ...);
+    return std::make_shared<Max>(std::move(nodes));
 }
 
-inline ObservableNodePtr min(ObservableNodePtr left, ObservableNodePtr right) {
-    return std::make_shared<Min>(std::move(left), std::move(right));
+template <typename... Args>
+ObservableNodePtr min(ObservableNodePtr first, Args&&... rest) {
+    std::vector<ObservableNodePtr> nodes;
+    nodes.reserve(1 + sizeof...(rest));
+    nodes.push_back(std::move(first));
+    (nodes.push_back(std::forward<Args>(rest)), ...);
+    return std::make_shared<Min>(std::move(nodes));
 }
 
 inline ObservableNodePtr greaterThan(ObservableNodePtr left, ObservableNodePtr right) {

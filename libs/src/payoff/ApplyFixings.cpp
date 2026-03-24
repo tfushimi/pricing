@@ -75,15 +75,19 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
     }
 
     Sample visit(const Max& node) override {
-        const auto left = evaluate(node.getLeft());
-        const auto right = evaluate(node.getRight());
-        return (left + right + abs(left - right)) * 0.5;
+        Sample result = evaluate(*node.begin());
+        for (auto it = std::next(node.begin()); it != node.end(); ++it) {
+            result = elementwiseMax(result, evaluate(*it));
+        }
+        return result;
     }
 
     Sample visit(const Min& node) override {
-        const auto left = evaluate(node.getLeft());
-        const auto right = evaluate(node.getRight());
-        return (left + right - abs(left - right)) * 0.5;
+        Sample result = evaluate(*node.begin());
+        for (auto it = std::next(node.begin()); it != node.end(); ++it) {
+            result = elementwiseMin(result, evaluate(*it));
+        }
+        return result;
     }
 
     Sample visit(const GreaterThan& node) override {
@@ -126,6 +130,13 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
    private:
     const Scenario& _scenario;
     std::size_t _dim;
+    Sample elementwiseMin(const Sample& left, const Sample& right) {
+        return (left + right - abs(left - right)) * 0.5;
+    }
+
+    Sample elementwiseMax(const Sample& left, const Sample& right) {
+        return (left + right + abs(left - right)) * 0.5;
+    }
 };
 
 class ApplyPayoffFixings final : public PayoffVisitor<Sample> {

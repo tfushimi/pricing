@@ -54,11 +54,19 @@ class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinear
     }
 
     PiecewiseLinearFunction visit(const Max& node) override {
-        return PiecewiseLinearFunction::max(evaluate(node.getLeft()), evaluate(node.getRight()));
+        PiecewiseLinearFunction result = evaluate(*node.begin());
+        for (auto it = std::next(node.begin()); it != node.end(); ++it) {
+            result = PiecewiseLinearFunction::max(result, evaluate(*it));
+        }
+        return result;
     }
 
     PiecewiseLinearFunction visit(const Min& node) override {
-        return PiecewiseLinearFunction::min(evaluate(node.getLeft()), evaluate(node.getRight()));
+        PiecewiseLinearFunction result = evaluate(*node.begin());
+        for (auto it = std::next(node.begin()); it != node.end(); ++it) {
+            result = PiecewiseLinearFunction::min(result, evaluate(*it));
+        }
+        return result;
     }
 
     PiecewiseLinearFunction visit(const GreaterThan& node) override {

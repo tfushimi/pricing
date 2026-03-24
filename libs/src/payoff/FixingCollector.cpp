@@ -47,13 +47,15 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
     }
 
     void visit(const Max& node) override {
-        evaluate(node.getLeft());
-        evaluate(node.getRight());
+        for (const auto& element : node) {
+            evaluate(element);
+        }
     }
 
     void visit(const Min& node) override {
-        evaluate(node.getLeft());
-        evaluate(node.getRight());
+        for (const auto& element : node) {
+            evaluate(element);
+        }
     }
 
     void visit(const GreaterThan& node) override {

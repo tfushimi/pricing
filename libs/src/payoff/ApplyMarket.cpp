@@ -33,6 +33,7 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
         return std::make_shared<Add>(evaluate(node.getLeft()), evaluate(node.getRight()));
     }
 
+    // TODO define template helper function
     ObservableNodePtr visit(const Sum& node) override {
         std::vector<ObservableNodePtr> elements{};
         elements.reserve(node.size());
@@ -51,11 +52,21 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
     }
 
     ObservableNodePtr visit(const Max& node) override {
-        return std::make_shared<Max>(evaluate(node.getLeft()), evaluate(node.getRight()));
+        std::vector<ObservableNodePtr> elements{};
+        elements.reserve(node.size());
+        for (const auto& element : node) {
+            elements.push_back(evaluate(element));
+        }
+        return std::make_shared<Max>(std::move(elements));
     }
 
     ObservableNodePtr visit(const Min& node) override {
-        return std::make_shared<Min>(evaluate(node.getLeft()), evaluate(node.getRight()));
+        std::vector<ObservableNodePtr> elements{};
+        elements.reserve(node.size());
+        for (const auto& element : node) {
+            elements.push_back(evaluate(element));
+        }
+        return std::make_shared<Min>(std::move(elements));
     }
 
     ObservableNodePtr visit(const GreaterThan& node) override {

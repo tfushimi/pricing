@@ -36,11 +36,11 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
         std::vector<ObservableNodePtr> result;
         double sum = 0;
         for (const auto& element : node) {
-            const auto value = evaluate(element);
-            if (isConstant(value)) {
-                sum += getValue(value);
+            const auto newElement = evaluate(element);
+            if (isConstant(newElement)) {
+                sum += getValue(newElement);
             } else {
-                result.push_back(value);
+                result.push_back(newElement);
             }
         }
 
@@ -104,25 +104,61 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
     }
 
     ObservableNodePtr visit(const Max& node) override {
-        const auto left = evaluate(node.getLeft());
-        const auto right = evaluate(node.getRight());
+        std::vector<ObservableNodePtr> result;
 
-        if (isConstant(left) && isConstant(right)) {
-            return fold(left, right, [](const double x, const double y) { return std::max(x, y); });
+        double maxValue = -std::numeric_limits<double>::infinity();
+        for (const auto& element : node) {
+            const auto newElement = evaluate(element);
+            if (isConstant(newElement)) {
+                maxValue = std::max(maxValue, getValue(newElement));
+            }
+            else {
+                result.push_back(element);
+            }
         }
 
-        return std::make_shared<Max>(left, right);
+        if (result.empty()) {
+            return std::make_shared<Constant>(maxValue);
+        }
+
+        if (maxValue != -std::numeric_limits<double>::infinity()) {
+            result.push_back(std::make_shared<Constant>(maxValue));
+        }
+
+        if (result.size() == 1) {
+            return result[0];
+        }
+
+        return std::make_shared<Max>(std::move(result));
     }
 
     ObservableNodePtr visit(const Min& node) override {
-        const auto left = evaluate(node.getLeft());
-        const auto right = evaluate(node.getRight());
+        std::vector<ObservableNodePtr> result;
 
-        if (isConstant(left) && isConstant(right)) {
-            return fold(left, right, [](const double x, const double y) { return std::min(x, y); });
+        double minValue = std::numeric_limits<double>::infinity();
+        for (const auto& element : node) {
+            const auto newElement = evaluate(element);
+            if (isConstant(newElement)) {
+                minValue = std::min(minValue, getValue(newElement));
+            }
+            else {
+                result.push_back(element);
+            }
         }
 
-        return std::make_shared<Min>(left, right);
+        if (result.empty()) {
+            return std::make_shared<Constant>(minValue);
+        }
+
+        if (minValue != std::numeric_limits<double>::infinity()) {
+            result.push_back(std::make_shared<Constant>(minValue));
+        }
+
+        if (result.size() == 1) {
+            return result[0];
+        }
+
+        return std::make_shared<Min>(std::move(result));
     }
 
     ObservableNodePtr visit(const GreaterThan& node) override {
