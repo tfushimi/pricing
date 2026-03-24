@@ -51,13 +51,15 @@ ObservableNodePtr getReverseReturn(const Date earlier, const Date later) {
 ObservableNodePtr getCoupon(const std::vector<Date>& fixingDates, const double maxCoupon) {
     assert(fixingDates.size() == 11);
 
-    auto sum = constant(0.0);
+    std::vector<ObservableNodePtr> coupons;
+    coupons.reserve(fixingDates.size());
     for (std::size_t i = 0; i < fixingDates.size() - 1; ++i) {
+
         const auto ret = getReverseReturn(fixingDates[i], fixingDates[i + 1]);
-        sum += min(0.0, ret);
+        coupons.push_back(min(0.0, ret));
     }
 
-    return max(0.0, maxCoupon + sum);
+    return max(0.0, maxCoupon + sum(coupons));
 }
 
 std::vector<Date> getFixingDates() {
