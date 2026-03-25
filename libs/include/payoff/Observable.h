@@ -294,6 +294,10 @@ ObservableNodePtr max(ObservableNodePtr first, Args&&... rest) {
     return std::make_shared<Max>(std::move(nodes));
 }
 
+inline ObservableNodePtr max(std::vector<ObservableNodePtr> nodes) {
+    return std::make_shared<Max>(std::move(nodes));
+}
+
 template <typename... Args>
 ObservableNodePtr min(ObservableNodePtr first, Args&&... rest) {
     std::vector<ObservableNodePtr> nodes;
