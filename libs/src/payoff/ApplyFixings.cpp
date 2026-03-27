@@ -130,11 +130,11 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
    private:
     const Scenario& _scenario;
     std::size_t _dim;
-    Sample elementwiseMin(const Sample& left, const Sample& right) {
+    static Sample elementwiseMin(const Sample& left, const Sample& right) {
         return (left + right - abs(left - right)) * 0.5;
     }
 
-    Sample elementwiseMax(const Sample& left, const Sample& right) {
+    static Sample elementwiseMax(const Sample& left, const Sample& right) {
         return (left + right + abs(left - right)) * 0.5;
     }
 };

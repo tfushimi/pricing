@@ -48,7 +48,7 @@ ObservableNodePtr getReverseReturn(const Date earlier, const Date later) {
     return 1.0 - fixing(SYMBOL, earlier) / fixing(SYMBOL, later);
 }
 
-ObservableNodePtr getCoupon(const std::vector<Date>& fixingDates, const double maxCoupon) {
+ObservableNodePtr getAnnualCoupon(const std::vector<Date>& fixingDates, const double maxCoupon) {
     assert(fixingDates.size() == 11);
 
     std::vector<ObservableNodePtr> coupons;
