@@ -70,10 +70,11 @@ class ParallelMCPricer final : public PayoffPricer {
 
     ~ParallelMCPricer() override = default;
 
-    double price(const payoff::PayoffNodePtr& _payoff) override {
+    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
+
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
-        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), 1 / 12.0};
+        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), maxDt};
 
         std::vector sums(_nThreads, 0.0);
         std::vector<std::thread> threads;
@@ -93,6 +94,10 @@ class ParallelMCPricer final : public PayoffPricer {
         }
 
         return std::accumulate(sums.begin(), sums.end(), 0.0) / _nPaths;
+    }
+
+    double price(const payoff::PayoffNodePtr& _payoff) override {
+        return price(_payoff, 1 / 12.0);
     }
 
    private:

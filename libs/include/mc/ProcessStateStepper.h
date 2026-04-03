@@ -13,7 +13,7 @@ class ProcessStateStepper {
    public:
     explicit ProcessStateStepper(const ProcessType& process) : _process(process) {}
 
-    Scenario run(const TimeGrid& timeGrid, std::size_t nPaths, RNG& rng) const {
+    Scenario run(const TimeGrid& timeGrid, std::size_t nPaths, RNG rng) const {
         Scenario scenario;
         State state = _process.initialState(nPaths);
 
