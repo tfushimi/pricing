@@ -52,19 +52,13 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
-    const RNG rng(42);
 
-    MCPricer pricer{market, gbm, 100'000, rng};
+    MCPricer pricer{market, gbm, 100'000};
     const double mcPrice = pricer.price(payoff);
     const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
     // SE is approximately F*vol*sqrt(T) / sqrt(N) = 100*0.2*1.0 / sqrt(100'000) = 0.063
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
-
-    ParallelMCPricer parallelPricer{market, gbm, 100'000, 8};
-    const double parallelMcPrice = parallelPricer.price(payoff);
-
-    EXPECT_NEAR(parallelMcPrice, formulaPrice, 0.1);
 }
 
 TEST_F(MCPricerTest, GBMPricerOTMCall) {
@@ -75,9 +69,8 @@ TEST_F(MCPricerTest, GBMPricerOTMCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
-    const RNG rng(42);
 
-    MCPricer pricer{market, gbm, 100'000, rng};
+    MCPricer pricer{market, gbm, 100'000};
     const double mcPrice = pricer.price(payoff);
     const double formulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
@@ -92,9 +85,8 @@ TEST_F(MCPricerTest, GBMPricerDigitalCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
-    const RNG rng(42);
 
-    MCPricer pricer{market, gbm, 100'000, rng};
+    MCPricer pricer{market, gbm, 100'000};
     const double mcPrice = pricer.price(payoff_digital);
 
     // GBM is flat vol so digital = dF * N(d2) with volAt(K)
@@ -116,9 +108,8 @@ TEST_F(MCPricerTest, HestonPricerATMCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
-    const RNG rng(42);
 
-    MCPricer pricer{market, heston, 100'000, rng};
+    MCPricer pricer{market, heston, 100'000};
     const double mcPrice = pricer.price(payoff);
 
     const double formulaPrice =
@@ -135,9 +126,8 @@ TEST_F(MCPricerTest, HestonPricerOTMCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
-    const RNG rng(42);
 
-    MCPricer pricer{market, heston, 100'000, rng};
+    MCPricer pricer{market, heston, 100'000};
     const double mcPrice = pricer.price(payoff);
 
     const double formulaPrice =
@@ -154,9 +144,8 @@ TEST_F(MCPricerTest, HestonPricerDigitalCall) {
     const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
-    const RNG rng(42);
 
-    MCPricer pricer{market, heston, 100'000, rng};
+    MCPricer pricer{market, heston, 100'000};
     const double mcPrice = pricer.price(payoff_digital);
     const double formulaPrice =
         hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
@@ -173,7 +162,7 @@ TEST_F(MCPricerTest, ParallelMCPricer) {
 
     // GBM
     const GBMProcess gbm{forward, volAt(K)};
-    ParallelMCPricer gbmPricer{market, gbm, 100'000, 8};
+    MCPricer gbmPricer{market, gbm, 100'000, 1 / 12.0, 8};
     const double gbmPrice = gbmPricer.price(payoff);
     const double bsFormulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
 
@@ -182,7 +171,7 @@ TEST_F(MCPricerTest, ParallelMCPricer) {
 
     // Heston
     const HestonProcess heston{forward, hestonParams};
-    ParallelMCPricer hestonPricer{market, heston, 100'000, 8};
+    MCPricer hestonPricer{market, heston, 100'000, 1 / 12.0, 8};
     const double hestonPrice = hestonPricer.price(payoff);
 
     const double hestonFormulaPrice =

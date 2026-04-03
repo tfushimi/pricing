@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <thread>
 #include <utility>
 
@@ -12,20 +13,27 @@
 #include "payoff/Transforms.h"
 
 namespace pricer {
+using RNGFactory = std::function<mc::RNG(int seed)>;
 
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
    public:
-    MCPricer(const market::Market& market, const ProcessType& process, const int nPaths,
-             const mc::RNG& rng)
+    MCPricer(
+        const market::Market& market, const ProcessType& process, const int nPaths,
+        const double maxDt = 1.0 / 12.0, const int nThreads = 1,
+        const RNGFactory& rngFactory = [](const int seed) { return mc::RNG(seed); },
+        const int seed = 0)
         : _market(market),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
           _nPaths(nPaths),
-          _rng(rng) {}
+          _maxDt(maxDt),
+          _nThreads(nThreads),
+          _rngFactory(rngFactory),
+          _seed(seed) {}
 
     ~MCPricer() override = default;
 
-    Scenario generateScenario(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
+    Scenario generateScenario(const payoff::PayoffNodePtr& _payoff) {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
@@ -33,50 +41,10 @@ class MCPricer final : public PayoffPricer {
             throw std::invalid_argument("No symbol found in payoff");
         }
 
-        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), maxDt};
-        return _processStateStepper.run(timeGrid, _nPaths, _rng);
-    }
+        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), _maxDt};
 
-    double priceFromScenario(const payoff::PayoffNodePtr& _payoff, const Scenario& scenario) const {
-        const auto newPayoff = payoff::applyMarket(_payoff, _market);
-        const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
-
-        return sample.sum() / sample.size();
-    }
-
-    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
-        const auto scenario = generateScenario(_payoff, maxDt);
-        return priceFromScenario(_payoff, scenario);
-    }
-
-    double price(const payoff::PayoffNodePtr& _payoff) override { return price(_payoff, 1 / 12.0); }
-
-   private:
-    const market::Market& _market;
-    const mc::ProcessStateStepper<ProcessType> _processStateStepper;
-    const int _nPaths;
-    mc::RNG _rng;
-};
-
-template <typename ProcessType>
-class ParallelMCPricer final : public PayoffPricer {
-   public:
-    ParallelMCPricer(const market::Market& market, const ProcessType& process, const int nPaths,
-                     const int nThreads)
-        : _market(market),
-          _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
-          _nPaths(nPaths),
-          _nThreads(nThreads) {}
-
-    ~ParallelMCPricer() override = default;
-
-    Scenario generateScenario(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
-        const auto newPayoff = payoff::applyMarket(_payoff, _market);
-        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
-        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), maxDt};
-
-        if (symbols.empty()) {
-            throw std::invalid_argument("No symbol found in payoff");
+        if (_nThreads <= 1) {
+            return _processStateStepper.run(timeGrid, _nPaths, _rngFactory(_seed));
         }
 
         std::vector<Scenario> scenarios(_nThreads);
@@ -86,8 +54,8 @@ class ParallelMCPricer final : public PayoffPricer {
 
         for (int i = 0; i < _nThreads; i++) {
             threads.emplace_back([&, i]() {
-                mc::RNG rng(i);
-                scenarios[i] = _processStateStepper.run(timeGrid, nPathsPerThread, rng);
+                scenarios[i] =
+                    _processStateStepper.run(timeGrid, nPathsPerThread, _rngFactory(_seed + i));
             });
         }
 
@@ -101,42 +69,43 @@ class ParallelMCPricer final : public PayoffPricer {
     double priceFromScenario(const payoff::PayoffNodePtr& _payoff, const Scenario& scenario) const {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
-
         return sample.sum() / sample.size();
     }
 
-    double price(const payoff::PayoffNodePtr& _payoff, const double maxDt) {
-        const auto scenario = generateScenario(_payoff, maxDt);
+    double price(const payoff::PayoffNodePtr& _payoff) override {
+        const auto scenario = generateScenario(_payoff);
         return priceFromScenario(_payoff, scenario);
     }
-
-    double price(const payoff::PayoffNodePtr& _payoff) override { return price(_payoff, 1 / 12.0); }
 
    private:
     const market::Market& _market;
     const mc::ProcessStateStepper<ProcessType> _processStateStepper;
     const int _nPaths;
+    const double _maxDt;
     const int _nThreads;
+    const RNGFactory _rngFactory;
+    const int _seed;
+
     static Sample concat(const Sample& a, const Sample& b) {
         Sample result(a.size() + b.size());
         std::copy(std::begin(a), std::end(a), std::begin(result));
         std::copy(std::begin(b), std::end(b), std::begin(result) + a.size());
         return result;
     }
-    static Scenario mergeScenarios(const std::vector<Scenario>& subScenarios) {
-        if (subScenarios.empty())
+    static Scenario mergeScenarios(const std::vector<Scenario>& scenarios) {
+        if (scenarios.empty()) {
             return {};
-
-        Scenario merged = subScenarios[0];  // copy first
-
-        for (std::size_t i = 1; i < subScenarios.size(); i++) {
-            for (auto& [date, sample] : merged) {
-                sample = concat(sample, subScenarios[i].at(date));
-            }
         }
 
+        Scenario merged;
+        for (const auto& date : scenarios[0] | std::views::keys) {
+            Sample combined = scenarios[0].at(date);
+            for (std::size_t i = 1; i < scenarios.size(); i++) {
+                combined = concat(combined, scenarios[i].at(date));
+            }
+            merged[date] = std::move(combined);
+        }
         return merged;
     }
 };
-
 }  // namespace pricer

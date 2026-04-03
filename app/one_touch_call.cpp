@@ -79,8 +79,7 @@ int main() {
     constexpr HestonParams hestonParams{
         .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
     const HestonProcess heston{[&](const double) { return spot; }, hestonParams};
-    const RNG rng(42);
-    MCPricer hestonPricer{market, heston, 1'000'000, rng};
+    MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
 
     const auto fixingDates = getDailyFixingDates(pricingDate, makeDate(2001, 1, 1));
 
@@ -99,7 +98,7 @@ int main() {
             cashPayment(getOneTouchCall(fixingDates, barrier), makeDate(2001, 1, 1));
 
         if (i == 0) {
-            scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);
+            scenario = hestonPricer.generateScenario(payoff);
         }
 
         const double hestonPrice = hestonPricer.priceFromScenario(payoff, *scenario);

@@ -93,8 +93,7 @@ int main() {
     constexpr HestonParams hestonParams{
         .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
     const HestonProcess heston{[&](const double) { return spot; }, hestonParams};
-    const RNG rng(42);
-    MCPricer hestonPricer{market, heston, 1'000'000, rng};
+    MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
 
     const auto fixingDates1 = getFixingDates(2003);
     const auto fixingDates2 = getFixingDates(2004);
@@ -120,7 +119,7 @@ int main() {
         const auto payoff = payoff1 + payoff2 + payoff3;
 
         if (i == 0) {
-            scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);
+            scenario = hestonPricer.generateScenario(payoff);
         }
 
         // Divide by 3: average annual coupon across the 3 coupon years (2003, 2004, 2005)
