@@ -60,6 +60,11 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
 
     // SE is approximately F*vol*sqrt(T) / sqrt(N) = 100*0.2*1.0 / sqrt(100'000) = 0.063
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
+
+    ParallelMCPricer parallelPricer{market, gbm, 100'000, 8};
+    const double parallelMcPrice = parallelPricer.price(payoff);
+
+    EXPECT_NEAR(parallelMcPrice, formulaPrice, 0.1);
 }
 
 TEST_F(MCPricerTest, GBMPricerOTMCall) {
@@ -157,4 +162,31 @@ TEST_F(MCPricerTest, HestonPricerDigitalCall) {
         hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
+}
+
+TEST_F(MCPricerTest, ParallelMCPricer) {
+    constexpr double K = 100.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
+
+    // GBM
+    const GBMProcess gbm{forward, volAt(K)};
+    ParallelMCPricer gbmPricer{market, gbm, 100'000, 8};
+    const double gbmPrice = gbmPricer.price(payoff);
+    const double bsFormulaPrice = bsCallFormula(market.getForward(symbol, T), K, T, dF, volAt(K));
+
+    // SE is approximately F*vol*sqrt(T) / sqrt(N) = 100*0.2*1.0 / sqrt(100'000) = 0.063
+    EXPECT_NEAR(gbmPrice, bsFormulaPrice, 0.1);
+
+    // Heston
+    const HestonProcess heston{forward, hestonParams};
+    ParallelMCPricer hestonPricer{market, heston, 100'000, 8};
+    const double hestonPrice = hestonPricer.price(payoff);
+
+    const double hestonFormulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(hestonPrice, hestonFormulaPrice, 0.1);
 }

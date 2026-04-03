@@ -1,5 +1,6 @@
 #pragma once
 
+#include <thread>
 #include <utility>
 
 #include "PayoffPricer.h"
@@ -56,4 +57,49 @@ class MCPricer final : public PayoffPricer {
     const int _nPaths;
     mc::RNG _rng;
 };
+
+template <typename ProcessType>
+class ParallelMCPricer final : public PayoffPricer {
+   public:
+    ParallelMCPricer(const market::Market& market, const ProcessType& process, const int nPaths,
+                     const int nThreads)
+        : _market(market),
+          _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
+          _nPaths(nPaths),
+          _nThreads(nThreads) {}
+
+    ~ParallelMCPricer() override = default;
+
+    double price(const payoff::PayoffNodePtr& _payoff) override {
+        const auto newPayoff = payoff::applyMarket(_payoff, _market);
+        const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
+        const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), 1 / 12.0};
+
+        std::vector sums(_nThreads, 0.0);
+        std::vector<std::thread> threads;
+        const int nPathsPerThread = _nPaths / _nThreads;
+
+        for (int i = 0; i < _nThreads; i++) {
+            threads.emplace_back([&, i]() {
+                mc::RNG rng(i);
+                const auto scenario = _processStateStepper.run(timeGrid, nPathsPerThread, rng);
+                const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
+                sums[i] = sample.sum();
+            });
+        }
+
+        for (auto& t : threads) {
+            t.join();
+        }
+
+        return std::accumulate(sums.begin(), sums.end(), 0.0) / _nPaths;
+    }
+
+   private:
+    const market::Market& _market;
+    const mc::ProcessStateStepper<ProcessType> _processStateStepper;
+    const int _nPaths;
+    const int _nThreads;
+};
+
 }  // namespace pricer
