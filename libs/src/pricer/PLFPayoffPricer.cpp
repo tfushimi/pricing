@@ -37,7 +37,7 @@ double PLFPayoffPricer::visit(const CashPayment& node) {
 }
 
 double PLFPayoffPricer::priceSegment(const Segment& segment, const double dF,
-                                     const BSVolSlice& bsVolSlice) {
+                                     const BSVolSlice& bsVolSlice) const {
     const auto F = bsVolSlice.forward();
     const auto T = bsVolSlice.time();
     const auto slope = segment.getSlope();

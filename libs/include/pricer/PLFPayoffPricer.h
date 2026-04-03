@@ -27,7 +27,7 @@ class PLFPayoffPricer : public PayoffPricer, public payoff::PayoffVisitor<double
         throw std::runtime_error("PiecewiseLinearPayoff should not have BranchPayment");
     }
     double priceSegment(const numerics::linear::Segment& segment, double dF,
-                        const market::BSVolSlice& bsVolSlice);
+                        const market::BSVolSlice& bsVolSlice) const;
     virtual double callFormula(double F, double K, double T, double dF,
                                const market::BSVolSlice& bsVolSlice) const = 0;
     virtual double digitalCallFormula(double F, double K, double T, double dF,
