@@ -111,9 +111,12 @@ int main() {
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.01;
 
-        const auto payoff1 = cashPayment(getAnnualCoupon(fixingDates1, maxCoupon), makeDate(2003, 12, 1));
-        const auto payoff2 = cashPayment(getAnnualCoupon(fixingDates2, maxCoupon), makeDate(2004, 12, 1));
-        const auto payoff3 = cashPayment(getAnnualCoupon(fixingDates3, maxCoupon), makeDate(2005, 12, 1));
+        const auto payoff1 =
+            cashPayment(getAnnualCoupon(fixingDates1, maxCoupon), makeDate(2003, 12, 1));
+        const auto payoff2 =
+            cashPayment(getAnnualCoupon(fixingDates2, maxCoupon), makeDate(2004, 12, 1));
+        const auto payoff3 =
+            cashPayment(getAnnualCoupon(fixingDates3, maxCoupon), makeDate(2005, 12, 1));
         const auto payoff = payoff1 + payoff2 + payoff3;
 
         if (i == 0) {

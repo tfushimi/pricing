@@ -104,7 +104,8 @@ int main() {
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.1;
 
-        const auto payoff = cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
+        const auto payoff =
+            cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
 
         if (i == 0) {
             scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);

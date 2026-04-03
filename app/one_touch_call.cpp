@@ -95,7 +95,8 @@ int main() {
     for (int i = 0; i < n; ++i) {
         const double barrier = 1 + i * 0.01;
 
-        const auto payoff = cashPayment(getOneTouchCall(fixingDates, barrier), makeDate(2001, 1, 1));
+        const auto payoff =
+            cashPayment(getOneTouchCall(fixingDates, barrier), makeDate(2001, 1, 1));
 
         if (i == 0) {
             scenario = hestonPricer.generateScenario(payoff, 1 / 252.0);
