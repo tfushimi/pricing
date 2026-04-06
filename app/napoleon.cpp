@@ -31,7 +31,6 @@
 #include <assert.h>
 
 #include <iostream>
-#include <optional>
 
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
@@ -99,13 +98,19 @@ int main() {
     const auto fixingDates2 = getFixingDates(2004);
     const auto fixingDates3 = getFixingDates(2005);
 
+    std::vector<Date> fixingDates;
+    fixingDates.reserve(fixingDates1.size() + fixingDates2.size() + fixingDates3.size());
+    fixingDates.insert(fixingDates.end(), fixingDates1.begin(), fixingDates1.end());
+    fixingDates.insert(fixingDates.end(), fixingDates2.begin(), fixingDates2.end());
+    fixingDates.insert(fixingDates.end(), fixingDates3.begin(), fixingDates3.end());
+
     constexpr int n = 16;  // maxCoupon = 0.00, 0.01, ..., 0.15
 
     std::cout << "--------------------------------------\n";
     std::cout << "  MaxCoupon  |  Heston  |  LocalVol  \n";
     std::cout << "--------------------------------------\n";
 
-    std::optional<Scenario> scenario;
+    const auto scenarios = hestonPricer.generateScenarios(fixingDates);
 
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.01;
@@ -118,12 +123,8 @@ int main() {
             cashPayment(getAnnualCoupon(fixingDates3, maxCoupon), makeDate(2005, 12, 1));
         const auto payoff = payoff1 + payoff2 + payoff3;
 
-        if (i == 0) {
-            scenario = hestonPricer.generateScenario(payoff);
-        }
-
         // Divide by 3: average annual coupon across the 3 coupon years (2003, 2004, 2005)
-        const double hestonPrice = hestonPricer.priceFromScenario(payoff, *scenario) / 3.0;
+        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, scenarios) / 3.0;
 
         // TODO implement LocalVolPricer
         std::cout << maxCoupon << " | " << hestonPrice << std::endl;

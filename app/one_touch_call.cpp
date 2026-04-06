@@ -26,7 +26,6 @@
  */
 
 #include <iostream>
-#include <optional>
 
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
@@ -89,7 +88,7 @@ int main() {
     std::cout << "  Barrier  |  Heston  |  LocalVol  \n";
     std::cout << "--------------------------------------\n";
 
-    std::optional<Scenario> scenario;
+    const auto scenarios = hestonPricer.generateScenarios(fixingDates);
 
     for (int i = 0; i < n; ++i) {
         const double barrier = 1 + i * 0.01;
@@ -97,11 +96,7 @@ int main() {
         const auto payoff =
             cashPayment(getOneTouchCall(fixingDates, barrier), makeDate(2001, 1, 1));
 
-        if (i == 0) {
-            scenario = hestonPricer.generateScenario(payoff);
-        }
-
-        const double hestonPrice = hestonPricer.priceFromScenario(payoff, *scenario);
+        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, scenarios);
 
         // TODO implement LocalVolPricer
         std::cout << barrier << " | " << hestonPrice << std::endl;

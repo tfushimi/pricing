@@ -25,7 +25,6 @@
 #include <assert.h>
 
 #include <iostream>
-#include <optional>
 
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
@@ -98,7 +97,7 @@ int main() {
     std::cout << "  MaxCoupon  |  Heston  |  LocalVol  \n";
     std::cout << "--------------------------------------\n";
 
-    std::optional<Scenario> scenario;
+    const auto scenarios = hestonPricer.generateScenarios(fixingDates);
 
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.1;
@@ -106,11 +105,7 @@ int main() {
         const auto payoff =
             cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
 
-        if (i == 0) {
-            scenario = hestonPricer.generateScenario(payoff);
-        }
-
-        const double hestonPrice = hestonPricer.priceFromScenario(payoff, *scenario);
+        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, scenarios);
 
         // TODO implement LocalVolPricer
         std::cout << maxCoupon << " | " << hestonPrice << std::endl;
