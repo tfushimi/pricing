@@ -27,6 +27,7 @@
 
 #include <iostream>
 
+#include "HestonNandi.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -71,14 +72,10 @@ int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2000, 1, 1);
     constexpr SVIParams sviParams{.a = 0.0, .b = 0.0, .rho = 0.0, .m = 0.0, .sigma = 0.0};
-    constexpr double spot = 100.0;
-    SimpleMarket market{pricingDate, SYMBOL, spot, 0.0, 0.0, sviParams};
+    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, sviParams};
 
-    // Heston model with Heston-Nandi parameters
-    constexpr HestonParams hestonParams{
-        .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
-    const HestonProcess heston{[&](const double) { return spot; }, hestonParams};
     MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
+    MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
 
     const auto fixingDates = getDailyFixingDates(pricingDate, makeDate(2001, 1, 1));
 
@@ -88,7 +85,8 @@ int main() {
     std::cout << "  Barrier  |  Heston  |  LocalVol  \n";
     std::cout << "--------------------------------------\n";
 
-    const auto scenarios = hestonPricer.generateScenarios(fixingDates);
+    const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
+    const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
 
     for (int i = 0; i < n; ++i) {
         const double barrier = 1 + i * 0.01;
@@ -96,10 +94,10 @@ int main() {
         const auto payoff =
             cashPayment(getOneTouchCall(fixingDates, barrier), makeDate(2001, 1, 1));
 
-        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, scenarios);
+        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios);
+        const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios);
 
-        // TODO implement LocalVolPricer
-        std::cout << barrier << " | " << hestonPrice << std::endl;
+        std::cout << barrier << " | " << hestonPrice << " | " << localVolPrice << std::endl;
     }
 
     return 0;

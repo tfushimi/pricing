@@ -26,13 +26,13 @@
 
 #include <iostream>
 
+#include "HestonNandi.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
-#include "pricer/LocalVolFormula.h"
 #include "pricer/MCPricer.h"
 
 using namespace market;
@@ -81,22 +81,11 @@ int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2000, 5, 1);
     constexpr SVIParams sviParams{.a = 0.0, .b = 0.0, .rho = 0.0, .m = 0.0, .sigma = 0.0};
-    constexpr double spot = 100.0;
-    const auto forward = [&](const double) {return spot;};
-    SimpleMarket market{pricingDate, SYMBOL, spot, 0.0, 0.0, sviParams};
+    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, sviParams};
 
-    // Heston model with Heston-Nandi parameters
-    constexpr HestonParams hestonParams{
-        .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
-    const HestonProcess heston{forward, hestonParams};
     MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
-
-    // LocalVol model with the approximate formula
-    const LocalVolProcess::LocalVolFunction localVolFunc = [&, hestonParams](const Sample& logZ, const double time) {
-        return approximateLocalVol(hestonParams, logZ, time);
-    };
-    const LocalVolProcess localVol{forward, localVolFunc};
     MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
+
     const auto fixingDates = getFixingDates();
 
     constexpr int n = 11;  // maxCoupon = 0.0, 0.1, 0.2, ..., 1.0

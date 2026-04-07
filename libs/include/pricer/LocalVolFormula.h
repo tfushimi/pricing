@@ -4,7 +4,8 @@
 
 namespace pricer {
 
-inline Sample approximateLocalVol(const HestonParams& params, const Sample& logZ, const double currentTime) {
+template <typename T>
+T approximateLocalVol(const HestonParams& params, const T& logZ, const double currentTime) {
     const auto [v0, kappa, theta, xi, rho] = params;
     const auto kappa_bar = kappa + 0.5 * xi;
     const auto theta_bar = theta * kappa / kappa_bar;
