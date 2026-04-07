@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <complex>
 #include <functional>
 
@@ -22,16 +21,16 @@ inline std::complex<double> hestonP0(const double u, const double x, const doubl
 
     const Complex alpha = -0.5 * u * u - 0.5 * iu;
     const Complex beta = kappa - rho * xi * iu;
-    const Complex d = sqrt(beta * beta - 2.0 * alpha * xi * xi);
+    const Complex d = std::sqrt(beta * beta - 2.0 * alpha * xi * xi);
     const Complex rMinus = (beta - d) / (xi * xi);
     const Complex rPlus = (beta + d) / (xi * xi);
     const Complex g = rMinus / rPlus;
-    const Complex expDt = exp(-d * T);
+    const Complex expDt = std::exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
     const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
-    return exp(C * theta + D * v0 + iu * x) / iu;
+    return std::exp(C * theta + D * v0 + iu * x) / iu;
 }
 
 /**
@@ -49,16 +48,16 @@ inline std::complex<double> hestonP1(const double u, const double x, const doubl
 
     const Complex alpha = -0.5 * u * u + 0.5 * iu;
     const Complex beta = kappa - rho * xi * iu - rho * xi;
-    const Complex d = sqrt(beta * beta - 2.0 * alpha * xi * xi);
+    const Complex d = std::sqrt(beta * beta - 2.0 * alpha * xi * xi);
     const Complex rMinus = (beta - d) / (xi * xi);
     const Complex rPlus = (beta + d) / (xi * xi);
     const Complex g = rMinus / rPlus;
-    const Complex expDt = exp(-d * T);
+    const Complex expDt = std::exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
     const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
-    return exp(C * theta + D * v0 + iu * x) / iu;
+    return std::exp(C * theta + D * v0 + iu * x) / iu;
 }
 
 // TODO move this to numerics/integration

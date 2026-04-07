@@ -7,6 +7,7 @@
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
+#include "pricer/LocalVolFormula.h"
 
 using namespace market;
 using namespace payoff;
@@ -24,9 +25,14 @@ class MCPricerTest : public ::testing::Test {
     const double dividend = 0.02;
     const double T = yearFraction(pricingDate, fixingDate);
     const double dF = std::exp(-rate * yearFraction(pricingDate, settlementDate));
+    const std::function<double(double)> forward = [&](const double t) { return market.getForward(symbol, t); };
 
     // In p.15  of "The Heston Model and Its Extension in MATLAB and C#"
     const HestonParams hestonParams{0.05, 5.0, 0.05, 0.5, -0.8};
+
+    const LocalVolProcess::LocalVolFunction localVolFunction = [&](const Sample& logZ, const double time) {
+        return approximateLocalVol(hestonParams, logZ, time);
+    };
 
     // Negative skew, some curvature
     const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
@@ -49,7 +55,6 @@ TEST_F(MCPricerTest, GBMPricerATMCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
 
@@ -66,7 +71,6 @@ TEST_F(MCPricerTest, GBMPricerOTMCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
 
@@ -82,7 +86,6 @@ TEST_F(MCPricerTest, GBMPricerDigitalCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff_digital = cashPayment(S > K, settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const GBMProcess gbm{forward, volAt(K)};
 
@@ -105,7 +108,6 @@ TEST_F(MCPricerTest, HestonPricerATMCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
 
@@ -123,7 +125,6 @@ TEST_F(MCPricerTest, HestonPricerOTMCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
 
@@ -141,11 +142,58 @@ TEST_F(MCPricerTest, HestonPricerDigitalCall) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff_digital = cashPayment(S > K, settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     const HestonProcess heston{forward, hestonParams};
 
     MCPricer pricer{market, heston, 100'000};
+    const double mcPrice = pricer.price(payoff_digital);
+    const double formulaPrice =
+        hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
+}
+
+TEST_F(MCPricerTest, LocalVolPricerATMCall) {
+    constexpr double K = 100.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+
+    const LocalVolProcess localVol{forward, localVolFunction};
+    MCPricer pricer{market, localVol, 100'000};
+
+    const double mcPrice = pricer.price(payoff);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
+}
+
+TEST_F(MCPricerTest, LocalVolPricerOTMCall) {
+    constexpr double K = 110.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
+
+    const LocalVolProcess localVol{forward, localVolFunction};
+    MCPricer pricer{market, localVol, 100'000};
+
+    const double mcPrice = pricer.price(payoff);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+
+    EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
+}
+
+TEST_F(MCPricerTest, LocalVolPricerDigitalCall) {
+    constexpr double K = 100.0;
+
+    const auto S = fixing(symbol, fixingDate);
+    const auto payoff_digital = cashPayment(S > K, settlementDate);
+
+    const LocalVolProcess localVol{forward, localVolFunction};
+    MCPricer pricer{market, localVol, 100'000};
+
     const double mcPrice = pricer.price(payoff_digital);
     const double formulaPrice =
         hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
@@ -158,7 +206,6 @@ TEST_F(MCPricerTest, ParallelMCPricer) {
 
     const auto S = fixing(symbol, fixingDate);
     const auto payoff = cashPayment(max(S - K, 0.0), settlementDate);
-    const auto forward = [&](const double t) { return market.getForward(symbol, t); };
 
     // GBM
     const GBMProcess gbm{forward, volAt(K)};

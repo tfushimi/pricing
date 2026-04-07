@@ -22,7 +22,7 @@
  *
  * Assumptions: zero interest rates and dividends, daily MC steps (dt=1/252).
  */
-#include <assert.h>
+#include <cassert>
 
 #include <iostream>
 
@@ -32,6 +32,7 @@
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
+#include "pricer/LocalVolFormula.h"
 #include "pricer/MCPricer.h"
 
 using namespace market;
@@ -81,14 +82,21 @@ int main() {
     const Date pricingDate = makeDate(2000, 5, 1);
     constexpr SVIParams sviParams{.a = 0.0, .b = 0.0, .rho = 0.0, .m = 0.0, .sigma = 0.0};
     constexpr double spot = 100.0;
+    const auto forward = [&](const double) {return spot;};
     SimpleMarket market{pricingDate, SYMBOL, spot, 0.0, 0.0, sviParams};
 
     // Heston model with Heston-Nandi parameters
     constexpr HestonParams hestonParams{
         .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
-    const HestonProcess heston{[&](const double) { return spot; }, hestonParams};
+    const HestonProcess heston{forward, hestonParams};
     MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
 
+    // LocalVol model with the approximate formula
+    const LocalVolProcess::LocalVolFunction localVolFunc = [&, hestonParams](const Sample& logZ, const double time) {
+        return approximateLocalVol(hestonParams, logZ, time);
+    };
+    const LocalVolProcess localVol{forward, localVolFunc};
+    MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
     const auto fixingDates = getFixingDates();
 
     constexpr int n = 11;  // maxCoupon = 0.0, 0.1, 0.2, ..., 1.0
@@ -97,7 +105,8 @@ int main() {
     std::cout << "  MaxCoupon  |  Heston  |  LocalVol  \n";
     std::cout << "--------------------------------------\n";
 
-    const auto scenarios = hestonPricer.generateScenarios(fixingDates);
+    const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
+    const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
 
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.1;
@@ -105,10 +114,10 @@ int main() {
         const auto payoff =
             cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
 
-        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, scenarios);
+        const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios);
+        const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios);
 
-        // TODO implement LocalVolPricer
-        std::cout << maxCoupon << " | " << hestonPrice << std::endl;
+        std::cout << maxCoupon << " | " << hestonPrice << " | " << localVolPrice << std::endl;
     }
 
     return 0;

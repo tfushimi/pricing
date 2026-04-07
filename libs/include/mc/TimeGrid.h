@@ -36,15 +36,19 @@ class TimeGrid {
                         prevSysDays +
                         std::chrono::days(static_cast<int>(std::round(alpha * totalDays))));
 
-                    _simulationDates.push_back(midDate);
-                    _times.push_back(yearFraction(_startDate, midDate));
-                    _isFixingTime.push_back(false);
+                    if (midDate != _simulationDates.back()) {
+                        _simulationDates.push_back(midDate);
+                        _times.push_back(yearFraction(_startDate, midDate));
+                        _isFixingTime.push_back(false);
+                    }
                 }
             }
 
-            _simulationDates.push_back(fixingDate);
-            _times.push_back(yearFraction(_startDate, fixingDate));
-            _isFixingTime.push_back(true);
+            if (fixingDate != _simulationDates.back()) {
+                _simulationDates.push_back(fixingDate);
+                _times.push_back(yearFraction(_startDate, fixingDate));
+                _isFixingTime.push_back(true);
+            }
 
             prev = fixingDate;
         }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "common/types.h"
 
 namespace mc {
@@ -46,7 +47,39 @@ class GBMProcess final : public Process<GBMState> {
     const double _vol;
 };
 
-// TODO define LocalVolProcess
+// log(Z_{t+dt}) - log(Z_t) = localVol(logZ, t), t * (W_{t+dt} - W_t) = localVol(logZ, t) * N(0, dt)
+// S_{t+dt} = F_{t+dt} * exp(Z_{t+dt}) / mean(exp(Z_{t+dt}))
+struct LocalVolState {
+    Sample logZ;
+};
+
+class LocalVolProcess final : public Process<LocalVolState> {
+public:
+    using LocalVolFunction = std::function<Sample(const Sample&, double time)>;
+    using ForwardCurve = std::function<double(double)>;
+    explicit LocalVolProcess(ForwardCurve forward,
+        const LocalVolFunction& localVol)
+        : _forward(std::move(forward)), _localVol(localVol) {}
+
+    LocalVolState initialState(const std::size_t nPaths) const override { return {Sample(0.0, nPaths)}; }
+
+    std::size_t nNormals() const override { return 1; }
+
+    LocalVolState step(const LocalVolState& currentState, const double currentTime, const double dt,
+                  const std::vector<Sample>& dW) const override {
+        const auto localVol = _localVol(currentState.logZ, currentTime + dt);
+        return {currentState.logZ + (-0.5 * localVol * localVol * dt) + localVol * std::sqrt(dt) * dW[0]};
+    }
+
+    const Sample value(const LocalVolState& state, const double time) const override {
+        return _forward(time) * exp(state.logZ);
+    }
+
+private:
+    const ForwardCurve _forward;
+    const LocalVolFunction _localVol;
+};
+
 struct HestonState {
     Sample logZ;
     Sample v;
