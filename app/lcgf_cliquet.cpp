@@ -98,12 +98,10 @@ int main() {
 
     constexpr int n = 13;  // minCoupon = 0.00, 0.01, ..., 0.12
 
-    std::cout << "--------------------------------------\n";
-    std::cout << "  MinCoupon  |  Heston  |  LocalVol  \n";
-    std::cout << "--------------------------------------\n";
-
     const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
     const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
+
+    std::vector<double> minCoupons, hestonPrices, localVolPrices;
 
     for (int i = 0; i < n; ++i) {
         const double minCoupon = i * 0.01;
@@ -120,8 +118,12 @@ int main() {
         const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios) / 3.0;
         const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios) / 3.0;
 
-        std::cout << minCoupon << " | " << hestonPrice << " | "  << localVolPrice << std::endl;
+        minCoupons.push_back(minCoupon);
+        hestonPrices.push_back(hestonPrice);
+        localVolPrices.push_back(localVolPrice);
     }
+
+    printTable("MinCoupon", {"Heston", "LocalVol"}, minCoupons, {hestonPrices, localVolPrices});
 
     return 0;
 }

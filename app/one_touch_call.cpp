@@ -83,12 +83,10 @@ int main() {
 
     constexpr int n = 40;  // barrier = 1.0, 1.01, 1.02, ..., 1.4
 
-    std::cout << "--------------------------------------\n";
-    std::cout << "  Barrier  |  Heston  |  LocalVol  \n";
-    std::cout << "--------------------------------------\n";
-
     const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
     const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
+
+    std::vector<double> barriers, hestonPrices, localVolPrices;
 
     for (int i = 0; i < n; ++i) {
         const double barrier = 1 + i * 0.01;
@@ -99,8 +97,12 @@ int main() {
         const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios);
         const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios);
 
-        std::cout << barrier << " | " << hestonPrice << " | " << localVolPrice << std::endl;
+        barriers.push_back(barrier);
+        hestonPrices.push_back(hestonPrice);
+        localVolPrices.push_back(localVolPrice);
     }
+
+    printTable("Barrier", {"Heston", "LocalVol"}, barriers, {hestonPrices, localVolPrices});
 
     return 0;
 }
