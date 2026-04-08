@@ -1,5 +1,5 @@
 /**
- * @file lcgf_cliquet.cpp
+ * @file locallyCappedGloballyFlooredCliquet.cpp
  *
  * Prices a Locally Capped, Globally Floored Cliquet structure.
  *

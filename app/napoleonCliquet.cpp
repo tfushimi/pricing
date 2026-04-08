@@ -1,5 +1,5 @@
 /**
- * @file napoleon.cpp
+ * @file napoleonCliquet.cpp
  *
  * Prices the Napoleon reverse cliquet structure described in Gatheral (2006),
  * "The Volatility Surface", Chapter 10.

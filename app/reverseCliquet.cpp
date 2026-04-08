@@ -1,5 +1,5 @@
 /**
- * @file reverse_cliquet.cpp
+ * @file reverseCliquet.cpp
  *
  * Prices a reverse cliquet on a basket of telecom stocks.
  *

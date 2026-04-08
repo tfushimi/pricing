@@ -1,5 +1,5 @@
 /**
- * @file one_touch_call.cpp
+ * @file oneTouchCallOption.cpp
  *
  * Prices a one-touch call option: pays $1 if the underlying ever reaches
  * the barrier B during [0, T], zero otherwise.

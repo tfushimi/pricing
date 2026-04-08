@@ -1,14 +1,14 @@
-add_executable(quant_finance main.cpp)
-target_link_libraries(quant_finance PRIVATE pricer project_warnings)
+add_executable(barrier_enhanced_note barrierEnhancedNote.cpp)
+target_link_libraries(barrier_enhanced_note PRIVATE pricer project_warnings)
 
-add_executable(lcgf_cliquet lcgf_cliquet.cpp)
+add_executable(lcgf_cliquet locallyCappedGloballyFlooredCliquet.cpp)
 target_link_libraries(lcgf_cliquet PRIVATE pricer project_warnings)
 
-add_executable(reverse_cliquet reverse_cliquet.cpp)
+add_executable(reverse_cliquet reverseCliquet.cpp)
 target_link_libraries(reverse_cliquet PRIVATE pricer project_warnings)
 
-add_executable(napoleon napoleon.cpp)
-target_link_libraries(napoleon PRIVATE pricer project_warnings)
+add_executable(napoleon_cliquet NapoleonCliquet.cpp)
+target_link_libraries(napoleon_cliquet PRIVATE pricer project_warnings)
 
-add_executable(one_touch_call one_touch_call.cpp)
+add_executable(one_touch_call oneTouchCallOption.cpp)
 target_link_libraries(one_touch_call PRIVATE pricer project_warnings)
