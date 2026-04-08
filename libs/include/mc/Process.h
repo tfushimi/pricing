@@ -4,7 +4,7 @@
 #include <vector>
 #include <valarray>
 
-#include "common/types.h"
+#include "common/Params.h"
 
 namespace mc {
 

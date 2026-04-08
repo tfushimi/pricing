@@ -3,7 +3,7 @@
 #include <complex>
 #include <functional>
 
-#include "common/types.h"
+#include "common/Params.h"
 
 namespace pricer {
 /**

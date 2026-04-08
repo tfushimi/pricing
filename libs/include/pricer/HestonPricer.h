@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PLFPayoffPricer.h"
-#include "common/types.h"
+#include "common/Params.h"
 #include "market/Market.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"

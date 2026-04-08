@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "common/types.h"
+#include "common/Params.h"
 #include "mc/Process.h"
 #include "pricer/LocalVolFormula.h"
 
