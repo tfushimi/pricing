@@ -3,8 +3,6 @@
 #include <chrono>
 #include <format>
 #include <functional>
-#include <map>
-#include <valarray>
 
 using Date = std::chrono::year_month_day;
 
@@ -31,12 +29,6 @@ inline double yearFraction(const Date from, const Date to) {
     const auto days = std::chrono::sys_days{to} - std::chrono::sys_days{from};
     return days.count() / 365.25;
 }
-
-// N path values at one fixing date
-using Sample = std::valarray<double>;
-
-// full evolution across fixing dates
-using Scenario = std::map<Date, Sample>;
 
 // log(Z_{t+dt}) = log(Z_t) - 0.5 * v_t * dt + sqrt(v_t * dt) * dW_Z
 // v_{t+dt}      = v_t + kappa * (theta - v_t) * dt + xi * sqrt(v_t * dt) * dW_v

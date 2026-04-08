@@ -1,10 +1,12 @@
 #include <ranges>
 
 #include "market/Market.h"
+#include "mc/ProcessStateStepper.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
 using namespace market;
+using namespace mc;
 
 namespace payoff {
 namespace {

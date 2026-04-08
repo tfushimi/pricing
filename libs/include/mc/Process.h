@@ -1,9 +1,15 @@
 #pragma once
 
-#include <iostream>
+#include <functional>
+#include <vector>
+#include <valarray>
+
 #include "common/types.h"
 
 namespace mc {
+
+// N path values at one fixing date
+using Sample = std::valarray<double>;
 
 template <typename StateType>
 class Process {

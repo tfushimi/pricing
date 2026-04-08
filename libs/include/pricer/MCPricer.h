@@ -32,7 +32,7 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    std::vector<Scenario> generateScenarios(const std::vector<Date>& fixingDates) const {
+    std::vector<mc::Scenario> generateScenarios(const std::vector<Date>& fixingDates) const {
 
         const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), _maxDt};
 
@@ -41,7 +41,7 @@ class MCPricer final : public PayoffPricer {
             return {_processStateStepper.run(timeGrid, _nPaths, _rngFactory(_seed))};
         }
 
-        std::vector<Scenario> scenarios(_nThreads);
+        std::vector<mc::Scenario> scenarios(_nThreads);
         std::vector<std::thread> threads;
         threads.reserve(_nThreads);
 
@@ -61,7 +61,7 @@ class MCPricer final : public PayoffPricer {
         return scenarios;
     }
 
-    std::vector<Scenario> generateScenarios(const payoff::PayoffNodePtr& _payoff) const {
+    std::vector<mc::Scenario> generateScenarios(const payoff::PayoffNodePtr& _payoff) const {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
@@ -72,7 +72,7 @@ class MCPricer final : public PayoffPricer {
         return generateScenarios(fixingDates);
     }
 
-    double priceFromScenarios(const payoff::PayoffNodePtr& _payoff, const std::vector<Scenario>& scenarios) const {
+    double priceFromScenarios(const payoff::PayoffNodePtr& _payoff, const std::vector<mc::Scenario>& scenarios) const {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         double total = 0.0;
         int totalPaths = 0;

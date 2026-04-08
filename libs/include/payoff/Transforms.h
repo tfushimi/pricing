@@ -3,6 +3,7 @@
 
 #include "common/types.h"
 #include "market/Market.h"
+#include "mc/ProcessStateStepper.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
@@ -58,8 +59,8 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 }
 
 // Substitute fixings with MC sample and simplify constant expressions
-Sample applyFixings(const ObservableNode& observable, const Scenario& scenario);
-Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
-Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
-                    const Scenario& scenario);
+mc::Sample applyFixings(const ObservableNode& observable, const mc::Scenario& scenario);
+mc::Sample applyFixings(const ObservableNodePtr& observable, const mc::Scenario& scenario);
+mc::Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
+                    const mc::Scenario& scenario);
 }  // namespace payoff

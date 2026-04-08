@@ -1,9 +1,14 @@
 #pragma once
+
+#include <map>
+
 #include "RNG.h"
 #include "TimeGrid.h"
-#include "common/types.h"
 
 namespace mc {
+
+// full evolution across fixing dates
+using Scenario = std::map<Date, Sample>;
 
 // TODO try concept
 template <typename ProcessType>

@@ -1,7 +1,7 @@
 #pragma once
 #include <random>
 
-#include "common/types.h"
+#include "mc/Process.h"
 
 namespace mc {
 

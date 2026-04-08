@@ -2,14 +2,13 @@
 
 #include <valarray>
 
-#include "common/types.h"
 #include "mc/RNG.h"
 
 class ConstantRNG final : public mc::RNG {
    public:
     explicit ConstantRNG(const double val) : RNG(0), _val(val) {}
     ~ConstantRNG() override = default;
-    void fill(Sample& sample) override {
+    void fill(mc::Sample& sample) override {
         for (double& value : sample) {
             value = _val;
         }
@@ -19,11 +18,11 @@ class ConstantRNG final : public mc::RNG {
     double _val;
 };
 
-inline double mean(const Sample& s) {
+inline double mean(const mc::Sample& s) {
     return s.sum() / static_cast<double>(s.size());
 }
 
-inline double variance(const Sample& s) {
+inline double variance(const mc::Sample& s) {
     const double avg = mean(s);
     return mean(s * s) - avg * avg;
 }
