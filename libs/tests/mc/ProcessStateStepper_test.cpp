@@ -15,27 +15,22 @@ class ProcessStateStepperTest : public ::testing::Test {
    protected:
     const Date pricingDate = makeDate(2025, 1, 1);
     const ConstantForwardCurve forward{pricingDate, 100, 0.01};
-    const GBMProcess gbm{forward, 0.2};
-    ConstantRNG constRng{0.0};
-
-    TimeGrid makeAnnualGrid(const int years) const {
-        std::vector<Date> fixings;
-        for (int i = 0; i < years; i++) {
-            fixings.push_back(year(2025 + i) / January / 1d);
-        }
-        return TimeGrid{fixings, pricingDate, 1.0 / 12.0};
-    }
+    const double vol = 0.2;
+    const GBMProcess gbm{forward, vol};
 };
 
 TEST_F(ProcessStateStepperTest, ScenarioHasCorrectNumberOfFixings) {
     const ProcessStateStepper stepper(gbm);
 
-    const auto grid = makeAnnualGrid(3);
+    const auto fixingDates = {
+        makeDate(2026, 1, 1),
+        makeDate(2027, 1, 1),
+    };
+    const auto grid = TimeGrid{fixingDates, pricingDate, 1.0 / 12.0};
 
-    const auto scenario = stepper.run(grid, 100, constRng);
-    EXPECT_EQ(scenario.size(), 3);
+    const auto scenario = stepper.run(grid, 100, std::make_unique<ConstantRNG>(1.0));
+    EXPECT_EQ(scenario.size(), 2);
 
-    EXPECT_TRUE(scenario.count(2025y / January / 1d));
     EXPECT_TRUE(scenario.count(2026y / January / 1d));
     EXPECT_TRUE(scenario.count(2027y / January / 1d));
 }
@@ -43,13 +38,13 @@ TEST_F(ProcessStateStepperTest, ScenarioHasCorrectNumberOfFixings) {
 TEST_F(ProcessStateStepperTest, GBMPureDriftPath) {
     const ProcessStateStepper stepper(gbm);
 
-    const auto grid = makeAnnualGrid(1);
+    constexpr auto simulationDate = 2026y / January / 1d;
+    const auto fixingDates = {simulationDate};
+    const auto grid = TimeGrid{fixingDates, pricingDate, 1.0 / 12.0};
 
-    const auto scenario = stepper.run(grid, 1, constRng);
+    const auto scenario = stepper.run(grid, 1, std::make_unique<ConstantRNG>(0.0));
 
-    constexpr auto simulationDate = 2025y / January / 1d;
     const Sample& spotAtT = scenario.at(simulationDate);
-    EXPECT_NEAR(mean(spotAtT), forward(yearFraction(pricingDate, simulationDate)), 1e-4);
+    const auto T = yearFraction(pricingDate, simulationDate);
+    EXPECT_NEAR(mean(spotAtT), forward(T) * std::exp(-0.5 * vol * vol * T), 1e-4);
 }
-
-// TODO use random number

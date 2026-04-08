@@ -12,7 +12,7 @@
 #include "payoff/Transforms.h"
 
 namespace pricer {
-using RNGFactory = std::function<mc::RNG(int seed)>;
+using RNGFactory = std::function<std::unique_ptr<mc::RNG>(int seed)>;
 
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
@@ -20,7 +20,7 @@ class MCPricer final : public PayoffPricer {
     MCPricer(
         const market::Market& market, const ProcessType& process, const int nPaths,
         const double maxDt = 1.0 / 12.0, const int nThreads = 1,
-        const RNGFactory& rngFactory = [](const int seed) { return mc::RNG(seed); },
+        const RNGFactory& rngFactory = [](const int seed) { return std::make_unique<mc::RNG>(seed); },
         const int seed = 0)
         : _market(market),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
