@@ -3,11 +3,13 @@
 #include <optional>
 #include <unordered_map>
 
+#include "common/Date.h"
 #include "ObservableTestUtils.h"
 #include "market/Market.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
+using namespace calendar;
 using namespace market;
 using namespace payoff;
 

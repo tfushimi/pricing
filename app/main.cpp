@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "common/Date.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "payoff/Observable.h"
@@ -8,6 +9,7 @@
 #include "payoff/Transforms.h"
 #include "pricer/BSPricer.h"
 
+using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;

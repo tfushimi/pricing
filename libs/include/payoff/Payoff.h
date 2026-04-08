@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Payoff.h"
-#include "common/types.h"
 #include "payoff/Observable.h"
 
 namespace payoff {

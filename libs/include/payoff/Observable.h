@@ -4,9 +4,11 @@
 #include <memory>
 #include <stdexcept>
 
-#include "common/types.h"
+#include "common/Date.h"
 
 namespace payoff {
+
+using calendar::Date;
 
 class ObservableNode;
 class Fixing;

@@ -7,6 +7,7 @@
 
 using namespace market;
 using namespace mc;
+using namespace calendar;
 
 namespace payoff {
 namespace {

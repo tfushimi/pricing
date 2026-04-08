@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
+#include "common/Date.h"
 #include "ObservableTestUtils.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
+using namespace calendar;
 using namespace payoff;
 
 const auto spy = fixing("SPY", makeDate(2026, 3, 20));

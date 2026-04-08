@@ -3,12 +3,14 @@
 #include <gtest/gtest.h>
 #include <pricer/HestonFormula.h>
 
+#include "common/Date.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
 #include "pricer/LocalVolFormula.h"
 
+using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;

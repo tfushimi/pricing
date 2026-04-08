@@ -2,11 +2,13 @@
 
 #include <gtest/gtest.h>
 
+#include "common/Date.h"
 #include "MCTestUtils.h"
 #include "market/ConstantForwardCurve.h"
 #include "mc/Process.h"
 #include "mc/TimeGrid.h"
 
+using namespace calendar;
 using namespace market;
 using namespace mc;
 using namespace std::chrono;

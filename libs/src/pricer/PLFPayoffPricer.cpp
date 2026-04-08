@@ -1,6 +1,5 @@
 #include "pricer/PLFPayoffPricer.h"
 
-#include "common/types.h"
 #include "market/Market.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "numerics/linear/Segment.h"

@@ -4,9 +4,12 @@
 #include <string>
 
 #include "BSVolSlice.h"
-#include "common/types.h"
+#include "common/Date.h"
 
 namespace market {
+using calendar::Date;
+using calendar::yearFraction;
+
 class Market {
    public:
     Market() = default;

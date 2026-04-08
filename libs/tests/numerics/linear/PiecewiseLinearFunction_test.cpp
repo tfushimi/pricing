@@ -5,7 +5,6 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "common/types.h"
 #include "numerics/linear/Segment.h"
 
 using namespace numerics::linear;

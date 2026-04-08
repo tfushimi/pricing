@@ -4,9 +4,11 @@
 #include <cmath>
 #include <vector>
 
-#include "common/types.h"
+#include "common/Date.h"
 
 namespace mc {
+using calendar::Date;
+using calendar::yearFraction;
 
 class TimeGrid {
    public:

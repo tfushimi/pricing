@@ -1,16 +1,19 @@
 #pragma once
 
-#include "common/types.h"
+#include "common/Date.h"
+
+namespace market {
 
 class Curve {
-   public:
-    explicit Curve(const Date pricingDate) : _pricingDate(pricingDate) {}
-    virtual ~Curve() = default;
-    double operator()(const Date& date) const {
-        return this->operator()(yearFraction(_pricingDate, date));
-    }
-    virtual double operator()(double T) const = 0;
+public:
+  explicit Curve(const calendar::Date pricingDate) : _pricingDate(pricingDate) {}
+  virtual ~Curve() = default;
+  double operator()(const calendar::Date& date) const {
+    return this->operator()(calendar::yearFraction(_pricingDate, date));
+  }
+  virtual double operator()(double T) const = 0;
 
-   private:
-    Date _pricingDate;
+private:
+  calendar::Date _pricingDate;
 };
+}

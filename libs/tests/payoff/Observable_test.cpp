@@ -2,8 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include "common/Date.h"
 #include "payoff/Transforms.h"
 
+using namespace calendar;
 using namespace payoff;
 
 const auto S = fixing("SPY", makeDate(2026, 3, 20));

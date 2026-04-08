@@ -12,6 +12,7 @@
 #include "payoff/Transforms.h"
 
 namespace pricer {
+using calendar::Date;
 using RNGFactory = std::function<std::unique_ptr<mc::RNG>(int seed)>;
 
 template <typename ProcessType>

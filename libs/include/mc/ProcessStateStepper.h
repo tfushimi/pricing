@@ -2,10 +2,12 @@
 
 #include <map>
 
+#include "common/Date.h"
 #include "RNG.h"
 #include "TimeGrid.h"
 
 namespace mc {
+using calendar::Date;
 
 // full evolution across fixing dates
 using Scenario = std::map<Date, Sample>;

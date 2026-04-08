@@ -1,7 +1,6 @@
 #pragma once
 #include <set>
 
-#include "common/types.h"
 #include "market/Market.h"
 #include "mc/ProcessStateStepper.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"

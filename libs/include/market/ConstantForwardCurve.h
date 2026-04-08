@@ -1,14 +1,14 @@
 #pragma once
 #include <cmath>
 
-#include "common/types.h"
+#include "common/Date.h"
 #include "market/Curve.h"
 
 namespace market {
 
 class ConstantForwardCurve final : public Curve {
    public:
-    explicit ConstantForwardCurve(const Date pricingDate, const double spot, const double rate)
+    explicit ConstantForwardCurve(const calendar::Date pricingDate, const double spot, const double rate)
         : Curve(pricingDate), _spot(spot), _rate(rate) {}
 
     double operator()(const double T) const override { return _spot * std::exp(_rate * T); }

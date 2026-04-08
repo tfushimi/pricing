@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
+#include "common/Date.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 
+using namespace calendar;
 using namespace payoff;
 
 TEST(FixingCollectorTest, SingleFixing) {

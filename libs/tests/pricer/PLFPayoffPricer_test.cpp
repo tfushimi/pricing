@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "common/Date.h"
 #include "market/SimpleMarket.h"
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
 #include "pricer/BSPricer.h"
 #include "pricer/HestonPricer.h"
 
+using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;

@@ -5,7 +5,6 @@
 #include <string>
 
 #include "ConstantForwardCurve.h"
-#include "common/types.h"
 #include "market/ConstantDiscountCurve.h"
 #include "market/Market.h"
 #include "market/SVI.h"
