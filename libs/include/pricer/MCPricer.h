@@ -13,6 +13,8 @@
 
 namespace pricer {
 using calendar::Date;
+
+// TODO move this to RNG
 using RNGFactory = std::function<std::unique_ptr<mc::RNG>(int seed)>;
 
 template <typename ProcessType>
