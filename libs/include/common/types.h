@@ -32,10 +32,6 @@ inline double yearFraction(const Date from, const Date to) {
     return days.count() / 365.25;
 }
 
-// -inf/inf of double
-constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
-constexpr double POS_INF = std::numeric_limits<double>::infinity();
-
 // N path values at one fixing date
 using Sample = std::valarray<double>;
 

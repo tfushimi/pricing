@@ -1,11 +1,15 @@
 #pragma once
+
+#include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
 
-#include "common/types.h"
-
 namespace numerics::linear {
+
+// -inf/inf of double
+constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
+constexpr double POS_INF = std::numeric_limits<double>::infinity();
 
 /**
  * Represents f(S) = slope * S + intercept for S in [lo, hi)
