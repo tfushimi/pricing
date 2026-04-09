@@ -1,5 +1,5 @@
 /**
- * @file oneTouchCallOption.cpp
+ * @file OneTouchCallOption.cpp
  *
  * Prices a one-touch call option: pays $1 if the underlying ever reaches
  * the barrier B during [0, T], zero otherwise.
@@ -29,6 +29,7 @@
 
 #include "HestonNandi.h"
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -102,7 +103,8 @@ int main() {
         localVolPrices.push_back(localVolPrice);
     }
 
-    printTable("Barrier", {"Heston", "LocalVol"}, barriers, {hestonPrices, localVolPrices});
+    printTable({"Barrier", "Heston", "LocalVol"}, {barriers, hestonPrices, localVolPrices});
+    writeCsv("figure_9_4.csv", {"Barrier", "Heston", "LocalVol"}, {barriers, hestonPrices, localVolPrices});
 
     return 0;
 }

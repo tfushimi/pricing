@@ -1,5 +1,5 @@
 /**
- * @file locallyCappedGloballyFlooredCliquet.cpp
+ * @file LocallyCappedGloballyFlooredCliquet.cpp
  *
  * Prices a Locally Capped, Globally Floored Cliquet structure.
  *
@@ -22,6 +22,7 @@
 
 #include "HestonNandi.h"
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -123,7 +124,8 @@ int main() {
         localVolPrices.push_back(localVolPrice);
     }
 
-    printTable("MinCoupon", {"Heston", "LocalVol"}, minCoupons, {hestonPrices, localVolPrices});
+    printTable({"MinCoupon", "Heston", "LocalVol"}, {minCoupons, hestonPrices, localVolPrices});
+    writeCsv("figure_10_1.csv", {"MinCoupon", "Heston", "LocalVol"}, {minCoupons, hestonPrices, localVolPrices});
 
     return 0;
 }

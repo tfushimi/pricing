@@ -17,6 +17,7 @@
 
 #include "HestonNandi.h"
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -66,7 +67,8 @@ int main() {
         localVolPrices.push_back(localVolPrice);
     }
 
-    printTable("Barrier", {"Heston", "LocalVol"}, barriers, {hestonPrices, localVolPrices});
-
+    printTable({"Barrier", "Heston", "LocalVol"}, {barriers, hestonPrices, localVolPrices});
+    writeCsv("figure_9_3.csv", {"barrier", "Heston", "LocalVol"},
+             {barriers, hestonPrices, localVolPrices});
     return 0;
 }

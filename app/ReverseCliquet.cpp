@@ -1,5 +1,5 @@
 /**
- * @file reverseCliquet.cpp
+ * @file ReverseCliquet.cpp
  *
  * Prices a reverse cliquet on a basket of telecom stocks.
  *
@@ -27,6 +27,7 @@
 
 #include "HestonNandi.h"
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -110,7 +111,8 @@ int main() {
         localVolPrices.push_back(localVolPrice);
     }
 
-    printTable("MaxCoupon", {"Heston", "LocalVol"}, maxCoupons, {hestonPrices, localVolPrices});
+    printTable({"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
+    writeCsv("figure_10_3.csv", {"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
 
     return 0;
 }

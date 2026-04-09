@@ -3,8 +3,6 @@
 #include <cassert>
 #include <format>
 #include <iostream>
-#include <string>
-#include <vector>
 
 #include "common/Types.h"
 #include "mc/Process.h"
@@ -26,31 +24,3 @@ const mc::LocalVolProcess::LocalVolFunction localVolFunc = [](const Sample& logZ
     return pricer::approximateLocalVol(hestonParams, logZ, time);
 };
 const mc::LocalVolProcess localVol{forward, localVolFunc};
-
-// Helper function to print table
-inline void printTable(const std::string& paramName, const std::vector<std::string>& columnNames,
-                       const std::vector<double>& params,
-                       const std::vector<std::vector<double>>& columns) {
-    assert(columns.size() == columnNames.size());
-    assert(std::all_of(columns.begin(), columns.end(),
-                       [&](const auto& col) { return col.size() == params.size(); }));
-
-    std::string headerCols;
-    for (std::size_t i = 0; i < columnNames.size(); ++i) {
-        if (i > 0)
-            headerCols += "  |  ";
-        headerCols += columnNames[i];
-    }
-    const std::string header = std::format("  {}  |  {}", paramName, headerCols);
-    const std::string separator(header.size(), '-');
-
-    std::cout << separator << "\n" << header << "\n" << separator << "\n";
-
-    for (std::size_t i = 0; i < params.size(); ++i) {
-        std::cout << params[i];
-        for (const auto& col : columns) {
-            std::cout << " | " << col[i];
-        }
-        std::cout << "\n";
-    }
-}

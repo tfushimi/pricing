@@ -1,5 +1,5 @@
 /**
- * @file napoleonCliquet.cpp
+ * @file NapoleonCliquet.cpp
  *
  * Prices the Napoleon reverse cliquet structure described in Gatheral (2006),
  * "The Volatility Surface", Chapter 10.
@@ -33,6 +33,7 @@
 
 #include "HestonNandi.h"
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -130,7 +131,8 @@ int main() {
         localVolPrices.push_back(localVolPrice);
     }
 
-    printTable("MaxCoupon", {"Heston", "LocalVol"}, maxCoupons, {hestonPrices, localVolPrices});
+    printTable({"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
+    writeCsv("figure_10_5.csv", {"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
 
     return 0;
 }

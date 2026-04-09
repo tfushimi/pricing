@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "common/Date.h"
+#include "common/TableUtils.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "payoff/Observable.h"
