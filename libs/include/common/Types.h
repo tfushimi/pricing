@@ -1,7 +1,7 @@
 #pragma once
 
-#include <valarray>
 #include <map>
+#include <valarray>
 
 #include "Date.h"
 

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <thread>
 #include <utility>
-#include <functional>
 
 #include "PayoffPricer.h"
 #include "market/Market.h"

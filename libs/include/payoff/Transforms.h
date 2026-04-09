@@ -61,5 +61,5 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 Sample applyFixings(const ObservableNode& observable, const Scenario& scenario);
 Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
 Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
-                        const Scenario& scenario);
+                    const Scenario& scenario);
 }  // namespace payoff

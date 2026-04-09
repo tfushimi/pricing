@@ -44,7 +44,7 @@ using namespace pricer;
 using namespace vol;
 using namespace mc;
 
-constexpr std::string SYMBOL = "BASKET";
+constexpr std::string SYMBOL = "Underlier";
 
 ObservableNodePtr getOneTouchCall(const std::vector<Date>& fixingDates, const double barrier) {
     std::vector<ObservableNodePtr> fixings;
