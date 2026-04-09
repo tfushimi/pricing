@@ -21,7 +21,7 @@ inline double yearFraction(const Date from, const Date to) {
     const auto days = std::chrono::sys_days{to} - std::chrono::sys_days{from};
     return days.count() / 365.25;
 }
-}
+}  // namespace calendar
 
 // Hash for Date so it can be used as unordered_map key
 template <>

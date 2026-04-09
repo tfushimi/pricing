@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mc/Process.h"
+#include "common/Types.h"
 
 namespace mc {
 inline double mean(const Sample& s) {
@@ -11,4 +11,4 @@ inline double variance(const Sample& s) {
     const double avg = mean(s);
     return mean(s * s) - avg * avg;
 }
-}
+}  // namespace mc

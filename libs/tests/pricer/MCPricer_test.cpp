@@ -27,12 +27,15 @@ class MCPricerTest : public ::testing::Test {
     const double dividend = 0.02;
     const double T = yearFraction(pricingDate, fixingDate);
     const double dF = std::exp(-rate * yearFraction(pricingDate, settlementDate));
-    const std::function<double(double)> forward = [&](const double t) { return market.getForward(symbol, t); };
+    const std::function<double(double)> forward = [&](const double t) {
+        return market.getForward(symbol, t);
+    };
 
     // In p.15  of "The Heston Model and Its Extension in MATLAB and C#"
     const HestonParams hestonParams{0.05, 5.0, 0.05, 0.5, -0.8};
 
-    const LocalVolProcess::LocalVolFunction localVolFunction = [&](const Sample& logZ, const double time) {
+    const LocalVolProcess::LocalVolFunction localVolFunction = [&](const Sample& logZ,
+                                                                   const double time) {
         return approximateLocalVol(hestonParams, logZ, time);
     };
 

@@ -2,12 +2,13 @@
 
 #include <thread>
 #include <utility>
+#include <functional>
 
 #include "PayoffPricer.h"
 #include "market/Market.h"
 #include "mc/ProcessStateStepper.h"
-#include "mc/RNG.h"
 #include "mc/TimeGrid.h"
+#include "numerics/RNG.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 
@@ -15,7 +16,7 @@ namespace pricer {
 using calendar::Date;
 
 // TODO move this to RNG
-using RNGFactory = std::function<std::unique_ptr<mc::RNG>(int seed)>;
+using RNGFactory = std::function<std::unique_ptr<rng::RNG>(int seed)>;
 
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
@@ -23,7 +24,8 @@ class MCPricer final : public PayoffPricer {
     MCPricer(
         const market::Market& market, const ProcessType& process, const int nPaths,
         const double maxDt = 1.0 / 12.0, const int nThreads = 1,
-        const RNGFactory& rngFactory = [](const int seed) { return std::make_unique<mc::RNG>(seed); },
+        const RNGFactory& rngFactory =
+            [](const int seed) { return std::make_unique<rng::MT19937>(seed); },
         const int seed = 0)
         : _market(market),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),
@@ -35,8 +37,7 @@ class MCPricer final : public PayoffPricer {
 
     ~MCPricer() override = default;
 
-    std::vector<mc::Scenario> generateScenarios(const std::vector<Date>& fixingDates) const {
-
+    std::vector<Scenario> generateScenarios(const std::vector<Date>& fixingDates) const {
         const auto timeGrid = mc::TimeGrid{fixingDates, _market.getPricingDate(), _maxDt};
 
         if (_nThreads <= 1) {
@@ -44,7 +45,7 @@ class MCPricer final : public PayoffPricer {
             return {_processStateStepper.run(timeGrid, _nPaths, _rngFactory(_seed))};
         }
 
-        std::vector<mc::Scenario> scenarios(_nThreads);
+        std::vector<Scenario> scenarios(_nThreads);
         std::vector<std::thread> threads;
         threads.reserve(_nThreads);
 
@@ -64,7 +65,7 @@ class MCPricer final : public PayoffPricer {
         return scenarios;
     }
 
-    std::vector<mc::Scenario> generateScenarios(const payoff::PayoffNodePtr& _payoff) const {
+    std::vector<Scenario> generateScenarios(const payoff::PayoffNodePtr& _payoff) const {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         const auto [symbols, fixingDates] = payoff::getSymbolsAndFixingDates(newPayoff);
 
@@ -75,7 +76,8 @@ class MCPricer final : public PayoffPricer {
         return generateScenarios(fixingDates);
     }
 
-    double priceFromScenarios(const payoff::PayoffNodePtr& _payoff, const std::vector<mc::Scenario>& scenarios) const {
+    double priceFromScenarios(const payoff::PayoffNodePtr& _payoff,
+                              const std::vector<Scenario>& scenarios) const {
         const auto newPayoff = payoff::applyMarket(_payoff, _market);
         double total = 0.0;
         int totalPaths = 0;

@@ -58,8 +58,8 @@ inline std::pair<std::set<std::string>, std::vector<Date>> getSymbolsAndFixingDa
 }
 
 // Substitute fixings with MC sample and simplify constant expressions
-mc::Sample applyFixings(const ObservableNode& observable, const mc::Scenario& scenario);
-mc::Sample applyFixings(const ObservableNodePtr& observable, const mc::Scenario& scenario);
-mc::Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
-                    const mc::Scenario& scenario);
+Sample applyFixings(const ObservableNode& observable, const Scenario& scenario);
+Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
+Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
+                        const Scenario& scenario);
 }  // namespace payoff

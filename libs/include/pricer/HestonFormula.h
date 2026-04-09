@@ -3,7 +3,7 @@
 #include <complex>
 #include <functional>
 
-#include "common/Params.h"
+#include "common/Types.h"
 
 namespace pricer {
 /**
@@ -27,7 +27,8 @@ inline std::complex<double> hestonP0(const double u, const double x, const doubl
     const Complex g = rMinus / rPlus;
     const Complex expDt = std::exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex C =
+        kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
     const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
     return std::exp(C * theta + D * v0 + iu * x) / iu;
@@ -54,7 +55,8 @@ inline std::complex<double> hestonP1(const double u, const double x, const doubl
     const Complex g = rMinus / rPlus;
     const Complex expDt = std::exp(-d * T);
 
-    const Complex C = kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
+    const Complex C =
+        kappa * (rMinus * T - 2.0 / (xi * xi) * std::log((1.0 - g * expDt) / (1.0 - g)));
     const Complex D = rMinus * (1.0 - expDt) / (1.0 - g * expDt);
 
     return std::exp(C * theta + D * v0 + iu * x) / iu;

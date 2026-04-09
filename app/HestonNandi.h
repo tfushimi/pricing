@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "common/Params.h"
+#include "common/Types.h"
 #include "mc/Process.h"
 #include "pricer/LocalVolFormula.h"
 
@@ -16,29 +16,29 @@ inline double forward(const double) {
 }
 
 // Heston model with Heston-Nandi parameters
-constexpr HestonParams hestonParams{.v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
+constexpr HestonParams hestonParams{
+    .v0 = 0.04, .kappa = 10.0, .theta = 0.04, .xi = 1.0, .rho = -1.0};
 const mc::HestonProcess heston{forward, hestonParams};
 
 // LocalVol model with the approximate formula
-const mc::LocalVolProcess::LocalVolFunction localVolFunc = [](const mc::Sample& logZ, const double time) {
+const mc::LocalVolProcess::LocalVolFunction localVolFunc = [](const Sample& logZ,
+                                                              const double time) {
     return pricer::approximateLocalVol(hestonParams, logZ, time);
 };
 const mc::LocalVolProcess localVol{forward, localVolFunc};
 
 // Helper function to print table
-inline void printTable(
-    const std::string& paramName,
-    const std::vector<std::string>& columnNames,
-    const std::vector<double>& params,
-    const std::vector<std::vector<double>>& columns
-) {
+inline void printTable(const std::string& paramName, const std::vector<std::string>& columnNames,
+                       const std::vector<double>& params,
+                       const std::vector<std::vector<double>>& columns) {
     assert(columns.size() == columnNames.size());
     assert(std::all_of(columns.begin(), columns.end(),
-        [&](const auto& col) { return col.size() == params.size(); }));
+                       [&](const auto& col) { return col.size() == params.size(); }));
 
     std::string headerCols;
     for (std::size_t i = 0; i < columnNames.size(); ++i) {
-        if (i > 0) headerCols += "  |  ";
+        if (i > 0)
+            headerCols += "  |  ";
         headerCols += columnNames[i];
     }
     const std::string header = std::format("  {}  |  {}", paramName, headerCols);

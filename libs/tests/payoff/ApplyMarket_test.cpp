@@ -3,8 +3,8 @@
 #include <optional>
 #include <unordered_map>
 
-#include "common/Date.h"
 #include "ObservableTestUtils.h"
+#include "common/Date.h"
 #include "market/Market.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"

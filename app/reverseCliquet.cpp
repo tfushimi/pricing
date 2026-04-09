@@ -23,11 +23,10 @@
  * Assumptions: zero interest rates and dividends, daily MC steps (dt=1/252).
  */
 #include <cassert>
-
 #include <iostream>
 
-#include "common/Date.h"
 #include "HestonNandi.h"
+#include "common/Date.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"

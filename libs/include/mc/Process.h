@@ -1,15 +1,12 @@
 #pragma once
 
 #include <functional>
-#include <vector>
 #include <valarray>
+#include <vector>
 
-#include "common/Params.h"
+#include "common/Types.h"
 
 namespace mc {
-
-// N path values at one fixing date
-using Sample = std::valarray<double>;
 
 template <typename StateType>
 class Process {
@@ -60,28 +57,30 @@ struct LocalVolState {
 };
 
 class LocalVolProcess final : public Process<LocalVolState> {
-public:
+   public:
     using LocalVolFunction = std::function<Sample(const Sample&, double time)>;
     using ForwardCurve = std::function<double(double)>;
-    explicit LocalVolProcess(ForwardCurve forward,
-        const LocalVolFunction& localVol)
+    explicit LocalVolProcess(ForwardCurve forward, const LocalVolFunction& localVol)
         : _forward(std::move(forward)), _localVol(localVol) {}
 
-    LocalVolState initialState(const std::size_t nPaths) const override { return {Sample(0.0, nPaths)}; }
+    LocalVolState initialState(const std::size_t nPaths) const override {
+        return {Sample(0.0, nPaths)};
+    }
 
     std::size_t nNormals() const override { return 1; }
 
     LocalVolState step(const LocalVolState& currentState, const double currentTime, const double dt,
-                  const std::vector<Sample>& dW) const override {
+                       const std::vector<Sample>& dW) const override {
         const auto localVol = _localVol(currentState.logZ, currentTime + dt);
-        return {currentState.logZ + (-0.5 * localVol * localVol * dt) + localVol * std::sqrt(dt) * dW[0]};
+        return {currentState.logZ + (-0.5 * localVol * localVol * dt) +
+                localVol * std::sqrt(dt) * dW[0]};
     }
 
     const Sample value(const LocalVolState& state, const double time) const override {
         return _forward(time) * exp(state.logZ);
     }
 
-private:
+   private:
     const ForwardCurve _forward;
     const LocalVolFunction _localVol;
 };

@@ -2,15 +2,12 @@
 
 #include <map>
 
-#include "common/Date.h"
-#include "RNG.h"
 #include "TimeGrid.h"
+#include "common/Date.h"
+#include "numerics/RNG.h"
 
 namespace mc {
 using calendar::Date;
-
-// full evolution across fixing dates
-using Scenario = std::map<Date, Sample>;
 
 // TODO try concept
 template <typename ProcessType>
@@ -20,7 +17,8 @@ class ProcessStateStepper {
    public:
     explicit ProcessStateStepper(const ProcessType& process) : _process(process) {}
 
-    Scenario run(const TimeGrid& timeGrid, std::size_t nPaths, std::unique_ptr<RNG> rng) const {
+    Scenario run(const TimeGrid& timeGrid, std::size_t nPaths,
+                 std::unique_ptr<rng::RNG> rng) const {
         Scenario scenario;
         State state = _process.initialState(nPaths);
 

@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include "common/Date.h"
 #include "MCTestUtils.h"
+#include "common/Date.h"
 #include "market/ConstantForwardCurve.h"
 
 using namespace calendar;

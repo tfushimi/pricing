@@ -29,11 +29,10 @@
  * Assumptions: zero interest rates and dividends, daily MC steps (dt=1/252).
  */
 #include <cassert>
-
 #include <iostream>
 
-#include "common/Date.h"
 #include "HestonNandi.h"
+#include "common/Date.h"
 #include "market/SVI.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
@@ -123,7 +122,8 @@ int main() {
 
         // Divide by 3: average annual coupon across the 3 coupon years (2003, 2004, 2005)
         const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios) / 3.0;
-        const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios) / 3.0;
+        const double localVolPrice =
+            localVolPricer.priceFromScenarios(payoff, localVolScenarios) / 3.0;
 
         maxCoupons.push_back(maxCoupon);
         hestonPrices.push_back(hestonPrice);

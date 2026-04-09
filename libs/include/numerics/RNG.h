@@ -1,17 +1,23 @@
 #pragma once
 
 #include <cassert>
+#include <memory>
 #include <random>
 
-#include "mc/Process.h"
+#include "common/Types.h"
 
-// TODO move this to numerics, define RNG type enum for RNGFactory
-namespace mc {
+namespace rng {
 
 class RNG {
    public:
     virtual ~RNG() = default;
-    explicit RNG(const std::size_t seed = std::random_device{}())
+    virtual void fill(Sample& sample) = 0;
+};
+
+class MT19937 final : public RNG {
+   public:
+    virtual ~MT19937() = default;
+    explicit MT19937(const std::size_t seed = std::random_device{}())
         : _engine(seed), _dist(0.0, 1.0) {}
 
     virtual void fill(Sample& sample) {
@@ -26,35 +32,37 @@ class RNG {
 };
 
 class ConstantRNG final : public RNG {
-public:
-    explicit ConstantRNG(const double val) : RNG(0), _val(val) {}
+   public:
+    explicit ConstantRNG(const double val) : _val(val) {}
     ~ConstantRNG() override = default;
-    void fill(Sample& sample) override {
+    virtual void fill(Sample& sample) override {
         for (double& value : sample) {
             value = _val;
         }
     }
 
-private:
+   private:
     double _val;
 };
 
-// TODO wrap baseRNG
 class AntitheticRNG final : public RNG {
-public:
-    explicit AntitheticRNG(const std::size_t seed = std::random_device{}()) : RNG(seed) {}
+   public:
+    explicit AntitheticRNG(std::unique_ptr<RNG> rng) : _rng(std::move(rng)) {}
 
-    void fill(Sample& sample) override {
+    virtual void fill(Sample& sample) override {
         assert(sample.size() % 2 == 0);
         const std::size_t half = sample.size() / 2;
 
         Sample half_sample(0.0, half);
-        RNG::fill(half_sample);
+        _rng->fill(half_sample);
 
         sample[std::slice(0, half, 1)] = half_sample;
         sample[std::slice(half, half, 1)] = -half_sample;
     }
+
+   private:
+    std::unique_ptr<RNG> _rng;
 };
 
 // TODO define QuasiRNG (Sobol)
-}  // namespace mc
+}  // namespace rng
