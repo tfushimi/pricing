@@ -14,12 +14,11 @@ class RNG {
     virtual void fill(Sample& sample) = 0;
 };
 
-class MT19937 final : public RNG {
+class NormalRNG final : public RNG {
    public:
-    virtual ~MT19937() = default;
-    explicit MT19937(const std::size_t seed = std::random_device{}())
+    explicit NormalRNG(const std::size_t seed = 0)
         : _engine(seed), _dist(0.0, 1.0) {}
-
+    ~NormalRNG() override = default;
     virtual void fill(Sample& sample) {
         for (double& value : sample) {
             value = _dist(_engine);
@@ -35,7 +34,7 @@ class ConstantRNG final : public RNG {
    public:
     explicit ConstantRNG(const double val) : _val(val) {}
     ~ConstantRNG() override = default;
-    virtual void fill(Sample& sample) override {
+    void fill(Sample& sample) override {
         for (double& value : sample) {
             value = _val;
         }
@@ -48,8 +47,8 @@ class ConstantRNG final : public RNG {
 class AntitheticRNG final : public RNG {
    public:
     explicit AntitheticRNG(std::unique_ptr<RNG> rng) : _rng(std::move(rng)) {}
-
-    virtual void fill(Sample& sample) override {
+    ~AntitheticRNG() override = default;
+    void fill(Sample& sample) override {
         assert(sample.size() % 2 == 0);
         const std::size_t half = sample.size() / 2;
 
