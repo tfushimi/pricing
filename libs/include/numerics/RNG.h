@@ -19,7 +19,7 @@ class NormalRNG final : public RNG {
     explicit NormalRNG(const std::size_t seed = 0)
         : _engine(seed), _dist(0.0, 1.0) {}
     ~NormalRNG() override = default;
-    virtual void fill(Sample& sample) {
+    void fill(Sample& sample) override {
         for (double& value : sample) {
             value = _dist(_engine);
         }
