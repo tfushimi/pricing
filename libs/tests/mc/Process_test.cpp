@@ -4,7 +4,7 @@
 
 #include "MCTestUtils.h"
 #include "common/Date.h"
-#include "market/ConstantForwardCurve.h"
+#include "market/Curve.h"
 
 using namespace calendar;
 using namespace market;

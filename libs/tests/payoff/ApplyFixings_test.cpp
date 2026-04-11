@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "common/Date.h"
-#include "market/ConstantDiscountCurve.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
 

@@ -4,8 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "ConstantForwardCurve.h"
-#include "market/ConstantDiscountCurve.h"
+#include "Curve.h"
 #include "market/Market.h"
 #include "market/SVI.h"
 #include "market/SVIVolSlice.h"
