@@ -1,7 +1,7 @@
 #include "pricer/MCPricer.h"
 
 #include <gtest/gtest.h>
-#include <pricer/HestonFormula.h>
+#include "pricer/HestonFormula.h"
 
 #include "common/Date.h"
 #include "market/SimpleMarket.h"
@@ -40,7 +40,7 @@ class MCPricerTest : public ::testing::Test {
     };
 
     // Negative skew, some curvature
-    const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
+    const SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
 
     SimpleMarket market{pricingDate, symbol, spot, rate, dividend, sviParams};
 

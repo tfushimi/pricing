@@ -3,11 +3,12 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 
+#include "common/Types.h"
 #include "Curve.h"
 #include "market/Market.h"
-#include "market/SVI.h"
-#include "market/SVIVolSlice.h"
+#include "market/BSVolSlice.h"
 
 namespace market {
 /**
@@ -17,19 +18,17 @@ namespace market {
  */
 class SimpleMarket final : public Market {
    public:
-    SimpleMarket(const Date pricingDate, const std::string& symbol, const double spot,
-                 const double rate, const double dividend, vol::SVIParams sviParams)
-        : _pricingDate(pricingDate),
-          _symbol(symbol),
+    SimpleMarket(const Date pricingDate, std::string  symbol, const double spot,
+                 const double rate, const double dividend, const SVIParams& sviParams)
+        : Market(pricingDate),
+          _symbol(std::move(symbol)),
           _spot(spot),
           _discountCurve(ConstantDiscountCurve(pricingDate, rate)),
           _forwardCurve(ConstantForwardCurve(pricingDate, spot, rate - dividend)),
-          _sviParams(std::move(sviParams)) {}
-
-    Date getPricingDate() const override { return _pricingDate; }
+          _sviParams(sviParams) {}
 
     std::optional<double> getPrice(const std::string& symbol, const Date& date) const override {
-        if (symbol == _symbol && date <= _pricingDate) {
+        if (symbol == _symbol && date <= getPricingDate()) {
             return _spot;
         }
         return std::nullopt;
@@ -47,20 +46,19 @@ class SimpleMarket final : public Market {
         if (it != _bsVolSlices.end()) {
             return *it->second;
         }
-        const auto T = yearFraction(_pricingDate, date);
+        const auto T = yearFraction(getPricingDate(), date);
         const auto [inserted_it, _] = _bsVolSlices.emplace(
             key, std::make_unique<SVIVolSlice>(_forwardCurve(T), T, _sviParams));
         return *inserted_it->second;
     }
 
    private:
-    Date _pricingDate;
     std::string _symbol;
     mutable std::map<std::pair<std::string, Date>, std::unique_ptr<BSVolSlice>> _bsVolSlices;
     double _spot;
     ConstantDiscountCurve _discountCurve;
     ConstantForwardCurve _forwardCurve;
-    vol::SVIParams _sviParams;
+    SVIParams _sviParams;
 };
 
 }  // namespace market

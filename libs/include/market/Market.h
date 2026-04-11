@@ -12,9 +12,11 @@ using calendar::yearFraction;
 
 class Market {
    public:
-    Market() = default;
+    Market(const Date pricingDate) : _pricingDate(pricingDate) {};
     virtual ~Market() = default;
-    virtual Date getPricingDate() const = 0;
+    Date getPricingDate() const {
+        return _pricingDate;
+    };
     // TODO FixingType (e.g., CLOSE)
     virtual std::optional<double> getPrice(const std::string& symbol, const Date& date) const = 0;
     virtual double getDiscountFactor(double T) const = 0;
@@ -26,5 +28,8 @@ class Market {
         return getForward(symbol, yearFraction(getPricingDate(), date));
     }
     virtual const BSVolSlice& getBSVolSlice(const std::string& symbol, const Date& date) const = 0;
+
+private:
+    const Date _pricingDate;
 };
 }  // namespace market

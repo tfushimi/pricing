@@ -15,11 +15,9 @@ static const Date D2 = makeDate(2026, 6, 15);
 
 class FlatMarket final : public Market {
    public:
-    explicit FlatMarket(const double dF) : _dF(dF) {}
-
+    explicit FlatMarket(const double dF) : Market(pricingDate), _dF(dF) {}
     double getDiscountFactor(const double) const override { return _dF; }
     double getForward(const std::string&, const double) const override { return 0.0; }
-    Date getPricingDate() const override { return pricingDate; }
     std::optional<double> getPrice(const std::string&, const Date&) const override {
         return std::nullopt;
     }
@@ -159,11 +157,11 @@ TEST(ApplyPayoffFixingsTest, CombinedPayment) {
 TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
     class TwoRateMarket final : public Market {
        public:
+        TwoRateMarket() : Market(pricingDate){}
         double getDiscountFactor(const double T) const override {
             return T == yearFraction(pricingDate, D1) ? 0.95 : 0.90;
         }
         double getForward(const std::string&, const double) const override { return 0.0; }
-        Date getPricingDate() const override { return pricingDate; }
         std::optional<double> getPrice(const std::string&, const Date&) const override {
             return std::nullopt;
         }

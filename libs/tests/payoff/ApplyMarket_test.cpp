@@ -16,18 +16,17 @@ using namespace payoff;
 class MockMarket final : public Market {
    public:
     MockMarket(const Date pricingDate, std::unordered_map<Date, double> priceMap)
-        : _pricingDate(pricingDate), _priceMap(std::move(priceMap)) {}
+        : Market(pricingDate), _priceMap(std::move(priceMap)) {}
 
     MockMarket(const Date pricingDate, Date fixingDate, double price)
-        : _pricingDate(pricingDate), _priceMap({{fixingDate, price}}) {}
-
-    Date getPricingDate() const override { return _pricingDate; }
+        : Market(pricingDate), _priceMap({{fixingDate, price}}) {}
 
     std::optional<double> getPrice(const std::string&, const Date& date) const override {
         // symbol ignored in mock — price is keyed by date only
         const auto it = _priceMap.find(date);
-        if (it != _priceMap.end())
+        if (it != _priceMap.end()) {
             return it->second;
+        }
         return std::nullopt;  // not observed — Fixing node kept as-is
     }
 

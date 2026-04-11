@@ -34,7 +34,7 @@ class PLFPayoffPricerTest : public ::testing::Test {
     const HestonParams hestonParams{0.05, 5.0, 0.05, 0.5, -0.8};
 
     // Negative skew, some curvature
-    const vol::SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
+    const SVIParams sviParams{.a = 0.04, .b = 0.10, .rho = -0.30, .m = 0.00, .sigma = 0.10};
 
     SimpleMarket market{pricingDate, symbol, spot, rate, 0.0, sviParams};
 
