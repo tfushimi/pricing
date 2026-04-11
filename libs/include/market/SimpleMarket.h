@@ -5,10 +5,10 @@
 #include <string>
 #include <utility>
 
-#include "common/Types.h"
 #include "Curve.h"
-#include "market/Market.h"
+#include "common/Types.h"
 #include "market/BSVolSlice.h"
+#include "market/Market.h"
 
 namespace market {
 /**
@@ -18,8 +18,8 @@ namespace market {
  */
 class SimpleMarket final : public Market {
    public:
-    SimpleMarket(const Date pricingDate, std::string  symbol, const double spot,
-                 const double rate, const double dividend, const SVIParams& sviParams)
+    SimpleMarket(const Date pricingDate, std::string symbol, const double spot, const double rate,
+                 const double dividend, const SVIParams& sviParams)
         : Market(pricingDate),
           _symbol(std::move(symbol)),
           _spot(spot),

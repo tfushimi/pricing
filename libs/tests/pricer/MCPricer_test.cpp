@@ -1,13 +1,13 @@
 #include "pricer/MCPricer.h"
 
 #include <gtest/gtest.h>
-#include "pricer/HestonFormula.h"
 
 #include "common/Date.h"
 #include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
+#include "pricer/HestonFormula.h"
 #include "pricer/LocalVolFormula.h"
 
 using namespace calendar;

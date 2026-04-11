@@ -20,25 +20,25 @@ class Curve {
 };
 
 class ConstantDiscountCurve final : public Curve {
-public:
+   public:
     explicit ConstantDiscountCurve(const calendar::Date pricingDate, const double rate)
         : Curve(pricingDate), _rate(rate) {}
 
     double operator()(const double T) const override { return std::exp(-_rate * T); }
 
-private:
+   private:
     double _rate;
 };
 
 class ConstantForwardCurve final : public Curve {
-public:
+   public:
     explicit ConstantForwardCurve(const calendar::Date pricingDate, const double spot,
                                   const double rate)
         : Curve(pricingDate), _spot(spot), _rate(rate) {}
 
     double operator()(const double T) const override { return _spot * std::exp(_rate * T); }
 
-private:
+   private:
     const double _spot;
     const double _rate;
 };

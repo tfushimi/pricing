@@ -15,6 +15,7 @@ add_library(pricer STATIC
 )
 add_library(mc STATIC
         src/mc/Process.cpp
+        src/mc/TimeGrid.cpp
 )
 
 # include directories

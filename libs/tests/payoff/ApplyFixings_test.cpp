@@ -157,7 +157,7 @@ TEST(ApplyPayoffFixingsTest, CombinedPayment) {
 TEST(ApplyPayoffFixingsTest, DifferentDiscountFactors) {
     class TwoRateMarket final : public Market {
        public:
-        TwoRateMarket() : Market(pricingDate){}
+        TwoRateMarket() : Market(pricingDate) {}
         double getDiscountFactor(const double T) const override {
             return T == yearFraction(pricingDate, D1) ? 0.95 : 0.90;
         }

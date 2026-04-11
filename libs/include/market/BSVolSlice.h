@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-#include "common/Types.h"
 #include "SVI.h"
+#include "common/Types.h"
 
 namespace market {
 
@@ -22,19 +22,19 @@ class BSVolSlice {
 };
 
 class FlatVolSlice final : public BSVolSlice {
-public:
-  FlatVolSlice(const double forward, const double time, const double vol)
-      : _forward(forward), _time(time), _vol(vol) {}
+   public:
+    FlatVolSlice(const double forward, const double time, const double vol)
+        : _forward(forward), _time(time), _vol(vol) {}
 
-  double forward() const override { return _forward; }
-  double time() const override { return _time; }
-  double vol(const double) const override { return _vol; }
-  double dVolDStrike(const double) const override { return 0.0; }
+    double forward() const override { return _forward; }
+    double time() const override { return _time; }
+    double vol(const double) const override { return _vol; }
+    double dVolDStrike(const double) const override { return 0.0; }
 
-private:
-  double _forward;
-  double _time;
-  double _vol;
+   private:
+    double _forward;
+    double _time;
+    double _vol;
 };
 
 /**
