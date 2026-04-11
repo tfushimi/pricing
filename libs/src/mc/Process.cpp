@@ -87,8 +87,8 @@ HestonState HestonProcess::step(const HestonState& currentState, const double, c
     const Sample vPos = (currentState.v + abs(currentState.v)) * 0.5;
     const Sample sqrtV = sqrt(vPos);
 
-    // correlated Brownians via Cholesky
-    const Sample dW_Z = dW[0];
+    // correlated Brownian Motions via Cholesky
+    const Sample& dW_Z = dW[0];
     const Sample dW_v = _rho * dW[0] + _rhoBar * dW[1];
 
     const Sample logZ_next = currentState.logZ - vPos * 0.5 * dt + sqrtV * sqrtDt * dW_Z;
