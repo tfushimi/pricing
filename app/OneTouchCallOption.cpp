@@ -104,7 +104,8 @@ int main() {
     }
 
     printTable({"Barrier", "Heston", "LocalVol"}, {barriers, hestonPrices, localVolPrices});
-    writeCsv("figure_9_4.csv", {"Barrier", "Heston", "LocalVol"}, {barriers, hestonPrices, localVolPrices});
+    writeCsv("figure_9_4.csv", {"Barrier", "Heston", "LocalVol"},
+             {barriers, hestonPrices, localVolPrices});
 
     return 0;
 }

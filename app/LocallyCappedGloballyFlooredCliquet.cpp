@@ -125,7 +125,8 @@ int main() {
     }
 
     printTable({"MinCoupon", "Heston", "LocalVol"}, {minCoupons, hestonPrices, localVolPrices});
-    writeCsv("figure_10_1.csv", {"MinCoupon", "Heston", "LocalVol"}, {minCoupons, hestonPrices, localVolPrices});
+    writeCsv("figure_10_1.csv", {"MinCoupon", "Heston", "LocalVol"},
+             {minCoupons, hestonPrices, localVolPrices});
 
     return 0;
 }

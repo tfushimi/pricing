@@ -27,20 +27,17 @@ class TimeGrid {
 
             if (dt > maxDt) {
                 const std::size_t n = static_cast<std::size_t>(std::ceil(dt / maxDt));
-
-                const auto prevSysDays = std::chrono::sys_days(prev);
-                const auto fixSysDays = std::chrono::sys_days(fixingDate);
-                const int totalDays = (fixSysDays - prevSysDays).count();
+                const int totalDays = (fixingDate - prev).count();
 
                 for (std::size_t i = 1; i < n; ++i) {
-                    const double alpha = static_cast<double>(i) / static_cast<double>(n);
-                    const Date midDate = std::chrono::sys_days(
-                        prevSysDays +
-                        std::chrono::days(static_cast<int>(std::round(alpha * totalDays))));
+                    const double fraction = static_cast<double>(i) / static_cast<double>(n);
+                    const auto nextSimulationDate =
+                        prev +
+                        std::chrono::days(static_cast<int>(std::round(fraction * totalDays)));
 
-                    if (midDate != _simulationDates.back()) {
-                        _simulationDates.push_back(midDate);
-                        _times.push_back(yearFraction(_startDate, midDate));
+                    if (nextSimulationDate != _simulationDates.back()) {
+                        _simulationDates.push_back(nextSimulationDate);
+                        _times.push_back(yearFraction(_startDate, nextSimulationDate));
                         _isFixingTime.push_back(false);
                     }
                 }

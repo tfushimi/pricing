@@ -13,12 +13,14 @@ GBMState GBMProcess::initialState(const std::size_t nPaths) const {
     return {Sample(0.0, nPaths)};
 }
 
-std::size_t GBMProcess::nNormals() const { return 1; }
+std::size_t GBMProcess::nNormals() const {
+    return 1;
+}
 
 // log(Z_{t+dt}) - log(Z_t) = vol * (W_{t+dt} - W_t) = vol * N(0, dt)
 // S_{t+dt} = F_{t+dt} * exp(Z_{t+dt}) / mean(exp(Z_{t+dt}))
 GBMState GBMProcess::step(const GBMState& currentState, const double, const double dt,
-                           const std::vector<Sample>& dW) const {
+                          const std::vector<Sample>& dW) const {
     return {currentState.logZ + (-0.5 * _vol * _vol * dt) + _vol * std::sqrt(dt) * dW[0]};
 }
 
@@ -35,7 +37,9 @@ LocalVolState LocalVolProcess::initialState(const std::size_t nPaths) const {
     return {Sample(0.0, nPaths)};
 }
 
-std::size_t LocalVolProcess::nNormals() const { return 1; }
+std::size_t LocalVolProcess::nNormals() const {
+    return 1;
+}
 
 // log(Z_{t+dt}) - log(Z_t) = localVol(logZ, t) * (W_{t+dt} - W_t) = localVol(logZ, t) * N(0, dt)
 // S_{t+dt} = F_{t+dt} * exp(Z_{t+dt}) / mean(exp(Z_{t+dt}))
@@ -61,7 +65,9 @@ HestonProcess::HestonProcess(ForwardCurve forward, const HestonParams& params)
       _rho(params.rho),
       _rhoBar(std::sqrt(1.0 - params.rho * params.rho)) {}
 
-std::size_t HestonProcess::nNormals() const { return 2; }
+std::size_t HestonProcess::nNormals() const {
+    return 2;
+}
 
 HestonState HestonProcess::initialState(const std::size_t nPaths) const {
     return {Sample(0.0, nPaths), Sample(_v0, nPaths)};
@@ -74,7 +80,7 @@ HestonState HestonProcess::initialState(const std::size_t nPaths) const {
 // log(Z_{t+dt}) = log(Z_t) - 0.5 * v_t * dt + sqrt(v_t * dt) * dW_Z
 // v_{t+dt}      = v_t + kappa*(theta - v_t)*dt + xi*sqrt(v_t * dt) * dW_v
 HestonState HestonProcess::step(const HestonState& currentState, const double, const double dt,
-                    const std::vector<Sample>& dW) const {
+                                const std::vector<Sample>& dW) const {
     const double sqrtDt = std::sqrt(dt);
 
     // max(v, 0) = (v + |v|) / 2

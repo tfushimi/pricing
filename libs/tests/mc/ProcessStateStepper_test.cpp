@@ -41,7 +41,7 @@ TEST_F(ProcessStateStepperTest, ScenarioHasCorrectNumberOfFixings) {
 TEST_F(ProcessStateStepperTest, GBMPureDriftPath) {
     const ProcessStateStepper stepper(gbm);
 
-    constexpr auto simulationDate = 2026y / January / 1d;
+    const auto simulationDate = makeDate(2206, 1, 1);
     const auto fixingDates = {simulationDate};
     const auto grid = TimeGrid{fixingDates, pricingDate, 1.0 / 12.0};
 

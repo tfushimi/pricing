@@ -132,7 +132,8 @@ int main() {
     }
 
     printTable({"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
-    writeCsv("figure_10_5.csv", {"MaxCoupon", "Heston", "LocalVol"}, {maxCoupons, hestonPrices, localVolPrices});
+    writeCsv("figure_10_5.csv", {"MaxCoupon", "Heston", "LocalVol"},
+             {maxCoupons, hestonPrices, localVolPrices});
 
     return 0;
 }

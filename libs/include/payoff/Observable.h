@@ -138,7 +138,7 @@ class Fixing final : public ObservableNode {
         if (_symbol != other._symbol) {
             return _symbol < other._symbol;
         }
-        return std::chrono::sys_days{_date} < std::chrono::sys_days{other._date};
+        return _date < other._date;
     }
 
     bool operator==(const Fixing& other) const {
