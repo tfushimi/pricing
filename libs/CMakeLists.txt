@@ -13,7 +13,9 @@ add_library(market INTERFACE)
 add_library(pricer STATIC
         src/pricer/PLFPayoffPricer.cpp
 )
-add_library(mc INTERFACE)
+add_library(mc STATIC
+        src/mc/Process.cpp
+)
 
 # include directories
 target_include_directories(common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -24,7 +26,7 @@ target_include_directories(payoff
 )
 target_include_directories(market INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(pricer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(mc INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(mc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # link libraries
 target_link_libraries(common INTERFACE
@@ -46,7 +48,7 @@ target_link_libraries(pricer PUBLIC
         mc
         project_warnings
 )
-target_link_libraries(mc INTERFACE
+target_link_libraries(mc PUBLIC
         market
         project_warnings
 )
