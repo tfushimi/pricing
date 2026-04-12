@@ -248,7 +248,7 @@ class IfThenElse final : public ObservableNode {
    public:
     explicit IfThenElse(ObservableNodePtr cond, ObservableNodePtr then_, ObservableNodePtr else_)
         : _cond(std::move(cond)), _then(std::move(then_)), _else(std::move(else_)) {}
-    const ObservableNode& getCond() const { return *_cond; }
+    const ObservableNode& getCondition() const { return *_cond; }
     const ObservableNode& getThen() const { return *_then; }
     const ObservableNode& getElse() const { return *_else; }
     Type type() const override { return Type::IfThenElse; }

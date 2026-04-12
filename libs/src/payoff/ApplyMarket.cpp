@@ -79,7 +79,7 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
     }
 
     ObservableNodePtr visit(const IfThenElse& node) override {
-        return std::make_shared<IfThenElse>(evaluate(node.getCond()), evaluate(node.getThen()),
+        return std::make_shared<IfThenElse>(evaluate(node.getCondition()), evaluate(node.getThen()),
                                             evaluate(node.getElse()));
     }
 

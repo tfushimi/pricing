@@ -78,7 +78,7 @@ class ToPiecewiseLinearFunction final : public ObservableVisitor<PiecewiseLinear
     }
 
     PiecewiseLinearFunction visit(const IfThenElse& node) override {
-        return PiecewiseLinearFunction::ite(evaluate(node.getCond()), evaluate(node.getThen()),
+        return PiecewiseLinearFunction::ite(evaluate(node.getCondition()), evaluate(node.getThen()),
                                             evaluate(node.getElse()));
     }
 

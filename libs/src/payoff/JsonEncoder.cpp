@@ -4,6 +4,7 @@
 #include "common/Date.h"
 #include "nlohmann/json.hpp"
 #include "payoff/Observable.h"
+#include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 
 using namespace nlohmann;
@@ -63,7 +64,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
 
         j["type"] = node.toString();
 
-        j["cond"] = evaluate(node.getCond());
+        j["condition"] = evaluate(node.getCondition());
         j["then"] = evaluate(node.getThen());
         j["else"] = evaluate(node.getElse());
 
@@ -94,7 +95,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
         json j;
 
         j["type"] = node.toString();
-        j["cond"] = evaluate(node.getCondition());
+        j["condition"] = evaluate(node.getCondition());
         j["then"] = evaluate(node.getThenPayoff());
         j["else"] = evaluate(node.getElsePayoff());
 

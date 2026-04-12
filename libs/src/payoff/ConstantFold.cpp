@@ -184,16 +184,16 @@ class ConstantFold final : public ObservableVisitor<ObservableNodePtr> {
     }
 
     ObservableNodePtr visit(const IfThenElse& node) override {
-        const auto cond = evaluate(node.getCond());
+        const auto condition = evaluate(node.getCondition());
         const auto then_ = evaluate(node.getThen());
         const auto else_ = evaluate(node.getElse());
 
         // If condition is known at fold time, pick the branch
-        if (isConstant(cond)) {
-            return getValue(cond) > 0.0 ? then_ : else_;
+        if (isConstant(condition)) {
+            return getValue(condition) > 0.0 ? then_ : else_;
         }
 
-        return std::make_shared<IfThenElse>(cond, then_, else_);
+        return std::make_shared<IfThenElse>(condition, then_, else_);
     }
 
    private:

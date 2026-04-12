@@ -69,7 +69,7 @@ class FixingCollector final : public ObservableVisitor<void>, public PayoffVisit
     }
 
     void visit(const IfThenElse& node) override {
-        evaluate(node.getCond());
+        evaluate(node.getCondition());
         evaluate(node.getThen());
         evaluate(node.getElse());
     }

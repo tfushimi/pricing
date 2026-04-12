@@ -122,13 +122,13 @@ class ApplyFixings final : public ObservableVisitor<Sample>, public PayoffVisito
     }
 
     Sample visit(const IfThenElse& node) override {
-        const auto cond = evaluate(node.getCond());
+        const auto condition = evaluate(node.getCondition());
         const auto then_ = evaluate(node.getThen());
         const auto else_ = evaluate(node.getElse());
 
-        Sample result(cond.size());
-        for (size_t i = 0; i < cond.size(); ++i) {
-            result[i] = cond[i] > 0.0 ? then_[i] : else_[i];
+        Sample result(condition.size());
+        for (size_t i = 0; i < condition.size(); ++i) {
+            result[i] = condition[i] > 0.0 ? then_[i] : else_[i];
         }
 
         return result;
@@ -147,13 +147,13 @@ class ApplyFixings final : public ObservableVisitor<Sample>, public PayoffVisito
     }
 
     Sample visit(const BranchPayment& node) override {
-        const auto cond = evaluate(node.getCondition());
+        const auto condition = evaluate(node.getCondition());
         const auto then_ = evaluate(node.getThenPayoff());
         const auto else_ = evaluate(node.getElsePayoff());
 
-        Sample result(cond.size());
-        for (size_t i = 0; i < cond.size(); ++i) {
-            result[i] = cond[i] > 0.0 ? then_[i] : else_[i];
+        Sample result(condition.size());
+        for (size_t i = 0; i < condition.size(); ++i) {
+            result[i] = condition[i] > 0.0 ? then_[i] : else_[i];
         }
 
         return result;

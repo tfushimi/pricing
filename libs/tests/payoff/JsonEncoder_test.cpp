@@ -81,9 +81,9 @@ TEST(JsonEncoderTest, IfThenElseTest) {
 
     ASSERT_EQ(j["type"].get<string>(), "IfThenElse");
 
-    ASSERT_EQ(j["cond"]["type"].get<string>(), "GreaterThan");
-    assertFixingJson(j["cond"]["left"]);
-    assertConstantJson(j["cond"]["right"]);
+    ASSERT_EQ(j["condition"]["type"].get<string>(), "GreaterThan");
+    assertFixingJson(j["condition"]["left"]);
+    assertConstantJson(j["condition"]["right"]);
 
     assertFixingJson(j["then"]);
     assertConstantJson(j["else"]);
@@ -122,9 +122,9 @@ TEST(JsonEncoderTest, BranchPaymentTest) {
 
     ASSERT_EQ(j["type"].get<string>(), "BranchPayment");
 
-    ASSERT_EQ(j["cond"]["type"].get<string>(), "GreaterThan");
-    assertFixingJson(j["cond"]["left"]);
-    assertConstantJson(j["cond"]["right"]);
+    ASSERT_EQ(j["condition"]["type"].get<string>(), "GreaterThan");
+    assertFixingJson(j["condition"]["left"]);
+    assertConstantJson(j["condition"]["right"]);
 
     assertCashPaymentJson(j["then"]);
 
