@@ -21,7 +21,7 @@ class JsonEncoder final : public ObservableVisitor<json> {
     json visit(const Fixing& node) override {
         json j;
 
-        j["type"] = "Fixing";
+        j["type"] = node.toString();
         j["symbol"] = node.getSymbol();
         j["fixingDate"] = calendar::toString(node.getDate());
 
@@ -31,34 +31,34 @@ class JsonEncoder final : public ObservableVisitor<json> {
     json visit(const Constant& node) override {
         json j;
 
-        j["type"] = "Constant";
+        j["type"] = node.toString();
         j["value"] = node.getValue();
 
         return j;
     }
 
-    json visit(const Add& node) override { return encodeBinaryNode(node, "Add"); }
+    json visit(const Add& node) override { return encodeBinaryNode(node, node.toString()); }
 
-    json visit(const Sum& node) override { return encodeVectorNode(node, "Sum"); }
+    json visit(const Sum& node) override { return encodeVectorNode(node, node.toString()); }
 
-    json visit(const Multiply& node) override { return encodeBinaryNode(node, "Multiply"); }
+    json visit(const Multiply& node) override { return encodeBinaryNode(node, node.toString()); }
 
-    json visit(const Divide& node) override { return encodeBinaryNode(node, "Divide"); }
+    json visit(const Divide& node) override { return encodeBinaryNode(node, node.toString()); }
 
-    json visit(const Max& node) override { return encodeVectorNode(node, "Max"); }
+    json visit(const Max& node) override { return encodeVectorNode(node, node.toString()); }
 
-    json visit(const Min& node) override { return encodeVectorNode(node, "Min"); }
+    json visit(const Min& node) override { return encodeVectorNode(node, node.toString()); }
 
-    json visit(const GreaterThan& node) override { return encodeBinaryNode(node, "GreaterThan"); }
+    json visit(const GreaterThan& node) override { return encodeBinaryNode(node, node.toString()); }
 
     json visit(const GreaterThanOrEqual& node) override {
-        return encodeBinaryNode(node, "GreaterThanOrEqual");
+        return encodeBinaryNode(node, node.toString());
     }
 
     json visit(const IfThenElse& node) override {
         json j;
 
-        j["type"] = "IfThenElse";
+        j["type"] = node.toString();
 
         j["cond"] = evaluate(node.getCond());
         j["then"] = evaluate(node.getThen());

@@ -117,11 +117,13 @@ class ObservableNode {
         Max,
         Min,
         GreaterThan,
-        GreaterThanOrEqual,  // TODO rename GreaterThanOrEqualTo
+        GreaterThanOrEqual,
         IfThenElse
     };
 
     virtual Type type() const = 0;
+
+    virtual std::string toString() const = 0;
 };
 
 // TODO support FixingType such as CLOSE (i.e., close price)
@@ -132,6 +134,7 @@ class Fixing final : public ObservableNode {
     const std::string& getSymbol() const { return _symbol; }
     const Date& getDate() const { return _date; }
     Type type() const override { return Type::Fixing; }
+    std::string toString() const override { return "Fixing"; }
 
     // define < and == to be comparable for std::set
     bool operator<(const Fixing& other) const {
@@ -155,6 +158,7 @@ class Constant final : public ObservableNode {
     explicit Constant(const double value) : _value(value) {}
     double getValue() const { return _value; }
     Type type() const override { return Type::Constant; }
+    std::string toString() const override { return "Constant"; }
 
    private:
     double _value;
@@ -176,30 +180,35 @@ class Add final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::Add; }
+    std::string toString() const override { return "Add"; }
 };
 
 class Multiply final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::Multiply; }
+    std::string toString() const override { return "Multiply"; }
 };
 
 class Divide final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::Divide; }
+    std::string toString() const override { return "Divide"; }
 };
 
 class GreaterThan final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::GreaterThan; }
+    std::string toString() const override { return "GreaterThan"; }
 };
 
 class GreaterThanOrEqual final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
     Type type() const override { return Type::GreaterThanOrEqual; }
+    std::string toString() const override { return "GreaterThanOrEqual"; }
 };
 
 class VectorNode : public ObservableNode {
@@ -218,18 +227,21 @@ class Max final : public VectorNode {
    public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Max; }
+    std::string toString() const override { return "Max"; }
 };
 
 class Min final : public VectorNode {
    public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Min; }
+    std::string toString() const override { return "Min"; }
 };
 
 class Sum final : public VectorNode {
    public:
     using VectorNode::VectorNode;
     Type type() const override { return Type::Sum; }
+    std::string toString() const override { return "Sum"; }
 };
 
 class IfThenElse final : public ObservableNode {
@@ -240,6 +252,7 @@ class IfThenElse final : public ObservableNode {
     const ObservableNode& getThen() const { return *_then; }
     const ObservableNode& getElse() const { return *_else; }
     Type type() const override { return Type::IfThenElse; }
+    std::string toString() const override { return "IfThenElse"; }
 
    private:
     ObservableNodePtr _cond;
