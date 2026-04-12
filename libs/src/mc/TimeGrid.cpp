@@ -30,6 +30,9 @@ TimeGrid::TimeGrid(const std::vector<Date>& fixingDates, const Date startDate, c
         const double dt = yearFraction(prev, fixingDate);
 
         if (dt > maxDt) {
+            // Insert n-1 intermediate simulation dates evenly spaced between prev and fixingDate.
+            // Dates are rounded to the nearest calendar day, so individual steps may exceed maxDt
+            // by up to half a day (~0.14% of a year). This is negligible for MC simulation.
             const std::size_t n = static_cast<std::size_t>(std::ceil(dt / maxDt));
             const int totalDays = (fixingDate - prev).count();
 
