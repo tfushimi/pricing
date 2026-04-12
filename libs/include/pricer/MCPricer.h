@@ -16,7 +16,7 @@ namespace pricer {
 using calendar::Date;
 
 // TODO move this to RNG
-using RNGFactory = std::function<std::unique_ptr<rng::RNG>(int seed)>;
+using RNGFactory = std::function<std::unique_ptr<numerics::rng::RNG>(int seed)>;
 
 template <typename ProcessType>
 class MCPricer final : public PayoffPricer {
@@ -25,7 +25,7 @@ class MCPricer final : public PayoffPricer {
         const market::Market& market, const ProcessType& process, const int nPaths,
         const double maxDt = 1.0 / 12.0, const int nThreads = 1,
         const RNGFactory& rngFactory =
-            [](const int seed) { return std::make_unique<rng::NormalRNG>(seed); },
+            [](const int seed) { return std::make_unique<numerics::rng::NormalRNG>(seed); },
         const int seed = 0)
         : _market(market),
           _processStateStepper(mc::ProcessStateStepper<ProcessType>(process)),

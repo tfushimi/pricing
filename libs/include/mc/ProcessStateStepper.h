@@ -18,7 +18,7 @@ class ProcessStateStepper {
     explicit ProcessStateStepper(const ProcessType& process) : _process(process) {}
 
     Scenario run(const TimeGrid& timeGrid, std::size_t nPaths,
-                 std::unique_ptr<rng::RNG> rng) const {
+                 std::unique_ptr<numerics::rng::RNG> rng) const {
         Scenario scenario;
         State state = _process.initialState(nPaths);
 

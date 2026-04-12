@@ -6,7 +6,7 @@
 
 #include "common/Types.h"
 
-namespace rng {
+namespace numerics::rng {
 
 class RNG {
    public:

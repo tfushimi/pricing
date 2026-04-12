@@ -1,9 +1,9 @@
 #pragma once
 
 #include <complex>
-#include <functional>
 
 #include "common/Types.h"
+#include "numerics/Integration.h"
 
 namespace pricer {
 /**
@@ -62,15 +62,6 @@ inline std::complex<double> hestonP1(const double u, const double x, const doubl
     return std::exp(C * theta + D * v0 + iu * x) / iu;
 }
 
-// TODO move this to numerics/integration
-inline double integrate(const std::function<double(double)>& f) {
-    constexpr double du = 0.001;
-    constexpr double uMax = 200.0;
-    double sum = 0.0;
-    for (double u = du; u < uMax; u += du) sum += f(u) * du;
-    return sum;
-}
-
 /**
  * Heston call formula (based on Gatheral's formulation)
  *
@@ -83,6 +74,7 @@ inline double integrate(const std::function<double(double)>& f) {
  */
 inline double hestonCallFormula(const double F, const double K, const double T, const double dF,
                                 const HestonParams& params) {
+    using namespace numerics::integration;
     const double x = std::log(F / K);  // log-moneyness, rate already absorbed into F
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
@@ -108,6 +100,8 @@ inline double hestonCallFormula(const double F, const double K, const double T, 
  */
 inline double hestonDigitalCallFormula(const double F, const double K, const double T,
                                        const double dF, const HestonParams& params) {
+    using namespace numerics::integration;
+
     const double x = std::log(F / K);
 
     const double P0 = 0.5 + (1.0 / M_PI) * integrate([&](const double u) {
