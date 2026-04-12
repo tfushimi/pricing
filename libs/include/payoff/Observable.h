@@ -133,8 +133,9 @@ class Fixing final : public ObservableNode {
         : _symbol(std::move(symbol)), _date(std::move(date)) {}
     const std::string& getSymbol() const { return _symbol; }
     const Date& getDate() const { return _date; }
+    static constexpr std::string_view NAME = "Fixing";
     Type type() const override { return Type::Fixing; }
-    std::string toString() const override { return "Fixing"; }
+    std::string toString() const override { return std::string(NAME); }
 
     // define < and == to be comparable for std::set
     bool operator<(const Fixing& other) const {
@@ -157,8 +158,9 @@ class Constant final : public ObservableNode {
    public:
     explicit Constant(const double value) : _value(value) {}
     double getValue() const { return _value; }
+    static constexpr std::string_view NAME = "Constant";
     Type type() const override { return Type::Constant; }
-    std::string toString() const override { return "Constant"; }
+    std::string toString() const override { return std::string(NAME); }
 
    private:
     double _value;
@@ -179,36 +181,41 @@ class BinaryNode : public ObservableNode {
 class Add final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
+    static constexpr std::string_view NAME = "Add";
     Type type() const override { return Type::Add; }
-    std::string toString() const override { return "Add"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class Multiply final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
+    static constexpr std::string_view NAME = "Multiply";
     Type type() const override { return Type::Multiply; }
-    std::string toString() const override { return "Multiply"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class Divide final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
+    static constexpr std::string_view NAME = "Divide";
     Type type() const override { return Type::Divide; }
-    std::string toString() const override { return "Divide"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class GreaterThan final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
+    static constexpr std::string_view NAME = "GreaterThan";
     Type type() const override { return Type::GreaterThan; }
-    std::string toString() const override { return "GreaterThan"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class GreaterThanOrEqual final : public BinaryNode {
    public:
     using BinaryNode::BinaryNode;
+    static constexpr std::string_view NAME = "GreaterThanOrEqual";
     Type type() const override { return Type::GreaterThanOrEqual; }
-    std::string toString() const override { return "GreaterThanOrEqual"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class VectorNode : public ObservableNode {
@@ -226,22 +233,25 @@ class VectorNode : public ObservableNode {
 class Max final : public VectorNode {
    public:
     using VectorNode::VectorNode;
+    static constexpr std::string_view NAME = "Max";
     Type type() const override { return Type::Max; }
-    std::string toString() const override { return "Max"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class Min final : public VectorNode {
    public:
     using VectorNode::VectorNode;
+    static constexpr std::string_view NAME = "Min";
     Type type() const override { return Type::Min; }
-    std::string toString() const override { return "Min"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class Sum final : public VectorNode {
    public:
     using VectorNode::VectorNode;
+    static constexpr std::string_view NAME = "Sum";
     Type type() const override { return Type::Sum; }
-    std::string toString() const override { return "Sum"; }
+    std::string toString() const override { return std::string(NAME); }
 };
 
 class IfThenElse final : public ObservableNode {
@@ -251,8 +261,9 @@ class IfThenElse final : public ObservableNode {
     const ObservableNode& getCondition() const { return *_cond; }
     const ObservableNode& getThen() const { return *_then; }
     const ObservableNode& getElse() const { return *_else; }
+    static constexpr std::string_view NAME = "IfThenElse";
     Type type() const override { return Type::IfThenElse; }
-    std::string toString() const override { return "IfThenElse"; }
+    std::string toString() const override { return std::string(NAME); }
 
    private:
     ObservableNodePtr _cond;

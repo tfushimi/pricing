@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <format>
+#include <iomanip>
+#include <sstream>
 #include <string>
 
 namespace calendar {
@@ -15,6 +17,13 @@ inline std::string toString(const Date& date) {
 inline Date makeDate(const int year, const int month, const int day) {
     return Date{std::chrono::year{year} / std::chrono::month{static_cast<unsigned>(month)} /
                 std::chrono::day{static_cast<unsigned>(day)}};
+}
+
+inline Date fromString(const std::string& s) {
+    std::tm tm{};
+    std::istringstream ss(s);
+    ss >> std::get_time(&tm, "%Y-%m-%d");
+    return makeDate(tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
 }
 
 // Year fraction between two dates — feeds directly into BS pricing

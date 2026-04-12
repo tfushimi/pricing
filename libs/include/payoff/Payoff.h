@@ -62,8 +62,9 @@ class CashPayment final : public PayoffNode {
     CashPayment(ObservableNodePtr amount, const Date settlementDate)
         : _amount(std::move(amount)), _settlementDate(settlementDate){};
 
+    static constexpr std::string_view NAME = "CashPayment";
     Type type() const override { return Type::CashPayment; }
-    std::string toString() const override { return "CashPayment"; }
+    std::string toString() const override { return std::string(NAME); }
 
     const ObservableNode& getAmount() const { return *_amount; }
     Date getSettlementDate() const { return _settlementDate; };
@@ -78,8 +79,9 @@ class CombinedPayment final : public PayoffNode {
     CombinedPayment(PayoffNodePtr left, PayoffNodePtr right)
         : _left(std::move(left)), _right(std::move(right)){};
 
+    static constexpr std::string_view NAME = "CombinedPayment";
     Type type() const override { return Type::CombinedPayment; };
-    std::string toString() const override { return "CombinedPayment"; }
+    std::string toString() const override { return std::string(NAME); }
 
     const PayoffNode& getLeft() const { return *_left; }
     const PayoffNode& getRight() const { return *_right; }
@@ -97,8 +99,9 @@ class BranchPayment final : public PayoffNode {
           _thenPayoff(std::move(thenPayoff)),
           _elsePayoff(std::move(elsePayoff)) {}
 
+    static constexpr std::string_view NAME = "BranchPayment";
     Type type() const override { return Type::BranchPayment; }
-    std::string toString() const override { return "BranchPayment"; }
+    std::string toString() const override { return std::string(NAME); }
 
     const ObservableNode& getCondition() const { return *_condition; }
     const PayoffNode& getThenPayoff() const { return *_thenPayoff; }

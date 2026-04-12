@@ -137,4 +137,72 @@ json toJson(const ObservableNodePtr& observable) {
 json toJson(const PayoffNodePtr& payoff) {
     return JsonEncoder().evaluate(payoff);
 }
+
+std::vector<ObservableNodePtr> decodeOperands(const json& j) {
+    std::vector<ObservableNodePtr> operands;
+    for (const auto& element : j["operands"]) {
+        operands.push_back(observableFromJson(element));
+    }
+    return operands;
+}
+
+ObservableNodePtr observableFromJson(const json& j) {
+    const string type = j["type"].get<string>();
+
+    if (type == Fixing::NAME) {
+        return fixing(j["symbol"].get<string>(),
+                      calendar::fromString(j["fixingDate"].get<string>()));
+    }
+    if (type == Constant::NAME) {
+        return constant(j["value"].get<double>());
+    }
+    if (type == Add::NAME) {
+        return add(observableFromJson(j["left"]), observableFromJson(j["right"]));
+    }
+    if (type == Sum::NAME) {
+        return sum(decodeOperands(j));
+    }
+    if (type == Multiply::NAME) {
+        return multiply(observableFromJson(j["left"]), observableFromJson(j["right"]));
+    }
+    if (type == Divide::NAME) {
+        return divide(observableFromJson(j["left"]), observableFromJson(j["right"]));
+    }
+    if (type == Max::NAME) {
+        return max(decodeOperands(j));
+    }
+    if (type == Min::NAME) {
+        return min(decodeOperands(j));
+    }
+    if (type == GreaterThan::NAME) {
+        return greaterThan(observableFromJson(j["left"]), observableFromJson(j["right"]));
+    }
+    if (type == GreaterThanOrEqual::NAME) {
+        return greaterThanOrEqual(observableFromJson(j["left"]), observableFromJson(j["right"]));
+    }
+    if (type == IfThenElse::NAME) {
+        return ite(observableFromJson(j["condition"]), observableFromJson(j["then"]),
+                   observableFromJson(j["else"]));
+    }
+
+    throw std::invalid_argument("Unknown observable type: " + type);
+}
+
+PayoffNodePtr payoffFromJson(const json& j) {
+    const string type = j["type"].get<string>();
+
+    if (type == CashPayment::NAME) {
+        return cashPayment(observableFromJson(j["amount"]),
+                           calendar::fromString(j["settlementDate"].get<string>()));
+    }
+    if (type == CombinedPayment::NAME) {
+        return combinedPayment(payoffFromJson(j["left"]), payoffFromJson(j["right"]));
+    }
+    if (type == BranchPayment::NAME) {
+        return branchPayment(observableFromJson(j["condition"]), payoffFromJson(j["then"]),
+                             payoffFromJson(j["else"]));
+    }
+
+    throw std::invalid_argument("Unknown payoff type: " + type);
+}
 }  // namespace payoff

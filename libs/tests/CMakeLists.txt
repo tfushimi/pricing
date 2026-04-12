@@ -74,8 +74,8 @@ target_link_libraries(test_fixing_collector PRIVATE
         GTest::gtest_main
 )
 
-add_executable(test_json_encoder payoff/JsonEncoder_test.cpp)
-target_link_libraries(test_json_encoder PRIVATE
+add_executable(test_json_codec payoff/JsonCodec_test.cpp)
+target_link_libraries(test_json_codec PRIVATE
         payoff
         GTest::gtest_main
 )
@@ -111,7 +111,7 @@ gtest_discover_tests(test_observable)
 gtest_discover_tests(test_apply_fixings)
 gtest_discover_tests(test_apply_market)
 gtest_discover_tests(test_fixing_collector)
-gtest_discover_tests(test_json_encoder)
+gtest_discover_tests(test_json_codec)
 gtest_discover_tests(test_process)
 gtest_discover_tests(test_process_state_stepper)
 gtest_discover_tests(test_time_grid)

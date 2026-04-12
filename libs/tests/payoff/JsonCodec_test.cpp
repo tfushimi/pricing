@@ -131,3 +131,51 @@ TEST(JsonEncoderTest, BranchPaymentTest) {
     ASSERT_EQ(j["else"]["type"].get<string>(), "CashPayment");
     assertConstantJson(j["else"]["amount"]);
 }
+
+// Decoder tests — roundtrip: encode -> decode -> encode and compare
+
+TEST(JsonDecoderTest, FixingRoundtrip) {
+    ASSERT_EQ(toJson(observableFromJson(toJson(spy))), toJson(spy));
+}
+
+TEST(JsonDecoderTest, ConstantRoundtrip) {
+    ASSERT_EQ(toJson(observableFromJson(toJson(doubleValue))), toJson(doubleValue));
+}
+
+TEST(JsonDecoderTest, BinaryNodeRoundtrip) {
+    const vector payoffs = {spy + doubleValue, spy * doubleValue, spy / doubleValue,
+                            spy > doubleValue, spy >= doubleValue};
+
+    for (const auto& payoff : payoffs) {
+        ASSERT_EQ(toJson(observableFromJson(toJson(payoff))), toJson(payoff));
+    }
+}
+
+TEST(JsonDecoderTest, VectorNodeRoundtrip) {
+    const vector payoffs = {max(spy, doubleValue), min(spy, doubleValue), sum(spy, doubleValue)};
+
+    for (const auto& payoff : payoffs) {
+        ASSERT_EQ(toJson(observableFromJson(toJson(payoff))), toJson(payoff));
+    }
+}
+
+TEST(JsonDecoderTest, IfThenElseRoundtrip) {
+    const auto payoff = ite(spy > doubleValue, spy, doubleValue);
+    ASSERT_EQ(toJson(observableFromJson(toJson(payoff))), toJson(payoff));
+}
+
+TEST(JsonDecoderTest, CashPaymentRoundtrip) {
+    const auto payoff = cashPayment(spy, settlementDate);
+    ASSERT_EQ(toJson(payoffFromJson(toJson(payoff))), toJson(payoff));
+}
+
+TEST(JsonDecoderTest, CombinedPaymentRoundtrip) {
+    const auto payoff = cashPayment(spy, settlementDate) + cashPayment(doubleValue, settlementDate);
+    ASSERT_EQ(toJson(payoffFromJson(toJson(payoff))), toJson(payoff));
+}
+
+TEST(JsonDecoderTest, BranchPaymentRoundtrip) {
+    const auto payoff = branchPayment(spy > doubleValue, cashPayment(spy, settlementDate),
+                                      cashPayment(doubleValue, settlementDate));
+    ASSERT_EQ(toJson(payoffFromJson(toJson(payoff))), toJson(payoff));
+}
