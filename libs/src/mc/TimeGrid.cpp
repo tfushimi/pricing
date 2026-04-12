@@ -10,7 +10,6 @@ namespace mc {
 
 TimeGrid::TimeGrid(const std::vector<Date>& fixingDates, const Date startDate, const double maxDt)
     : _startDate(startDate) {
-
     if (!std::is_sorted(fixingDates.begin(), fixingDates.end())) {
         throw std::invalid_argument("TimeGrid: fixingDates must be in ascending order");
     }

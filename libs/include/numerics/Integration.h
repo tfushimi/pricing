@@ -13,4 +13,4 @@ inline double integrate(const std::function<double(double)>& f) {
     }
     return sum;
 }
-}
+}  // namespace numerics::integration

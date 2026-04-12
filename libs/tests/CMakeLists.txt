@@ -1,3 +1,15 @@
+add_executable(test_integration numerics/Integration_test.cpp)
+target_link_libraries(test_integration PRIVATE
+        numerics
+        GTest::gtest_main
+)
+
+add_executable(test_root_finding numerics/RootFinding_test.cpp)
+target_link_libraries(test_root_finding PRIVATE
+        numerics
+        GTest::gtest_main
+)
+
 add_executable(test_plf numerics/linear/PiecewiseLinearFunction_test.cpp)
 target_link_libraries(test_plf PRIVATE
         numerics
@@ -81,6 +93,8 @@ target_link_libraries(test_time_grid PRIVATE
 )
 
 include(GoogleTest)
+gtest_discover_tests(test_integration)
+gtest_discover_tests(test_root_finding)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
 gtest_discover_tests(test_heston_formula)

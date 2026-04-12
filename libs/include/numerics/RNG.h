@@ -63,4 +63,4 @@ class AntitheticRNG final : public RNG {
 };
 
 // TODO define QuasiRNG (Sobol)
-}  // namespace rng
+}  // namespace numerics::rng

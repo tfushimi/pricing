@@ -76,11 +76,8 @@ TEST_F(TimeGridTest, SubstepsInsertedWhenGapExceedsMaxDt) {
 }
 
 TEST_F(TimeGridTest, MultipleFixingDates) {
-    const std::vector fixingDates = {
-        makeDate(2025, 6, 1),
-        makeDate(2026, 1, 1),
-        makeDate(2026, 7, 1)
-    };
+    const std::vector fixingDates = {makeDate(2025, 6, 1), makeDate(2026, 1, 1),
+                                     makeDate(2026, 7, 1)};
     const TimeGrid grid(fixingDates, startDate, 1.0 / 12.0);
 
     // fixing dates must be increasing
