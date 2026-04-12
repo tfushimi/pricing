@@ -1,0 +1,15 @@
+{
+    "type": "CashPayment",
+    "settlementDate": "2003-12-01",
+    "amount": {
+        "type": "Max",
+        "operands": [
+            {
+                "type": "Add",
+                "left": {"type": "Fixing", "symbol": "SX5E", "fixingDate": "2003-12-01"},
+                "right": {"type": "Constant", "value": -100.0}
+            },
+            {"type": "Constant", "value": 0.0}
+        ]
+    }
+}
