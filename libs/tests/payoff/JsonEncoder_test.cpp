@@ -35,7 +35,8 @@ TEST(JsonEncoderTest, ConstantTest) {
 }
 
 TEST(JsonEncoderTest, BinaryNodeTest) {
-    const vector payoffs = {spy + doubleValue, spy * doubleValue, spy / doubleValue, spy > doubleValue, spy >= doubleValue};
+    const vector payoffs = {spy + doubleValue, spy * doubleValue, spy / doubleValue,
+                            spy > doubleValue, spy >= doubleValue};
 
     const vector<string> types = {"Add", "Multiply", "Divide", "GreaterThan", "GreaterThanOrEqual"};
 

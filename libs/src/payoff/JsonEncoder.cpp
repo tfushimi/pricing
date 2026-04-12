@@ -12,7 +12,7 @@ using namespace std;
 namespace payoff {
 namespace {
 
-class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<json>{
+class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<json> {
    public:
     using ObservableVisitor::evaluate;
     using PayoffVisitor::evaluate;
@@ -71,7 +71,6 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     }
 
     json visit(const CashPayment& node) override {
-
         json j;
 
         j["type"] = node.toString();
@@ -82,7 +81,6 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     }
 
     json visit(const CombinedPayment& node) override {
-
         json j;
 
         j["type"] = node.toString();
@@ -93,7 +91,6 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     }
 
     json visit(const BranchPayment& node) override {
-
         json j;
 
         j["type"] = node.toString();
