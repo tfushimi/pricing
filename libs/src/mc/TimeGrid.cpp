@@ -1,5 +1,7 @@
 #include "mc/TimeGrid.h"
 
+#include <algorithm>
+#include <stdexcept>
 #include <vector>
 
 #include "common/Date.h"
@@ -8,6 +10,15 @@ namespace mc {
 
 TimeGrid::TimeGrid(const std::vector<Date>& fixingDates, const Date startDate, const double maxDt)
     : _startDate(startDate) {
+
+    if (!std::is_sorted(fixingDates.begin(), fixingDates.end())) {
+        throw std::invalid_argument("TimeGrid: fixingDates must be in ascending order");
+    }
+
+    if (!fixingDates.empty() && fixingDates.front() <= startDate) {
+        throw std::invalid_argument("TimeGrid: fixingDates must be after startDate");
+    }
+
     // t=0: the start date itself
     _simulationDates.push_back(startDate);
     _times.push_back(0.0);

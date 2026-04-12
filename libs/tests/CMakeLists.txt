@@ -74,6 +74,12 @@ target_link_libraries(test_process_state_stepper PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_time_grid mc/TimeGrid_test.cpp)
+target_link_libraries(test_time_grid PRIVATE
+        mc
+        GTest::gtest_main
+)
+
 include(GoogleTest)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
@@ -87,3 +93,4 @@ gtest_discover_tests(test_apply_market)
 gtest_discover_tests(test_fixing_collector)
 gtest_discover_tests(test_process)
 gtest_discover_tests(test_process_state_stepper)
+gtest_discover_tests(test_time_grid)
