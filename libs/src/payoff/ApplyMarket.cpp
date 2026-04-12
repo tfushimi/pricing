@@ -87,10 +87,10 @@ class ApplyMarket final : public ObservableVisitor<ObservableNodePtr> {
     const market::Market& _market;
 };
 
-class ApplyPayoffMarket final : public PayoffVisitor<PayoffNodePtr> {
+class PayoffApplyMarket final : public PayoffVisitor<PayoffNodePtr> {
    public:
-    explicit ApplyPayoffMarket(const market::Market& market) : _market(market) {}
-    ~ApplyPayoffMarket() override = default;
+    explicit PayoffApplyMarket(const market::Market& market) : _market(market) {}
+    ~PayoffApplyMarket() override = default;
 
    protected:
     PayoffNodePtr visit(const CashPayment& node) override {
@@ -121,11 +121,11 @@ ObservableNodePtr applyMarket(const ObservableNode& observable, const market::Ma
     return foldConstants(ApplyMarket(market).evaluate(observable));
 }
 PayoffNodePtr applyMarket(const PayoffNodePtr& payoff, const market::Market& market) {
-    return ApplyPayoffMarket(market).evaluate(payoff);
+    return PayoffApplyMarket(market).evaluate(payoff);
 }
 
 PayoffNodePtr applyMarket(const PayoffNode& payoff, const market::Market& market) {
-    return ApplyPayoffMarket(market).evaluate(payoff);
+    return PayoffApplyMarket(market).evaluate(payoff);
 }
 
 CashPayment applyMarket(const CashPayment& payoff, const market::Market& market) {

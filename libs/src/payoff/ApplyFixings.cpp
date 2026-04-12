@@ -15,9 +15,13 @@ namespace {
 /**
  * Recursively apply Sample to Fixing and fold PayoffNode tree
  */
-class ApplyFixings final : public ObservableVisitor<Sample> {
+class ApplyFixings final : public ObservableVisitor<Sample>, public PayoffVisitor<Sample> {
    public:
-    explicit ApplyFixings(const Scenario& scenario) : _scenario(scenario) {
+    using ObservableVisitor::evaluate;
+    using PayoffVisitor::evaluate;
+
+    explicit ApplyFixings(const Scenario& scenario, const Market* market = nullptr)
+        : _market(market), _scenario(scenario) {
         if (scenario.empty()) {
             throw std::invalid_argument("Scenario cannot be empty");
         }
@@ -130,38 +134,20 @@ class ApplyFixings final : public ObservableVisitor<Sample> {
         return result;
     }
 
-   private:
-    const Scenario& _scenario;
-    std::size_t _dim;
-    static Sample elementwiseMin(const Sample& left, const Sample& right) {
-        return (left + right - abs(left - right)) * 0.5;
-    }
-
-    static Sample elementwiseMax(const Sample& left, const Sample& right) {
-        return (left + right + abs(left - right)) * 0.5;
-    }
-};
-
-class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
-   public:
-    explicit ApplyPayoffFixings(const Market& market, const Scenario& scenario)
-        : _market(market), _scenario(scenario) {}
-    ~ApplyPayoffFixings() override = default;
-
-   protected:
     Sample visit(const CashPayment& node) override {
-        const auto sample = applyFixings(node.getAmount(), _scenario);
-        return sample * _market.getDiscountFactor(node.getSettlementDate());
+        if (_market == nullptr) {
+            throw std::logic_error("ApplyFixings: market is required for CashPayment");
+        }
+        const auto sample = evaluate(node.getAmount());
+        return sample * _market->getDiscountFactor(node.getSettlementDate());
     }
 
     Sample visit(const CombinedPayment& node) override {
-        const auto left = evaluate(node.getLeft());
-        const auto right = evaluate(node.getRight());
-        return left + right;
+        return evaluate(node.getLeft()) + evaluate(node.getRight());
     }
 
     Sample visit(const BranchPayment& node) override {
-        const auto cond = applyFixings(node.getCondition(), _scenario);
+        const auto cond = evaluate(node.getCondition());
         const auto then_ = evaluate(node.getThenPayoff());
         const auto else_ = evaluate(node.getElsePayoff());
 
@@ -174,8 +160,17 @@ class ApplyPayoffFixings final : public PayoffVisitor<Sample> {
     }
 
    private:
-    const Market& _market;
+    const Market* _market;
     const Scenario& _scenario;
+    std::size_t _dim;
+
+    static Sample elementwiseMin(const Sample& left, const Sample& right) {
+        return (left + right - abs(left - right)) * 0.5;
+    }
+
+    static Sample elementwiseMax(const Sample& left, const Sample& right) {
+        return (left + right + abs(left - right)) * 0.5;
+    }
 };
 }  // namespace
 
@@ -188,6 +183,6 @@ Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenari
 }
 
 Sample applyFixings(const PayoffNodePtr& payoff, const Market& market, const Scenario& scenario) {
-    return ApplyPayoffFixings(market, scenario).evaluate(payoff);
+    return ApplyFixings(scenario, &market).evaluate(payoff);
 }
 }  // namespace payoff

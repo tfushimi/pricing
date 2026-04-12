@@ -54,6 +54,7 @@ class PayoffNode {
     enum class Type { CashPayment, CombinedPayment, BranchPayment };
 
     virtual Type type() const = 0;
+    virtual std::string toString() const = 0;
 };
 
 class CashPayment final : public PayoffNode {
@@ -62,6 +63,8 @@ class CashPayment final : public PayoffNode {
         : _amount(std::move(amount)), _settlementDate(settlementDate){};
 
     Type type() const override { return Type::CashPayment; }
+    std::string toString() const override { return "CashPayment"; }
+
     const ObservableNode& getAmount() const { return *_amount; }
     Date getSettlementDate() const { return _settlementDate; };
 
@@ -76,6 +79,7 @@ class CombinedPayment final : public PayoffNode {
         : _left(std::move(left)), _right(std::move(right)){};
 
     Type type() const override { return Type::CombinedPayment; };
+    std::string toString() const override { return "CombinedPayment"; }
 
     const PayoffNode& getLeft() const { return *_left; }
     const PayoffNode& getRight() const { return *_right; }
@@ -94,6 +98,8 @@ class BranchPayment final : public PayoffNode {
           _elsePayoff(std::move(elsePayoff)) {}
 
     Type type() const override { return Type::BranchPayment; }
+    std::string toString() const override { return "BranchPayment"; }
+
     const ObservableNode& getCondition() const { return *_condition; }
     const PayoffNode& getThenPayoff() const { return *_thenPayoff; }
     const PayoffNode& getElsePayoff() const { return *_elsePayoff; }

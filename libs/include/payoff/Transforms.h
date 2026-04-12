@@ -66,5 +66,5 @@ Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
 
 // JSON helpers
 nlohmann::json toJson(const ObservableNodePtr& observable);
-// nlohmann::json toJson(const PayoffNodePtr& observable);
+nlohmann::json toJson(const PayoffNodePtr& observable);
 }  // namespace payoff
