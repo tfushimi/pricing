@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -13,19 +14,26 @@
 namespace market {
 /**
  * A simple market implementation for testing and prototyping.
- * Combines a constant risk-free rate with a single SVI vol smile
- * applied uniformly across all maturities.
+ * Combines a constant risk-free rate with a vol surface applied
+ * uniformly across all maturities — either SVI or flat (constant) vol.
  */
 class SimpleMarket final : public Market {
    public:
+    using VolSliceFactory = std::function<std::unique_ptr<BSVolSlice>(double forward, double T)>;
+
     SimpleMarket(const Date pricingDate, std::string symbol, const double spot, const double rate,
                  const double dividend, const SVIParams& sviParams)
-        : Market(pricingDate),
-          _symbol(std::move(symbol)),
-          _spot(spot),
-          _discountCurve(ConstantDiscountCurve(pricingDate, rate)),
-          _forwardCurve(ConstantForwardCurve(pricingDate, spot, rate - dividend)),
-          _sviParams(sviParams) {}
+        : SimpleMarket(pricingDate, std::move(symbol), spot, rate, dividend,
+                       [sviParams](const double forward, const double T) {
+                           return std::make_unique<SVIVolSlice>(forward, T, sviParams);
+                       }) {}
+
+    SimpleMarket(const Date pricingDate, std::string symbol, const double spot, const double rate,
+                 const double dividend, const double vol)
+        : SimpleMarket(pricingDate, std::move(symbol), spot, rate, dividend,
+                       [vol](const double forward, const double T) {
+                           return std::make_unique<FlatVolSlice>(forward, T, vol);
+                       }) {}
 
     std::optional<double> getPrice(const std::string& symbol, const Date& date) const override {
         if (symbol == _symbol && date <= getPricingDate()) {
@@ -47,18 +55,27 @@ class SimpleMarket final : public Market {
             return *it->second;
         }
         const auto T = yearFraction(getPricingDate(), date);
-        const auto [inserted_it, _] = _bsVolSlices.emplace(
-            key, std::make_unique<SVIVolSlice>(_forwardCurve(T), T, _sviParams));
+        const auto [inserted_it, _] =
+            _bsVolSlices.emplace(key, _volSliceFactory(_forwardCurve(T), T));
         return *inserted_it->second;
     }
 
    private:
+    SimpleMarket(const Date pricingDate, std::string symbol, const double spot, const double rate,
+                 const double dividend, VolSliceFactory factory)
+        : Market(pricingDate),
+          _symbol(std::move(symbol)),
+          _spot(spot),
+          _discountCurve(ConstantDiscountCurve(pricingDate, rate)),
+          _forwardCurve(ConstantForwardCurve(pricingDate, spot, rate - dividend)),
+          _volSliceFactory(std::move(factory)) {}
+
     std::string _symbol;
     mutable std::map<std::pair<std::string, Date>, std::unique_ptr<BSVolSlice>> _bsVolSlices;
     double _spot;
     ConstantDiscountCurve _discountCurve;
     ConstantForwardCurve _forwardCurve;
-    SVIParams _sviParams;
+    VolSliceFactory _volSliceFactory;
 };
 
 }  // namespace market

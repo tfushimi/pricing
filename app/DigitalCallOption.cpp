@@ -15,11 +15,10 @@
  * Pricing date: 2000-01-01, expiry: 2001-01-01 (1 year).
  */
 
+#include "FlatMarket.h"
 #include "HestonNandi.h"
 #include "common/Date.h"
 #include "common/TableUtils.h"
-#include "market/SVI.h"
-#include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
@@ -39,8 +38,7 @@ constexpr std::string SYMBOL = "Underlier";
 int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2000, 1, 1);
-    constexpr SVIParams sviParams{.a = 0.0, .b = 0.0, .rho = 0.0, .m = 0.0, .sigma = 1e-10};
-    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, sviParams};
+    auto market = makeFlatMarket(pricingDate, SYMBOL, SPOT);
 
     HestonPricer hestonPricer{market, hestonParams};
     MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};

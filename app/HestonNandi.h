@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <format>
-#include <iostream>
 
 #include "common/Types.h"
 #include "mc/Process.h"
