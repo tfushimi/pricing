@@ -12,8 +12,11 @@ using namespace std;
 namespace payoff {
 namespace {
 
-class JsonEncoder final : public ObservableVisitor<json> {
+class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<json>{
    public:
+    using ObservableVisitor::evaluate;
+    using PayoffVisitor::evaluate;
+
     JsonEncoder() = default;
     ~JsonEncoder() override = default;
 
@@ -67,6 +70,40 @@ class JsonEncoder final : public ObservableVisitor<json> {
         return j;
     }
 
+    json visit(const CashPayment& node) override {
+
+        json j;
+
+        j["type"] = node.toString();
+        j["amount"] = evaluate(node.getAmount());
+        j["settlementDate"] = calendar::toString(node.getSettlementDate());
+
+        return j;
+    }
+
+    json visit(const CombinedPayment& node) override {
+
+        json j;
+
+        j["type"] = node.toString();
+        j["left"] = evaluate(node.getLeft());
+        j["right"] = evaluate(node.getRight());
+
+        return j;
+    }
+
+    json visit(const BranchPayment& node) override {
+
+        json j;
+
+        j["type"] = node.toString();
+        j["cond"] = evaluate(node.getCondition());
+        j["then"] = evaluate(node.getThenPayoff());
+        j["else"] = evaluate(node.getElsePayoff());
+
+        return j;
+    }
+
    private:
     json encodeBinaryNode(const BinaryNode& node, const string& type) {
         json j;
@@ -97,5 +134,9 @@ class JsonEncoder final : public ObservableVisitor<json> {
 
 json toJson(const ObservableNodePtr& observable) {
     return JsonEncoder().evaluate(observable);
+}
+
+json toJson(const PayoffNodePtr& payoff) {
+    return JsonEncoder().evaluate(payoff);
 }
 }  // namespace payoff

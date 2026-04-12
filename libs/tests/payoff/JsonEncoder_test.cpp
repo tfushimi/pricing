@@ -9,6 +9,7 @@ using namespace nlohmann;
 using namespace std;
 
 const auto fixingDate = makeDate(2026, 3, 20);
+const auto settlementDate = makeDate(2026, 3, 27);
 const auto spy = fixing("SPY", fixingDate);
 constexpr double doubleValue = 123.45;
 
@@ -85,4 +86,47 @@ TEST(JsonEncoderTest, IfThenElseTest) {
 
     assertFixingJson(j["then"]);
     assertConstantJson(j["else"]);
+}
+
+void assertCashPaymentJson(const json& j) {
+    ASSERT_EQ(j["type"].get<string>(), "CashPayment");
+    assertFixingJson(j["amount"]);
+    ASSERT_EQ(j["settlementDate"].get<string>(), toString(settlementDate));
+}
+
+TEST(JsonEncoderTest, CashPaymentTest) {
+    const auto payoff = cashPayment(spy, settlementDate);
+    const json j = toJson(payoff);
+    assertCashPaymentJson(j);
+}
+
+TEST(JsonEncoderTest, CombinedPaymentTest) {
+    const auto left = cashPayment(spy, settlementDate);
+    const auto right = cashPayment(doubleValue, settlementDate);
+    const json j = toJson(left + right);
+
+    ASSERT_EQ(j["type"].get<string>(), "CombinedPayment");
+
+    assertCashPaymentJson(j["left"]);
+
+    ASSERT_EQ(j["right"]["type"].get<string>(), "CashPayment");
+    assertConstantJson(j["right"]["amount"]);
+}
+
+TEST(JsonEncoderTest, BranchPaymentTest) {
+    const auto condition = spy > doubleValue;
+    const auto thenPayoff = cashPayment(spy, settlementDate);
+    const auto elsePayoff = cashPayment(doubleValue, settlementDate);
+    const json j = toJson(branchPayment(condition, thenPayoff, elsePayoff));
+
+    ASSERT_EQ(j["type"].get<string>(), "BranchPayment");
+
+    ASSERT_EQ(j["cond"]["type"].get<string>(), "GreaterThan");
+    assertFixingJson(j["cond"]["left"]);
+    assertConstantJson(j["cond"]["right"]);
+
+    assertCashPaymentJson(j["then"]);
+
+    ASSERT_EQ(j["else"]["type"].get<string>(), "CashPayment");
+    assertConstantJson(j["else"]["amount"]);
 }
