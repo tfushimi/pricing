@@ -7,7 +7,6 @@
 using namespace calendar;
 using namespace payoff;
 using namespace market;
-using namespace mc;
 
 static const Date pricingDate = makeDate(2025, 1, 1);
 static const Date D1 = makeDate(2026, 1, 15);

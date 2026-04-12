@@ -74,6 +74,12 @@ target_link_libraries(test_fixing_collector PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_json_encoder payoff/JsonEncoder_test.cpp)
+target_link_libraries(test_json_encoder PRIVATE
+        payoff
+        GTest::gtest_main
+)
+
 add_executable(test_process mc/Process_test.cpp)
 target_link_libraries(test_process PRIVATE
         mc

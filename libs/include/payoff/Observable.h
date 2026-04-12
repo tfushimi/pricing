@@ -117,7 +117,7 @@ class ObservableNode {
         Max,
         Min,
         GreaterThan,
-        GreaterThanOrEqual,
+        GreaterThanOrEqual,  // TODO rename GreaterThanOrEqualTo
         IfThenElse
     };
 
@@ -204,14 +204,14 @@ class GreaterThanOrEqual final : public BinaryNode {
 
 class VectorNode : public ObservableNode {
    public:
-    explicit VectorNode(std::vector<ObservableNodePtr> nodes) : _nodes(std::move(nodes)) {}
+    explicit VectorNode(std::vector<ObservableNodePtr> operands) : _operands(std::move(operands)) {}
     using const_iterator = std::vector<ObservableNodePtr>::const_iterator;
-    const_iterator begin() const { return _nodes.begin(); }
-    const_iterator end() const { return _nodes.end(); }
-    size_t size() const { return _nodes.size(); }
+    const_iterator begin() const { return _operands.begin(); }
+    const_iterator end() const { return _operands.end(); }
+    size_t size() const { return _operands.size(); }
 
    private:
-    std::vector<ObservableNodePtr> _nodes{};
+    std::vector<ObservableNodePtr> _operands{};
 };
 
 class Max final : public VectorNode {
@@ -321,6 +321,7 @@ inline ObservableNodePtr greaterThanOrEqual(ObservableNodePtr left, ObservableNo
     return std::make_shared<GreaterThanOrEqual>(std::move(left), std::move(right));
 }
 
+// TODO support ternary operator?
 inline ObservableNodePtr ite(ObservableNodePtr cond, ObservableNodePtr then_,
                              ObservableNodePtr else_) {
     return std::make_shared<IfThenElse>(std::move(cond), std::move(then_), std::move(else_));

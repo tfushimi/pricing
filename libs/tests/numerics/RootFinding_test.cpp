@@ -1,8 +1,8 @@
 #include "numerics/RootFinding.h"
 
-#include <cmath>
-
 #include <gtest/gtest.h>
+
+#include <cmath>
 
 using namespace numerics::rootfinding;
 
@@ -20,6 +20,7 @@ TEST(RootFindingTest, Quadratic) {
 
 TEST(RootFindingTest, Exponential) {
     // f(x) = exp(x), target = 1 -> solution = 0
-    const double sol = bisection<double>(1.0, -1.0, 1.0, 1e-8, [](double x) { return std::exp(x); });
+    const double sol =
+        bisection<double>(1.0, -1.0, 1.0, 1e-8, [](double x) { return std::exp(x); });
     EXPECT_NEAR(sol, 0.0, 1e-6);
 }

@@ -8,6 +8,7 @@ add_library(payoff STATIC
         src/payoff/FixingCollector.cpp
         src/payoff/ToPiecewiseLinearFunction.cpp
         src/payoff/ApplyFixings.cpp
+        src/payoff/JsonEncoder.cpp
 )
 add_library(market INTERFACE)
 add_library(pricer STATIC
@@ -38,6 +39,7 @@ target_link_libraries(numerics PUBLIC
 )
 target_link_libraries(payoff PUBLIC
         numerics
+        nlohmann_json
         project_warnings
 )
 target_link_libraries(market INTERFACE

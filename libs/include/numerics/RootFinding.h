@@ -6,7 +6,8 @@
 namespace numerics::rootfinding {
 
 template <typename T>
-double bisection(double target, double lower, double upper, double tol, const std::function<double(double)>& f) {
+double bisection(double target, double lower, double upper, double tol,
+                 const std::function<double(double)>& f) {
     double sol = 0.5 * (lower + upper);
     double y = f(sol);
 

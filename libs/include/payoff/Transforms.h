@@ -1,8 +1,9 @@
 #pragma once
+
+#include <nlohmann/json.hpp>
 #include <set>
 
 #include "market/Market.h"
-#include "mc/ProcessStateStepper.h"
 #include "numerics/linear/PiecewiseLinearFunction.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
@@ -62,4 +63,8 @@ Sample applyFixings(const ObservableNode& observable, const Scenario& scenario);
 Sample applyFixings(const ObservableNodePtr& observable, const Scenario& scenario);
 Sample applyFixings(const PayoffNodePtr& payoff, const market::Market& market,
                     const Scenario& scenario);
+
+// JSON helpers
+nlohmann::json toJson(const ObservableNodePtr& observable);
+// nlohmann::json toJson(const PayoffNodePtr& observable);
 }  // namespace payoff

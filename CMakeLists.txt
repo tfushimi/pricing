@@ -4,14 +4,19 @@ project(quant_finance)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED  ON)
 
-# fetch gtest
+# fetch dependencies
 include(FetchContent)
 FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
         DOWNLOAD_EXTRACT_TIMESTAMP true
 )
-FetchContent_MakeAvailable(googletest)
+FetchContent_Declare(
+        nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+FetchContent_MakeAvailable(googletest nlohmann_json)
 enable_testing()
 
 # project_warnings

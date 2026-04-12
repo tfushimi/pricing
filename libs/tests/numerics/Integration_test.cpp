@@ -1,8 +1,8 @@
 #include "numerics/Integration.h"
 
-#include <cmath>
-
 #include <gtest/gtest.h>
+
+#include <cmath>
 
 using namespace numerics::integration;
 

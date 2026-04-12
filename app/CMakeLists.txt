@@ -15,3 +15,6 @@ target_link_libraries(one_touch_call PRIVATE pricer project_warnings)
 
 add_executable(digital_call DigitalCallOption.cpp)
 target_link_libraries(digital_call PRIVATE pricer project_warnings)
+
+add_executable(json_example JsonExample.cpp)
+target_link_libraries(json_example PRIVATE payoff project_warnings)
