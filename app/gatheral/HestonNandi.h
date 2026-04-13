@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cassert>
-
 #include "common/Types.h"
 #include "mc/Process.h"
 #include "pricer/LocalVolFormula.h"
