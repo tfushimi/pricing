@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <format>
 
 #include "common/Types.h"
 #include "mc/Process.h"

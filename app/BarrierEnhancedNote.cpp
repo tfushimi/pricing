@@ -39,9 +39,7 @@ int main() {
     const auto barrierCondition = S >= constant(barrier);
     const auto participation = constant(notional) + constant(1.1) * (S - constant(notional));
     const auto protectedPayoff = min(max(participation, constant(notional)), constant(cap));
-    const auto breachedPayoff = S;
-
-    const auto payoff = ite(barrierCondition, protectedPayoff, breachedPayoff);
+    const auto payoff = ite(barrierCondition, protectedPayoff, S);
     const auto plf = toPiecewiseLinearFunction(payoff);
     const auto payment = cashPayment(payoff, settlementDate);
 
