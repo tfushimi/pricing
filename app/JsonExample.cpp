@@ -1,6 +1,5 @@
 #include <fstream>
 #include <iostream>
-#include <set>
 #include <nlohmann/json.hpp>
 
 #include "FlatMarket.h"
@@ -25,9 +24,7 @@ int main() {
     const auto j = json::parse(file);
     const auto payoff = payoffFromJson(j);
 
-    const auto fixings = getFixings(payoff);
-    std::set<std::string> symbols;
-    for (const auto& f : fixings) symbols.insert(f.getSymbol());
+    const auto [symbols, fixingDates] = getSymbolsAndFixingDates(payoff);
 
     if (symbols.size() != 1) {
         std::cerr << "Expected exactly one symbol, got " << symbols.size() << std::endl;
