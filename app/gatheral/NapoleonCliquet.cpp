@@ -31,7 +31,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "FlatMarket.h"
+#include "market/SimpleMarket.h"
 #include "HestonNandi.h"
 #include "common/Date.h"
 #include "common/TableUtils.h"
@@ -86,7 +86,7 @@ std::vector<Date> getFixingDates(const int couponYear) {
 int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2002, 12, 1);
-    auto market = makeFlatMarket(pricingDate, SYMBOL, SPOT);
+    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
 
     MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
     MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};

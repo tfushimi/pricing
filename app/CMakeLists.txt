@@ -1,20 +1,7 @@
+add_subdirectory(gatheral)
+
 add_executable(barrier_enhanced_note BarrierEnhancedNote.cpp)
 target_link_libraries(barrier_enhanced_note PRIVATE pricer project_warnings)
-
-add_executable(lcgf_cliquet LocallyCappedGloballyFlooredCliquet.cpp)
-target_link_libraries(lcgf_cliquet PRIVATE pricer project_warnings)
-
-add_executable(reverse_cliquet ReverseCliquet.cpp)
-target_link_libraries(reverse_cliquet PRIVATE pricer project_warnings)
-
-add_executable(napoleon_cliquet NapoleonCliquet.cpp)
-target_link_libraries(napoleon_cliquet PRIVATE pricer project_warnings)
-
-add_executable(one_touch_call OneTouchCallOption.cpp)
-target_link_libraries(one_touch_call PRIVATE pricer project_warnings)
-
-add_executable(digital_call DigitalCallOption.cpp)
-target_link_libraries(digital_call PRIVATE pricer project_warnings)
 
 add_executable(json_example JsonExample.cpp)
 target_link_libraries(json_example PRIVATE pricer project_warnings)

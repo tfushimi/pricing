@@ -2,7 +2,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "FlatMarket.h"
+#include "market/SimpleMarket.h"
 #include "common/Date.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
@@ -10,6 +10,7 @@
 #include "pricer/BSPricer.h"
 
 using namespace calendar;
+using namespace market;
 using namespace payoff;
 using namespace pricer;
 using namespace nlohmann;
@@ -34,7 +35,7 @@ int main() {
     const std::string symbol = *symbols.begin();
     // ATM call: spot=100, strike=100, vol=0.2, T=1yr, r=0 -> BS price ≈ 7.97
     const Date pricingDate = makeDate(2002, 12, 1);
-    const auto market = makeFlatMarket(pricingDate, symbol, 100);
+    const SimpleMarket market{pricingDate, symbol, 100, 0.0, 0.0, 0.2};
 
     std::cout << "BS price: " << bsPricer(payoff, market) << std::endl;
 

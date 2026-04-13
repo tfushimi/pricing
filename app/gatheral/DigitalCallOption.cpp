@@ -13,9 +13,11 @@
  * Strikes run from K/S = 1.00 to 1.39 in steps of 0.01.
  * Zero interest rates and dividends throughout.
  * Pricing date: 2000-01-01, expiry: 2001-01-01 (1 year).
+ *
+ * Reproduces Figure 9.3 of Gatheral (2006), "The Volatility Surface".
  */
 
-#include "FlatMarket.h"
+#include "market/SimpleMarket.h"
 #include "HestonNandi.h"
 #include "common/Date.h"
 #include "common/TableUtils.h"
@@ -38,7 +40,7 @@ constexpr std::string SYMBOL = "Underlier";
 int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2000, 1, 1);
-    auto market = makeFlatMarket(pricingDate, SYMBOL, SPOT);
+    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
 
     HestonPricer hestonPricer{market, hestonParams};
     MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
