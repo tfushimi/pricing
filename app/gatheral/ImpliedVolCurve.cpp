@@ -1,5 +1,5 @@
 /**
- * @file ImpliedVolCurves.cpp
+ * @file ImpliedVolCurve.cpp
  *
  * Computes the Heston implied volatility smile across a range of log-strikes,
  * reproducing Figure 4.3 of Gatheral (2006), "The Volatility Surface".
