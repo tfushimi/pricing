@@ -17,10 +17,10 @@
  * Reproduces Figure 9.3 of Gatheral (2006), "The Volatility Surface".
  */
 
-#include "market/SimpleMarket.h"
 #include "HestonNandi.h"
 #include "common/Date.h"
 #include "common/TableUtils.h"
+#include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"

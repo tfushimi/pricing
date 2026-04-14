@@ -2,8 +2,8 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "market/SimpleMarket.h"
 #include "common/Date.h"
+#include "market/SimpleMarket.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"

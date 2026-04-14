@@ -12,3 +12,6 @@ target_link_libraries(napoleon_cliquet PRIVATE pricer project_warnings)
 
 add_executable(reverse_cliquet ReverseCliquet.cpp)
 target_link_libraries(reverse_cliquet PRIVATE pricer project_warnings)
+
+add_executable(implied_vol_curve ImpliedVolCurves.cpp)
+target_link_libraries(implied_vol_curve PRIVATE pricer project_warnings)

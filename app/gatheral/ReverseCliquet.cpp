@@ -25,10 +25,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "market/SimpleMarket.h"
 #include "HestonNandi.h"
 #include "common/Date.h"
 #include "common/TableUtils.h"
+#include "market/SimpleMarket.h"
 #include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
