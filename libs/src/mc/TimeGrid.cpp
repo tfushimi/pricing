@@ -1,6 +1,7 @@
 #include "mc/TimeGrid.h"
 
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 #include <vector>
 

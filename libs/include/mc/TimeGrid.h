@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <cmath>
 #include <vector>
 
 #include "common/Date.h"
