@@ -38,7 +38,8 @@ void register_observables(py::module& m) {
         .def("__rtruediv__",
              [](const ObservableNodePtr& self, double val) { return constant(val) / self; })
         .def("__gt__", [](const ObservableNodePtr& self, double val) { return self > val; })
-        .def("__ge__", [](const ObservableNodePtr& self, double val) { return self >= val; });
+        .def("__ge__", [](const ObservableNodePtr& self, double val) { return self >= val; })
+        .def("__repr__", [](const ObservableNodePtr& self) { return self->toString(); });
 
     auto toObservable = [](const py::object& item) -> ObservableNodePtr {
         if (py::isinstance<ObservableNodePtr>(item)) {
