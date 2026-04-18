@@ -3,6 +3,7 @@ project(pricing)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED  ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # fetch dependencies
 include(FetchContent)
@@ -16,7 +17,12 @@ FetchContent_Declare(
         URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP true
 )
-FetchContent_MakeAvailable(googletest nlohmann_json)
+FetchContent_Declare(
+        pybind11
+        URL https://github.com/pybind/pybind11/archive/refs/tags/v2.13.6.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+FetchContent_MakeAvailable(googletest nlohmann_json pybind11)
 enable_testing()
 
 # project_warnings
@@ -36,6 +42,9 @@ add_subdirectory(libs)
 # executable
 add_subdirectory(app)
 
+# python bindings
+add_subdirectory(python)
+
 # format
 find_program(CLANG_FORMAT clang-format)
 
@@ -45,6 +54,7 @@ if(CLANG_FORMAT)
                 COMMAND find
                 ${CMAKE_SOURCE_DIR}/app
                 ${CMAKE_SOURCE_DIR}/libs
+                ${CMAKE_SOURCE_DIR}/python
         (-name "*.cpp" -o -name "*.h")
                 -exec ${CLANG_FORMAT} -i {} +
                 COMMENT "Running clang-format"
