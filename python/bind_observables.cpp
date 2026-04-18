@@ -2,10 +2,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>  // needed for automatic list -> vector conversion
 
-#include "register.h"
 #include "common/Date.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
+#include "register.h"
 
 namespace py = pybind11;
 

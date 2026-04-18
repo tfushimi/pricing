@@ -25,7 +25,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     json visit(const Fixing& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
         j["symbol"] = node.getSymbol();
         j["fixingDate"] = calendar::toString(node.getDate());
 
@@ -35,34 +35,34 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     json visit(const Constant& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
         j["value"] = node.getValue();
 
         return j;
     }
 
-    json visit(const Add& node) override { return encodeBinaryNode(node, node.toString()); }
+    json visit(const Add& node) override { return encodeBinaryNode(node, node.typeName()); }
 
-    json visit(const Sum& node) override { return encodeVectorNode(node, node.toString()); }
+    json visit(const Sum& node) override { return encodeVectorNode(node, node.typeName()); }
 
-    json visit(const Multiply& node) override { return encodeBinaryNode(node, node.toString()); }
+    json visit(const Multiply& node) override { return encodeBinaryNode(node, node.typeName()); }
 
-    json visit(const Divide& node) override { return encodeBinaryNode(node, node.toString()); }
+    json visit(const Divide& node) override { return encodeBinaryNode(node, node.typeName()); }
 
-    json visit(const Max& node) override { return encodeVectorNode(node, node.toString()); }
+    json visit(const Max& node) override { return encodeVectorNode(node, node.typeName()); }
 
-    json visit(const Min& node) override { return encodeVectorNode(node, node.toString()); }
+    json visit(const Min& node) override { return encodeVectorNode(node, node.typeName()); }
 
-    json visit(const GreaterThan& node) override { return encodeBinaryNode(node, node.toString()); }
+    json visit(const GreaterThan& node) override { return encodeBinaryNode(node, node.typeName()); }
 
     json visit(const GreaterThanOrEqual& node) override {
-        return encodeBinaryNode(node, node.toString());
+        return encodeBinaryNode(node, node.typeName());
     }
 
     json visit(const IfThenElse& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
 
         j["condition"] = evaluate(node.getCondition());
         j["then"] = evaluate(node.getThen());
@@ -74,7 +74,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     json visit(const CashPayment& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
         j["amount"] = evaluate(node.getAmount());
         j["settlementDate"] = calendar::toString(node.getSettlementDate());
 
@@ -84,7 +84,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     json visit(const CombinedPayment& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
         j["left"] = evaluate(node.getLeft());
         j["right"] = evaluate(node.getRight());
 
@@ -94,7 +94,7 @@ class JsonEncoder final : public ObservableVisitor<json>, public PayoffVisitor<j
     json visit(const BranchPayment& node) override {
         json j;
 
-        j["type"] = node.toString();
+        j["type"] = node.typeName();
         j["condition"] = evaluate(node.getCondition());
         j["then"] = evaluate(node.getThenPayoff());
         j["else"] = evaluate(node.getElsePayoff());

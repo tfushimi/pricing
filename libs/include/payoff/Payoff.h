@@ -54,6 +54,7 @@ class PayoffNode {
     enum class Type { CashPayment, CombinedPayment, BranchPayment };
 
     virtual Type type() const = 0;
+    virtual std::string typeName() const = 0;
     virtual std::string toString() const = 0;
 };
 
@@ -64,7 +65,11 @@ class CashPayment final : public PayoffNode {
 
     static constexpr std::string_view NAME = "CashPayment";
     Type type() const override { return Type::CashPayment; }
-    std::string toString() const override { return std::string(NAME); }
+    std::string typeName() const override { return std::string(NAME); }
+    std::string toString() const override {
+        return "CashPayment(amount=" + _amount->toString() +
+               ", settlementDate=" + calendar::toString(_settlementDate) + ")";
+    }
 
     const ObservableNode& getAmount() const { return *_amount; }
     Date getSettlementDate() const { return _settlementDate; };
@@ -81,8 +86,10 @@ class CombinedPayment final : public PayoffNode {
 
     static constexpr std::string_view NAME = "CombinedPayment";
     Type type() const override { return Type::CombinedPayment; };
-    std::string toString() const override { return std::string(NAME); }
-
+    std::string typeName() const override { return std::string(NAME); }
+    std::string toString() const override {
+        return "CombinedPayment(" + _left->toString() + ", " + _right->toString() + ")";
+    }
     const PayoffNode& getLeft() const { return *_left; }
     const PayoffNode& getRight() const { return *_right; }
 
@@ -101,8 +108,11 @@ class BranchPayment final : public PayoffNode {
 
     static constexpr std::string_view NAME = "BranchPayment";
     Type type() const override { return Type::BranchPayment; }
-    std::string toString() const override { return std::string(NAME); }
-
+    std::string typeName() const override { return std::string(NAME); }
+    std::string toString() const override {
+        return "BranchPayment(condition=" + _condition->toString() +
+               ", then=" + _thenPayoff->toString() + ", else=" + _elsePayoff->toString() + ")";
+    }
     const ObservableNode& getCondition() const { return *_condition; }
     const PayoffNode& getThenPayoff() const { return *_thenPayoff; }
     const PayoffNode& getElsePayoff() const { return *_elsePayoff; }

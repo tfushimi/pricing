@@ -42,6 +42,7 @@ int main() {
     const auto payoff = ite(barrierCondition, protectedPayoff, S);
     const auto plf = toPiecewiseLinearFunction(payoff);
     const auto payment = cashPayment(payoff, settlementDate);
+    std::cout << payment->toString() << std::endl << std::endl;
 
     const std::vector<double> spots = {50,  60,  70,  79,  80,  85,  90, 95,
                                        100, 105, 110, 115, 120, 130, 150};
