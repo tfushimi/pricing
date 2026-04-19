@@ -33,7 +33,7 @@ TEST(HestonFormulaTest, DigitalCallReducesToBS) {
     // xi -> 0 and rho = 0 means no skew
     constexpr HestonParams params{0.05, 5.0, 0.05, 1e-4, 0.0};
     const double hestonPrice = hestonDigitalCallFormula(F, K, T, dF, params);
-    const double bsPrice = bsDigitalFormula(F, K, T, dF, std::sqrt(params.v0), 0.0);
+    const double bsPrice = bsDigitalCallFormula(F, K, T, dF, std::sqrt(params.v0), 0.0);
     EXPECT_NEAR(hestonPrice, bsPrice, 1e-3);
 }
 

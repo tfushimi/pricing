@@ -38,3 +38,4 @@ inline pybind11::object fromDate(const calendar::Date& date) {
 void register_observables(pybind11::module& m);
 void register_payoffs(pybind11::module& m);
 void register_market(pybind11::module& m);
+void register_pricer(pybind11::module& m);

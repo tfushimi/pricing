@@ -90,8 +90,8 @@ TEST_F(PLFPayoffPricerTest, DigitalCall) {
 
     {
         const double pricerPrice = bsPricer(payoff, market);
-        const double formulaPrice =
-            bsDigitalFormula(forward1, K, T1, dF1, volAt(K, fixingDate1), skewAt(K, fixingDate1));
+        const double formulaPrice = bsDigitalCallFormula(
+            forward1, K, T1, dF1, volAt(K, fixingDate1), skewAt(K, fixingDate1));
 
         EXPECT_DOUBLE_EQ(pricerPrice, formulaPrice);
     }

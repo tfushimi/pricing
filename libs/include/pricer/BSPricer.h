@@ -23,7 +23,7 @@ class BSPricer final : public PLFPayoffPricer {
 
     double digitalCallFormula(const double F, const double K, const double T, const double dF,
                               const market::BSVolSlice& bsVolSlice) const override {
-        return bsDigitalFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
+        return bsDigitalCallFormula(F, K, T, dF, bsVolSlice.vol(K), bsVolSlice.dVolDStrike(K));
     }
 };
 

@@ -22,7 +22,7 @@ TEST(BSTest, DigitalCallFlatVol) {
     // With zero skew, digital = dF * N(d2)
     auto [d1, d2] = bsD1D2(F, K, T, vol);
     const double expected = dF * normalCdf(d2);
-    const double actual = bsDigitalFormula(F, K, T, dF, vol, /*dVolDStrike=*/0.0);
+    const double actual = bsDigitalCallFormula(F, K, T, dF, vol, /*dVolDStrike=*/0.0);
     EXPECT_NEAR(actual, expected, 1e-10);
 }
 
@@ -32,13 +32,13 @@ TEST(BSTest, DigitalCallSpreadApproximation) {
     const double callLow = bsCallFormula(F, K - dK, T, dF, vol);
     const double callHigh = bsCallFormula(F, K + dK, T, dF, vol);
     const double spread = (callLow - callHigh) / (2.0 * dK);
-    const double digital = bsDigitalFormula(F, K, T, dF, vol, 0.0);
+    const double digital = bsDigitalCallFormula(F, K, T, dF, vol, 0.0);
     EXPECT_NEAR(spread, digital, 1e-4);
 }
 
 TEST(BSTest, SkewReducesDigitalForNegativeSkew) {
     // Negative skew (equity-like) increases digital call price
-    const double noSkew = bsDigitalFormula(F, K, T, dF, vol, 0.0);
-    const double withSkew = bsDigitalFormula(F, K, T, dF, vol, -0.001);
+    const double noSkew = bsDigitalCallFormula(F, K, T, dF, vol, 0.0);
+    const double withSkew = bsDigitalCallFormula(F, K, T, dF, vol, -0.001);
     EXPECT_GT(withSkew, noSkew);
 }

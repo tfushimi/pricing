@@ -30,8 +30,8 @@ inline double bsVega(const double F, const double K, const double T, const doubl
     return dF * F * normalPdf(d1) * std::sqrt(T);
 }
 
-inline double bsDigitalFormula(const double F, const double K, const double T, const double dF,
-                               const double vol, const double dVolDStrike) {
+inline double bsDigitalCallFormula(const double F, const double K, const double T, const double dF,
+                                   const double vol, const double dVolDStrike) {
     const auto [d1, d2] = bsD1D2(F, K, T, vol);
 
     return dF * normalCdf(d2) - bsVega(F, K, T, dF, vol) * dVolDStrike;
