@@ -20,6 +20,13 @@ def svi_market():
     svi = market.SVIParams(a=0.04, b=0.10, rho=-0.30, m=0.00, sigma=0.10)
     return market.SimpleMarket(PRICING_DATE, SYMBOL, SPOT, RATE, DIVIDEND, svi)
 
+def test_svi_params_attributes():
+    svi = market.SVIParams(a=0.04, b=0.10, rho=-0.30, m=0.00, sigma=0.10)
+    assert svi.a == pytest.approx(0.04)
+    assert svi.b == pytest.approx(0.10)
+    assert svi.rho == pytest.approx(-0.30)
+    assert svi.m == pytest.approx(0.00)
+    assert svi.sigma == pytest.approx(0.10)
 
 def test_pricing_date(flat_market):
     assert flat_market.get_pricing_date() == datetime.date(2026, 1, 15)

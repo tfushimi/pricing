@@ -62,7 +62,12 @@ void register_market(py::module& m) {
 
     py::class_<SVIParams>(m, "SVIParams")
         .def(py::init<double, double, double, double, double>(), py::arg("a"), py::arg("b"),
-             py::arg("rho"), py::arg("m"), py::arg("sigma"));
+             py::arg("rho"), py::arg("m"), py::arg("sigma"))
+        .def_readonly("a", &SVIParams::a)
+        .def_readonly("b", &SVIParams::b)
+        .def_readonly("rho", &SVIParams::rho)
+        .def_readonly("m", &SVIParams::m)
+        .def_readonly("sigma", &SVIParams::sigma);
 
     py::class_<SimpleMarket, Market>(m, "SimpleMarket")
         .def(
