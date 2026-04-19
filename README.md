@@ -1,6 +1,11 @@
 # pricing
 
-A C++20 library for pricing exotic and structured derivatives using Monte Carlo simulation, with Python bindings via pybind11.
+A C++20 derivatives pricing library with two core components:
+
+- **Payoff DSL** — a composable expression tree for defining exotic payoffs (barriers, cliquets, digitals, etc.) that is model-agnostic and serializable
+- **Pricing models** — Black-Scholes, Heston, and Local Volatility via Monte Carlo simulation
+
+Python bindings via pybind11 expose the payoff DSL and pricers for interactive use and scripting.
 
 ## Project Structure
 
