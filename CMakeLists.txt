@@ -45,6 +45,16 @@ add_subdirectory(app)
 # python bindings
 add_subdirectory(python)
 
+# pytest
+add_custom_target(
+        pytest
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_BINARY_DIR}/python
+        python3 -m pytest ${CMAKE_SOURCE_DIR}/python/tests -v
+        DEPENDS pypricing
+        COMMENT "Running Python tests"
+        VERBATIM
+)
+
 # format
 find_program(CLANG_FORMAT clang-format)
 

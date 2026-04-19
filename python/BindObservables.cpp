@@ -1,5 +1,5 @@
-#include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>  // needed for automatic list -> vector conversion
 
 #include "common/Date.h"
@@ -48,7 +48,6 @@ void register_observables(py::module& m) {
         return constant(item.cast<double>());
     };
 
-    m.def("Ite", &ite, py::arg("condition"), py::arg("then"), py::arg("else"));
     m.def("Max", [toObservable](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
@@ -76,6 +75,14 @@ void register_observables(py::module& m) {
         }
         return sum(std::move(nodes));
     });
+
+    m.def(
+        "Ite",
+        [toObservable](const py::object& condition, const py::object& _then,
+                       const py::object& _else) {
+            return ite(toObservable(condition), toObservable(_then), toObservable(_else));
+        },
+        py::arg("condition"), py::arg("then"), py::arg("else"));
 
     m.def(
         "Fixing",
