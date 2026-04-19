@@ -24,19 +24,18 @@
 #include "common/Date.h"
 #include "common/TableUtils.h"
 #include "market/SimpleMarket.h"
-#include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
-#include "pricer/MCPricer.h"
+#include "pricer/MCPricerWrapper.h"
 
 using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;
 using namespace vol;
-using namespace mc;
 
+const Date pricingDate = makeDate(2002, 12, 2);
 constexpr std::string SYMBOL = "SX5E";
 
 ObservableNodePtr getLocallyCappedReturn(const Date fixingDate1, const Date fixingDate2) {
@@ -76,41 +75,35 @@ std::vector<Date> getFixingDates(const int y) {
     return fixingDates;
 }
 
-int main() {
-    // Zero rates and dividends; Heston model does not rely on implied vol surface
-    const Date pricingDate = makeDate(2002, 12, 2);
-    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
-
-    MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
-    MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
+PayoffNodePtr makePayoff(const double minCoupon) {
 
     const auto fixingDates1 = getFixingDates(2003);
     const auto fixingDates2 = getFixingDates(2004);
     const auto fixingDates3 = getFixingDates(2005);
+    return cashPayment(getAnnualCoupon(fixingDates1, minCoupon), makeDate(2003, 12, 2)) +
+           cashPayment(getAnnualCoupon(fixingDates2, minCoupon), makeDate(2004, 12, 2)) +
+           cashPayment(getAnnualCoupon(fixingDates3, minCoupon), makeDate(2005, 12, 2));
+}
 
-    std::vector<Date> fixingDates;
-    fixingDates.reserve(fixingDates1.size() + fixingDates2.size() + fixingDates3.size());
-    fixingDates.insert(fixingDates.end(), fixingDates1.begin(), fixingDates1.end());
-    fixingDates.insert(fixingDates.end(), fixingDates2.begin(), fixingDates2.end());
-    fixingDates.insert(fixingDates.end(), fixingDates3.begin(), fixingDates3.end());
+int main() {
+    // Zero rates and dividends; Heston model does not rely on implied vol surface
+    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
+
+    HestonMCPricer hestonPricer{market, hestonParams, 1'000'000, 1.0 / 252.0, 8};
+    ApproxLocalVolMCPricer localVolPricer{market, hestonParams, 1'000'000, 1.0 / 252.0, 8};
 
     constexpr int n = 13;  // minCoupon = 0.00, 0.01, ..., 0.12
 
-    const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
-    const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
+    const auto firstPayoff = makePayoff(0.0);
+    const auto hestonScenarios = hestonPricer.generateScenarios(firstPayoff);
+    const auto localVolScenarios = localVolPricer.generateScenarios(firstPayoff);
 
     std::vector<double> minCoupons, hestonPrices, localVolPrices;
 
     for (int i = 0; i < n; ++i) {
         const double minCoupon = i * 0.01;
 
-        const auto payoff1 =
-            cashPayment(getAnnualCoupon(fixingDates1, minCoupon), makeDate(2003, 12, 2));
-        const auto payoff2 =
-            cashPayment(getAnnualCoupon(fixingDates2, minCoupon), makeDate(2004, 12, 2));
-        const auto payoff3 =
-            cashPayment(getAnnualCoupon(fixingDates3, minCoupon), makeDate(2005, 12, 2));
-        const auto payoff = payoff1 + payoff2 + payoff3;
+        const auto payoff = makePayoff(minCoupon);
 
         // Divide by 3: average annual coupon across the 3 coupon years (2003, 2004, 2005)
         const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios) / 3.0;

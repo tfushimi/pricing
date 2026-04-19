@@ -8,6 +8,7 @@
 #include "pricer/BSPricer.h"
 #include "pricer/HestonFormula.h"
 #include "pricer/HestonPricer.h"
+#include "pricer/MCPricerWrapper.h"
 
 namespace py = pybind11;
 
@@ -41,4 +42,25 @@ void register_pricer(py::module& m) {
         .def(py::init<const market::Market&, const HestonParams&>(), py::arg("market"),
              py::arg("params"))
         .def("price", &pricer::HestonPricer::price, py::arg("payoff"));
+
+    py::class_<pricer::Scenarios>(m, "Scenarios");
+
+    py::class_<pricer::HestonMCPricer>(m, "HestonMCPricer")
+        .def(py::init<const market::Market&, const HestonParams&, int, double, int, int>(),
+             py::arg("market"), py::arg("params"), py::arg("n_paths"),
+             py::arg("max_dt") = 1.0 / 12.0, py::arg("n_threads") = 1, py::arg("seed") = 0)
+        .def("generate_scenarios", &pricer::HestonMCPricer::generateScenarios, py::arg("payoff"))
+        .def("price_from_scenarios", &pricer::HestonMCPricer::priceFromScenarios,
+             py::arg("payoff"), py::arg("scenarios"))
+        .def("price", &pricer::HestonMCPricer::price, py::arg("payoff"));
+
+    py::class_<pricer::ApproxLocalVolMCPricer>(m, "ApproxLocalVolMCPricer")
+        .def(py::init<const market::Market&, const HestonParams&, int, double, int, int>(),
+             py::arg("market"), py::arg("params"), py::arg("n_paths"),
+             py::arg("max_dt") = 1.0 / 12.0, py::arg("n_threads") = 1, py::arg("seed") = 0)
+        .def("generate_scenarios", &pricer::ApproxLocalVolMCPricer::generateScenarios,
+             py::arg("payoff"))
+        .def("price_from_scenarios", &pricer::ApproxLocalVolMCPricer::priceFromScenarios,
+             py::arg("payoff"), py::arg("scenarios"))
+        .def("price", &pricer::ApproxLocalVolMCPricer::price, py::arg("payoff"));
 }

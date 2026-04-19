@@ -43,6 +43,6 @@ class ProcessStateStepper {
     }
 
    private:
-    const ProcessType& _process;
+    const ProcessType _process;
 };
 }  // namespace mc

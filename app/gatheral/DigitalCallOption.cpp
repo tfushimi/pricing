@@ -21,43 +21,43 @@
 #include "common/Date.h"
 #include "common/TableUtils.h"
 #include "market/SimpleMarket.h"
-#include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
 #include "pricer/HestonPricer.h"
-#include "pricer/MCPricer.h"
+#include "pricer/MCPricerWrapper.h"
 
 using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;
 using namespace vol;
-using namespace mc;
 
 constexpr std::string SYMBOL = "Underlier";
+const Date EXPIRY_DATE = makeDate(2001, 1, 1);
+
+PayoffNodePtr makePayoff(const double barrier) {
+    return cashPayment(fixing(SYMBOL, EXPIRY_DATE) / SPOT >= barrier, EXPIRY_DATE);
+}
 
 int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
     const Date pricingDate = makeDate(2000, 1, 1);
-    SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
+    const SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
 
     HestonPricer hestonPricer{market, hestonParams};
-    MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
-
-    const auto fixingDates = {makeDate(2001, 1, 1)};
+    const ApproxLocalVolMCPricer localVolPricer{market, hestonParams, 1'000'000, 1.0 / 252.0, 8};
 
     constexpr int n = 40;  // barrier = 1.0, 1.01, 1.02, ..., 1.4
 
-    const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
+    const auto localVolScenarios = localVolPricer.generateScenarios(makePayoff(1.0));
 
     std::vector<double> barriers, hestonPrices, localVolPrices;
 
     for (int i = 0; i < n; ++i) {
         const double barrier = 1 + i * 0.01;
 
-        const auto payoff = cashPayment(fixing(SYMBOL, *fixingDates.begin()) / SPOT >= barrier,
-                                        makeDate(2001, 1, 1));
+        const auto payoff = makePayoff(barrier);
 
         const double hestonPrice = hestonPricer.price(payoff);
         const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios);

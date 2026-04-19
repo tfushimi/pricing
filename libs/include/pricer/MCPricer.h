@@ -15,6 +15,19 @@
 namespace pricer {
 using calendar::Date;
 
+inline double priceFromScenarios(const market::Market& market, const payoff::PayoffNodePtr& pf,
+                                 const std::vector<Scenario>& scenarios) {
+    const auto applied = payoff::applyMarket(pf, market);
+    double total = 0.0;
+    int totalPaths = 0;
+    for (const auto& scenario : scenarios) {
+        const auto sample = payoff::applyFixings(applied, market, scenario);
+        total += sample.sum();
+        totalPaths += static_cast<int>(sample.size());
+    }
+    return total / totalPaths;
+}
+
 // TODO move this to RNG
 using RNGFactory = std::function<std::unique_ptr<numerics::rng::RNG>(int seed)>;
 
@@ -76,22 +89,13 @@ class MCPricer final : public PayoffPricer {
         return generateScenarios(fixingDates);
     }
 
-    double priceFromScenarios(const payoff::PayoffNodePtr& _payoff,
+    double priceFromScenarios(const payoff::PayoffNodePtr& pf,
                               const std::vector<Scenario>& scenarios) const {
-        const auto newPayoff = payoff::applyMarket(_payoff, _market);
-        double total = 0.0;
-        int totalPaths = 0;
-        for (auto& scenario : scenarios) {
-            const auto sample = payoff::applyFixings(newPayoff, _market, scenario);
-            total += sample.sum();
-            totalPaths += sample.size();
-        }
-        return total / totalPaths;
+        return pricer::priceFromScenarios(_market, pf, scenarios);
     }
 
     double price(const payoff::PayoffNodePtr& _payoff) override {
-        const auto scenarios = generateScenarios(_payoff);
-        return priceFromScenarios(_payoff, scenarios);
+        return priceFromScenarios(_payoff, generateScenarios(_payoff));
     }
 
    private:

@@ -29,19 +29,18 @@
 #include "common/Date.h"
 #include "common/TableUtils.h"
 #include "market/SimpleMarket.h"
-#include "mc/Process.h"
 #include "payoff/Observable.h"
 #include "payoff/Payoff.h"
 #include "payoff/Transforms.h"
-#include "pricer/MCPricer.h"
+#include "pricer/MCPricerWrapper.h"
 
 using namespace calendar;
 using namespace market;
 using namespace payoff;
 using namespace pricer;
 using namespace vol;
-using namespace mc;
 
+const Date pricingDate = makeDate(2000, 5, 1);
 constexpr std::string SYMBOL = "BASKET";
 
 ObservableNodePtr getReverseReturn(const Date earlier, const Date later) {
@@ -78,28 +77,31 @@ std::vector<Date> getFixingDates() {
     return dates;
 }
 
+PayoffNodePtr makePayoff(const double maxCoupon) {
+    const auto fixingDates = getFixingDates();
+    return cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
+}
+
 int main() {
     // Zero rates and dividends; Heston model does not rely on implied vol surface
-    const Date pricingDate = makeDate(2000, 5, 1);
     SimpleMarket market{pricingDate, SYMBOL, SPOT, 0.0, 0.0, 0.2};
 
-    MCPricer hestonPricer{market, heston, 1'000'000, 1.0 / 252.0, 8};
-    MCPricer localVolPricer{market, localVol, 1'000'000, 1.0 / 252.0, 8};
+    HestonMCPricer hestonPricer{market, hestonParams, 1'000'000, 1.0 / 252.0, 8};
+    ApproxLocalVolMCPricer localVolPricer{market, hestonParams, 1'000'000, 1.0 / 252.0, 8};
 
-    const auto fixingDates = getFixingDates();
 
     constexpr int n = 11;  // maxCoupon = 0.0, 0.1, 0.2, ..., 1.0
 
-    const auto hestonScenarios = hestonPricer.generateScenarios(fixingDates);
-    const auto localVolScenarios = localVolPricer.generateScenarios(fixingDates);
+    const auto firstPayoff = makePayoff(0.0);
+    const auto hestonScenarios = hestonPricer.generateScenarios(firstPayoff);
+    const auto localVolScenarios = localVolPricer.generateScenarios(firstPayoff);
 
     std::vector<double> maxCoupons, hestonPrices, localVolPrices;
 
     for (int i = 0; i < n; ++i) {
         const double maxCoupon = i * 0.1;
 
-        const auto payoff =
-            cashPayment(getAnnualCoupon(fixingDates, maxCoupon), makeDate(2005, 5, 1));
+        const auto payoff = makePayoff(maxCoupon);
 
         const double hestonPrice = hestonPricer.priceFromScenarios(payoff, hestonScenarios);
         const double localVolPrice = localVolPricer.priceFromScenarios(payoff, localVolScenarios);
