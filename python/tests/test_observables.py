@@ -25,7 +25,7 @@ def test_max_binary(spx):
     assert repr(call).startswith("Max(")
 
 def test_max_list(spx):
-    call = payoff.Max([spx, spx - 50.0, payoff.Fixing("SPY", "2026-12-31")])
+    call = payoff.Max([spx, spx - 50.0, payoff.Fixing("SPX", "2026-12-31")])
     assert repr(call).startswith("Max(")
 
 def test_min_binary(spx):

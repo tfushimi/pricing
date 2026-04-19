@@ -8,7 +8,7 @@
 using namespace calendar;
 using namespace payoff;
 
-const auto spy = fixing("SPY", makeDate(2026, 3, 20));
+const auto spy = fixing("SPX", makeDate(2026, 3, 20));
 
 TEST(ConstantFoldTest, ArithmeticTest) {
     const auto add = constant(1.0) + constant(2.0);
@@ -43,7 +43,7 @@ TEST(ConstantFoldTest, SumTest) {
         const auto foldedNode = foldConstants(sumNode);
         const auto* fixing = asNode<Fixing>(foldedNode);
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 
     {
@@ -51,7 +51,7 @@ TEST(ConstantFoldTest, SumTest) {
         const auto foldedNode = foldConstants(sumNode);
         const auto* fixing = asNode<Fixing>(foldedNode);
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 
     {
@@ -63,7 +63,7 @@ TEST(ConstantFoldTest, SumTest) {
 
         const auto* fixing = asNode<Fixing>(*sumPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
 
         const auto two = asNode<Constant>(*std::next(sumPtr->begin()));
         ASSERT_NE(two, nullptr);
@@ -77,7 +77,7 @@ TEST(ConstantFoldTest, MinTest) {
         const auto foldedNode = foldConstants(minNode);
         const auto* fixing = asNode<Fixing>(foldedNode);
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 
     {
@@ -89,7 +89,7 @@ TEST(ConstantFoldTest, MinTest) {
 
         const auto* fixing = asNode<Fixing>(*minPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
 
         const auto zero = asNode<Constant>(*std::next(minPtr->begin()));
         ASSERT_NE(zero, nullptr);
@@ -103,7 +103,7 @@ TEST(ConstantFoldTest, MaxTest) {
         const auto foldedNode = foldConstants(maxNode);
         const auto* fixing = asNode<Fixing>(foldedNode);
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 
     {
@@ -115,7 +115,7 @@ TEST(ConstantFoldTest, MaxTest) {
 
         const auto* fixing = asNode<Fixing>(*minPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
 
         const auto one = asNode<Constant>(*std::next(minPtr->begin()));
         ASSERT_NE(one, nullptr);
@@ -145,14 +145,14 @@ TEST(ConstantFoldTest, MultiplyTest) {
         const auto mult = spy * one;
         const auto* fixing = asNode<Fixing>(foldConstants(mult));
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 
     {
         const auto mult = one * spy;
         const auto* fixing = asNode<Fixing>(foldConstants(mult));
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
     }
 }
 
@@ -160,7 +160,7 @@ TEST(ConstantFoldTest, DivideTest) {
     const auto divide = spy / constant(1.0);
     const auto* divideConstant = asNode<Fixing>(foldConstants(divide));
     ASSERT_NE(divideConstant, nullptr);
-    EXPECT_EQ(divideConstant->getSymbol(), "SPY");
+    EXPECT_EQ(divideConstant->getSymbol(), "SPX");
 }
 
 TEST(ConstantFoldTest, DivideByZeroThrows) {

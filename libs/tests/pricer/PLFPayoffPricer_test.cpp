@@ -14,7 +14,7 @@ using namespace pricer;
 
 class PLFPayoffPricerTest : public ::testing::Test {
    protected:
-    const std::string symbol{"SPY"};
+    const std::string symbol{"SPX"};
     const Date pricingDate = makeDate(2025, 1, 15);
     const Date fixingDate1 = makeDate(2026, 1, 15);
     const Date settlementDate1 = makeDate(2026, 1, 17);

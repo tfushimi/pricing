@@ -50,7 +50,7 @@ TEST(ApplyMarketTest, ReplaceObservedFixing) {
     // Single fixing
     const MockMarket market(pricingDate, fixingDate, 105.0);
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing("SPX", fixingDate);
     const auto payoff = max(S - constant(100.0), constant(0.0));
     const auto result = applyMarket(payoff, market);
 
@@ -66,7 +66,7 @@ TEST(ApplyMarketTest, KeepsUnobservedFixing) {
     // Empty market — no prices observed
     const MockMarket market(pricingDate, {});
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing("SPX", fixingDate);
     const auto result = applyMarket(S, market);
 
     // Should remain as Fixing
@@ -85,8 +85,8 @@ TEST(ApplyMarketTest, MultipleFixings) {
                                              // date2 not observed
                                          });
 
-    const auto S1 = fixing("SPY", date1);
-    const auto S2 = fixing("SPY", date2);
+    const auto S1 = fixing("SPX", date1);
+    const auto S2 = fixing("SPX", date2);
 
     const auto payoff = S1 + S2;
     const auto result = foldConstants(applyMarket(payoff, market));
@@ -107,8 +107,8 @@ TEST(ApplyMarketTest, VectorNodes) {
                                              // date2 not observed
                                          });
 
-    const auto S1 = fixing("SPY", date1);
-    const auto S2 = fixing("SPY", date2);
+    const auto S1 = fixing("SPX", date1);
+    const auto S2 = fixing("SPX", date2);
 
     {
         const auto payoff = sum(S1, S2);
@@ -122,7 +122,7 @@ TEST(ApplyMarketTest, VectorNodes) {
 
         const auto* fixing = asNode<Fixing>(*sumPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
         EXPECT_EQ(fixing->getDate(), date2);
 
         const auto* folded = asNode<Constant>(*std::next(sumPtr->begin()));
@@ -142,7 +142,7 @@ TEST(ApplyMarketTest, VectorNodes) {
 
         const auto* fixing = asNode<Fixing>(*minPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
         EXPECT_EQ(fixing->getDate(), date2);
 
         const auto* folded = asNode<Constant>(*std::next(minPtr->begin()));
@@ -162,7 +162,7 @@ TEST(ApplyMarketTest, VectorNodes) {
 
         const auto* fixing = asNode<Fixing>(*maxPtr->begin());
         ASSERT_NE(fixing, nullptr);
-        EXPECT_EQ(fixing->getSymbol(), "SPY");
+        EXPECT_EQ(fixing->getSymbol(), "SPX");
         EXPECT_EQ(fixing->getDate(), date2);
 
         const auto* folded = asNode<Constant>(*std::next(maxPtr->begin()));
@@ -179,7 +179,7 @@ TEST(ApplyMarketTest, CashPaymentReplaceObservedFixing) {
     // Single fixing
     const MockMarket market(pricingDate, fixingDate, 105.0);
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing("SPX", fixingDate);
     const auto payoff = cashPayment(max(S - constant(100.0), constant(0.0)), settlementDate);
     const auto result = applyMarket(payoff, market);
 
@@ -200,7 +200,7 @@ TEST(ApplyMarketTest, CashPaymentKeepUnobservedFixing) {
     // Empty market — no prices observed
     const MockMarket market(pricingDate, {});
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing("SPX", fixingDate);
     const auto payoff = cashPayment(S, settlementDate);
     const auto result = applyMarket(payoff, market);
 
@@ -223,8 +223,8 @@ TEST(ApplyMarketTest, CombinedPaymentReplacesBothLegs) {
 
     const MockMarket market(pricingDate, {{fixingDate1, 105.0}, {fixingDate2, 110.0}});
 
-    const auto S1 = fixing("SPY", fixingDate1);
-    const auto S2 = fixing("SPY", fixingDate2);
+    const auto S1 = fixing("SPX", fixingDate1);
+    const auto S2 = fixing("SPX", fixingDate2);
     const auto leg1 = cashPayment(max(S1 - constant(100.0), constant(0.0)), settlementDate1);
     const auto leg2 = cashPayment(max(S2 - constant(100.0), constant(0.0)), settlementDate2);
     const auto payoff = combinedPayment(leg1, leg2);
@@ -256,8 +256,8 @@ TEST(ApplyMarketTest, CombinedPaymentPartiallyObserved) {
     // Only first leg observed
     const MockMarket market(pricingDate, {{fixingDate1, 105.0}});
 
-    const auto S1 = fixing("SPY", fixingDate1);
-    const auto S2 = fixing("SPY", fixingDate2);
+    const auto S1 = fixing("SPX", fixingDate1);
+    const auto S2 = fixing("SPX", fixingDate2);
     const auto leg1 = cashPayment(max(S1 - constant(100.0), constant(0.0)), settlementDate1);
     const auto leg2 = cashPayment(max(S2 - constant(100.0), constant(0.0)), settlementDate2);
     const auto payoff = combinedPayment(leg1, leg2);

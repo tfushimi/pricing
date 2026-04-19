@@ -8,7 +8,7 @@
 using namespace calendar;
 using namespace payoff;
 
-const auto S = fixing("SPY", makeDate(2026, 3, 20));
+const auto S = fixing("SPX", makeDate(2026, 3, 20));
 
 TEST(ObservableTest, ArithmeticTest) {
     const auto add = constant(1.0) + constant(2.0);

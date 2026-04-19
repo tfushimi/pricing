@@ -10,12 +10,12 @@ using namespace std;
 
 const auto fixingDate = makeDate(2026, 3, 20);
 const auto settlementDate = makeDate(2026, 3, 27);
-const auto spy = fixing("SPY", fixingDate);
+const auto spy = fixing("SPX", fixingDate);
 constexpr double doubleValue = 123.45;
 
 void assertFixingJson(const json& j) {
     ASSERT_EQ(j["type"].get<string>(), "Fixing");
-    ASSERT_EQ(j["symbol"].get<string>(), "SPY");
+    ASSERT_EQ(j["symbol"].get<string>(), "SPX");
     ASSERT_EQ(j["fixingDate"].get<string>(), toString(fixingDate));
 }
 

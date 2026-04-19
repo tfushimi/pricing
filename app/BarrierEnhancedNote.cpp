@@ -29,7 +29,7 @@ int main() {
     constexpr double barrier = 80.0;  // 20% downside protection
     constexpr double cap = 120.0;     // 20% upside cap
 
-    const auto S = fixing("SPY", fixingDate);
+    const auto S = fixing("SPX", fixingDate);
 
     // Payoff regions:
     //   S <  80:          S                       (breached: full downside)
@@ -60,7 +60,7 @@ int main() {
     std::cout << "--------------------------------------\n";
 
     for (const double spot : spots) {
-        SimpleMarket market{pricingDate, "SPY", spot, rate, 0.0, sviParams};
+        SimpleMarket market{pricingDate, "SPX", spot, rate, 0.0, sviParams};
 
         std::string region;
         if (spot < barrier) {

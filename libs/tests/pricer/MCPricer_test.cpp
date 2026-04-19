@@ -18,7 +18,7 @@ using namespace mc;
 
 class MCPricerTest : public ::testing::Test {
    protected:
-    const std::string symbol = "SPY";
+    const std::string symbol = "SPX";
     const Date pricingDate = makeDate(2025, 1, 15);
     const Date fixingDate = makeDate(2026, 1, 15);
     const Date settlementDate = makeDate(2026, 1, 17);
