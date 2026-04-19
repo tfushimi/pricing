@@ -5,7 +5,7 @@
 #include "common/Date.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
-#include "register.h"
+#include "RegisterBindings.h"
 
 namespace py = pybind11;
 
