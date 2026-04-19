@@ -1,11 +1,11 @@
-#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 #include <pybind11/stl.h>  // needed for automatic list -> vector conversion
 
+#include "RegisterBindings.h"
 #include "common/Date.h"
 #include "payoff/Observable.h"
 #include "payoff/Transforms.h"
-#include "RegisterBindings.h"
 
 namespace py = pybind11;
 
@@ -41,34 +41,27 @@ void register_observables(py::module& m) {
         .def("__ge__", [](const ObservableNodePtr& self, const double val) { return self >= val; })
         .def("__repr__", [](const ObservableNodePtr& self) { return self->toString(); });
 
-    auto toObservable = [](const py::object& item) -> ObservableNodePtr {
-        if (py::isinstance<ObservableNodePtr>(item)) {
-            return item.cast<ObservableNodePtr>();
-        }
-        return constant(item.cast<double>());
-    };
-
-    m.def("Max", [toObservable](const std::vector<py::object>& items) {
+    m.def("Max", [](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
         }
         return max(std::move(nodes));
     });
-    m.def("Max", [toObservable](const py::object& left, const py::object& right) {
+    m.def("Max", [](const py::object& left, const py::object& right) {
         return max(toObservable(left), toObservable(right));
     });
-    m.def("Min", [toObservable](const std::vector<py::object>& items) {
+    m.def("Min", [](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
         }
         return min(std::move(nodes));
     });
-    m.def("Min", [toObservable](const py::object& left, const py::object& right) {
+    m.def("Min", [](const py::object& left, const py::object& right) {
         return min(toObservable(left), toObservable(right));
     });
-    m.def("Sum", [toObservable](const std::vector<py::object>& items) {
+    m.def("Sum", [](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
@@ -78,7 +71,7 @@ void register_observables(py::module& m) {
 
     m.def(
         "Ite",
-        [toObservable](const py::object& condition, const py::object& _then,
+        [](const py::object& condition, const py::object& _then,
                        const py::object& _else) {
             return ite(toObservable(condition), toObservable(_then), toObservable(_else));
         },
