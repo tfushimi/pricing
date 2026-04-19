@@ -22,7 +22,10 @@ libs/
   tests/        # GoogleTest unit tests
 
 app/            # Executable entry points (one .cpp per product)
-python/         # Python bindings (pypricing module) and tests
+python/
+  src/          # pybind11 binding sources (pypricing module)
+  app/          # Python scripts (e.g. barrier_enhanced_note.py)
+  tests/        # pytest tests
 ```
 
 ## Build
@@ -34,8 +37,7 @@ CMake + Ninja, C++20. Requires GCC 13+ on Ubuntu 24.04 (or Docker — a `Dockerf
 apt-get install build-essential cmake ninja-build clang-format
 
 cmake -S . -B cmake-build -G Ninja
-cmake --build cmake-build --target barrier_enhanced_note
-./cmake-build/app/barrier_enhanced_note
+cmake --build cmake-build
 
 ctest --test-dir cmake-build
 ```
@@ -48,9 +50,8 @@ docker build -t pricing .
 # Configure (one-time, downloads dependencies)
 docker run --rm -v $(pwd):/work pricing cmake -S /work -B /work/cmake-build-docker -G Ninja
 
-# Build and run
-docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target barrier_enhanced_note
-docker run --rm -v $(pwd):/work pricing /work/cmake-build-docker/app/barrier_enhanced_note
+# Build all targets
+docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker
 
 # Run all C++ tests
 docker run --rm -v $(pwd):/work pricing ctest --test-dir /work/cmake-build-docker
@@ -62,10 +63,13 @@ The `pypricing` module exposes the payoff DSL to Python.
 
 ```bash
 # Build the Python module
-cmake --build cmake-build-docker --target pypricing
+docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pypricing
 
 # Run Python tests
-cmake --build cmake-build-docker --target pytest
+docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pytest
+
+# Run a Python script
+docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/barrier_enhanced_note.py
 
 # Interactive use
 docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
