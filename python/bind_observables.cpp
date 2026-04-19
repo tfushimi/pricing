@@ -22,23 +22,23 @@ void register_observables(py::module& m) {
         .def(py::self > py::self)
         .def(py::self >= py::self)
         .def("__add__",
-             [](const ObservableNodePtr& self, double val) { return self + constant(val); })
+             [](const ObservableNodePtr& self, const double val) { return self + constant(val); })
         .def("__radd__",
-             [](const ObservableNodePtr& self, double val) { return constant(val) + self; })
+             [](const ObservableNodePtr& self, const double val) { return constant(val) + self; })
         .def("__sub__",
-             [](const ObservableNodePtr& self, double val) { return self - constant(val); })
+             [](const ObservableNodePtr& self, const double val) { return self - constant(val); })
         .def("__rsub__",
-             [](const ObservableNodePtr& self, double val) { return constant(val) - self; })
+             [](const ObservableNodePtr& self, const double val) { return constant(val) - self; })
         .def("__mul__",
-             [](const ObservableNodePtr& self, double val) { return self * constant(val); })
+             [](const ObservableNodePtr& self, const double val) { return self * constant(val); })
         .def("__rmul__",
-             [](const ObservableNodePtr& self, double val) { return constant(val) * self; })
+             [](const ObservableNodePtr& self, const double val) { return constant(val) * self; })
         .def("__truediv__",
-             [](const ObservableNodePtr& self, double val) { return self / constant(val); })
+             [](const ObservableNodePtr& self, const double val) { return self / constant(val); })
         .def("__rtruediv__",
-             [](const ObservableNodePtr& self, double val) { return constant(val) / self; })
-        .def("__gt__", [](const ObservableNodePtr& self, double val) { return self > val; })
-        .def("__ge__", [](const ObservableNodePtr& self, double val) { return self >= val; })
+             [](const ObservableNodePtr& self, const double val) { return constant(val) / self; })
+        .def("__gt__", [](const ObservableNodePtr& self, const double val) { return self > val; })
+        .def("__ge__", [](const ObservableNodePtr& self, const double val) { return self >= val; })
         .def("__repr__", [](const ObservableNodePtr& self) { return self->toString(); });
 
     auto toObservable = [](const py::object& item) -> ObservableNodePtr {
@@ -49,27 +49,27 @@ void register_observables(py::module& m) {
     };
 
     m.def("Ite", &ite, py::arg("condition"), py::arg("then"), py::arg("else"));
-    m.def("Max", [toObservable](std::vector<py::object> items) {
+    m.def("Max", [toObservable](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
         }
         return max(std::move(nodes));
     });
-    m.def("Max", [toObservable](py::object a, py::object b) {
-        return max(toObservable(a), toObservable(b));
+    m.def("Max", [toObservable](const py::object& left, const py::object& right) {
+        return max(toObservable(left), toObservable(right));
     });
-    m.def("Min", [toObservable](std::vector<py::object> items) {
+    m.def("Min", [toObservable](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
         }
         return min(std::move(nodes));
     });
-    m.def("Min", [toObservable](py::object a, py::object b) {
-        return min(toObservable(a), toObservable(b));
+    m.def("Min", [toObservable](const py::object& left, const py::object& right) {
+        return min(toObservable(left), toObservable(right));
     });
-    m.def("Sum", [toObservable](std::vector<py::object> items) {
+    m.def("Sum", [toObservable](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
             nodes.push_back(toObservable(item));
@@ -79,8 +79,17 @@ void register_observables(py::module& m) {
 
     m.def(
         "Fixing",
-        [](const std::string& symbol, const std::string& date) {
-            return fixing(symbol, fromString(date));
+        [](const std::string& symbol, const py::object& date) {
+            if (py::isinstance<py::str>(date)) {
+                return fixing(symbol, fromString(date.cast<std::string>()));
+            }
+            if (py::hasattr(date, "year") && py::hasattr(date, "month") &&
+                py::hasattr(date, "day")) {
+                return fixing(
+                    symbol, makeDate(date.attr("year").cast<int>(), date.attr("month").cast<int>(),
+                                     date.attr("day").cast<int>()));
+            }
+            throw py::type_error("date must be a str (YYYY-MM-DD) or datetime.date");
         },
         py::arg("symbol"), py::arg("date"));
 }
