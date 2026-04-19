@@ -1,5 +1,5 @@
-#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 #include <pybind11/stl.h>  // needed for automatic list -> vector conversion
 
 #include "common/Date.h"
