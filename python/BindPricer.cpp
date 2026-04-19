@@ -5,7 +5,9 @@
 #include "RegisterBindings.h"
 #include "common/Types.h"
 #include "pricer/BSFormula.h"
+#include "pricer/BSPricer.h"
 #include "pricer/HestonFormula.h"
+#include "pricer/HestonPricer.h"
 
 namespace py = pybind11;
 
@@ -30,4 +32,13 @@ void register_pricer(py::module& m) {
 
     m.def("heston_digital_call", &pricer::hestonDigitalCallFormula, py::arg("F"), py::arg("K"),
           py::arg("T"), py::arg("dF"), py::arg("params"));
+
+    py::class_<pricer::BSPricer>(m, "BSPricer")
+        .def(py::init<const market::Market&>(), py::arg("market"))
+        .def("price", &pricer::BSPricer::price, py::arg("payoff"));
+
+    py::class_<pricer::HestonPricer>(m, "HestonPricer")
+        .def(py::init<const market::Market&, const HestonParams&>(), py::arg("market"),
+             py::arg("params"))
+        .def("price", &pricer::HestonPricer::price, py::arg("payoff"));
 }

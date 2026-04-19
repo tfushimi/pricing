@@ -14,6 +14,14 @@ using namespace calendar;
 using namespace market;
 
 void register_market(py::module& m) {
+    m.def(
+        "year_fraction",
+        [](const py::object& from, const py::object& to) {
+            return calendar::yearFraction(toDate(from), toDate(to));
+        },
+        py::arg("from_date"), py::arg("to_date"));
+
+
     py::class_<BSVolSlice>(m, "BSVolSlice")
         .def("forward", &BSVolSlice::forward)
         .def("time", &BSVolSlice::time)
