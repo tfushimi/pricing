@@ -1,6 +1,6 @@
 # pricing
 
-A C++20 library for pricing exotic and structured derivatives using Monte Carlo simulation.
+A C++20 library for pricing exotic and structured derivatives using Monte Carlo simulation, with Python bindings via pybind11.
 
 ## Project Structure
 
@@ -8,7 +8,7 @@ A C++20 library for pricing exotic and structured derivatives using Monte Carlo 
 libs/
   include/
     common/     # Date, types, utilities
-    market/     # Market data: vol surfaces (SVI), discount factors
+    market/     # Market data
     mc/         # Monte Carlo engine: processes, time grid, simulation
     numerics/   # Root finding, RNG
     payoff/     # Payoff DSL: observable/payoff trees, transforms
@@ -17,6 +17,7 @@ libs/
   tests/        # GoogleTest unit tests
 
 app/            # Executable entry points (one .cpp per product)
+python/         # Python bindings (pypricing module) and tests
 ```
 
 ## Build
@@ -46,6 +47,30 @@ docker run --rm -v $(pwd):/work pricing cmake -S /work -B /work/cmake-build-dock
 docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target barrier_enhanced_note
 docker run --rm -v $(pwd):/work pricing /work/cmake-build-docker/app/barrier_enhanced_note
 
-# Run all tests
+# Run all C++ tests
 docker run --rm -v $(pwd):/work pricing ctest --test-dir /work/cmake-build-docker
+```
+
+## Python Bindings
+
+The `pypricing` module exposes the payoff DSL to Python.
+
+```bash
+# Build the Python module
+cmake --build cmake-build-docker --target pypricing
+
+# Run Python tests
+cmake --build cmake-build-docker --target pytest
+
+# Interactive use
+docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
+```
+
+```python
+>>> from pypricing import payoff
+>>> spx = payoff.Fixing("SPX", "2026-12-31")
+>>> call = payoff.Max(spx - 100.0, 0.0)
+>>> payment = payoff.CashPayment(call, "2027-01-02")
+>>> print(payment)
+CashPayment(amount=Max(Add(Fixing(SPX, 2026-12-31), Multiply(-1.000000, 100.000000)), 0.000000), settlementDate=2027-01-02)
 ```
