@@ -1,6 +1,8 @@
+// clang-format off
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>  // needed for automatic list -> vector conversion
+// clang-format on
 
 #include "RegisterBindings.h"
 #include "common/Date.h"
@@ -71,8 +73,7 @@ void register_observables(py::module& m) {
 
     m.def(
         "Ite",
-        [](const py::object& condition, const py::object& _then,
-                       const py::object& _else) {
+        [](const py::object& condition, const py::object& _then, const py::object& _else) {
             return ite(toObservable(condition), toObservable(_then), toObservable(_else));
         },
         py::arg("condition"), py::arg("then"), py::arg("else"));
