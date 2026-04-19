@@ -9,4 +9,5 @@ PYBIND11_MODULE(pypricing, m) {
     auto payoff = m.def_submodule("payoff");
 
     register_observables(payoff);
+    register_payoffs(payoff);
 }

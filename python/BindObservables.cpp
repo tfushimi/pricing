@@ -7,7 +7,6 @@
 #include "RegisterBindings.h"
 #include "common/Date.h"
 #include "payoff/Observable.h"
-#include "payoff/Transforms.h"
 
 namespace py = pybind11;
 
@@ -81,16 +80,7 @@ void register_observables(py::module& m) {
     m.def(
         "Fixing",
         [](const std::string& symbol, const py::object& date) {
-            if (py::isinstance<py::str>(date)) {
-                return fixing(symbol, fromString(date.cast<std::string>()));
-            }
-            if (py::hasattr(date, "year") && py::hasattr(date, "month") &&
-                py::hasattr(date, "day")) {
-                return fixing(
-                    symbol, makeDate(date.attr("year").cast<int>(), date.attr("month").cast<int>(),
-                                     date.attr("day").cast<int>()));
-            }
-            throw py::type_error("date must be a str (YYYY-MM-DD) or datetime.date");
+            return fixing(symbol, toDate(date));
         },
         py::arg("symbol"), py::arg("date"));
 }

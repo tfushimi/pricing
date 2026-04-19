@@ -6,3 +6,5 @@ CMakeFiles/
 /*.swp
 
 .idea/
+.venv/
+python/tests/__pycache__/
