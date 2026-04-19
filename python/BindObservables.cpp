@@ -49,9 +49,11 @@ void register_observables(py::module& m) {
         }
         return max(std::move(nodes));
     });
+
     m.def("Max", [](const py::object& left, const py::object& right) {
         return max(toObservable(left), toObservable(right));
     });
+
     m.def("Min", [](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {
@@ -59,9 +61,11 @@ void register_observables(py::module& m) {
         }
         return min(std::move(nodes));
     });
+
     m.def("Min", [](const py::object& left, const py::object& right) {
         return min(toObservable(left), toObservable(right));
     });
+
     m.def("Sum", [](const std::vector<py::object>& items) {
         std::vector<ObservableNodePtr> nodes;
         for (const auto& item : items) {

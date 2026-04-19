@@ -24,6 +24,7 @@ void register_payoffs(py::module& m) {
             return cashPayment(toObservable(amount), toDate(settlementDate));
         },
         py::arg("amount"), py::arg("settlementDate"));
+    
     m.def(
         "BranchPayment",
         [](const py::object& condition, const py::object& _then, const py::object& _else) {
