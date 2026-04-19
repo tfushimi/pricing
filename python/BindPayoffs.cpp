@@ -15,8 +15,9 @@ using namespace calendar;
 using namespace payoff;
 
 void register_payoffs(py::module& m) {
-    py::class_<PayoffNodePtr>(m, "Payoff").def(py::self + py::self)
-    .def("__repr__", [](const PayoffNodePtr& self) { return self->toString(); });
+    py::class_<PayoffNodePtr>(m, "Payoff")
+        .def(py::self + py::self)
+        .def("__repr__", [](const PayoffNodePtr& self) { return self->toString(); });
 
     m.def(
         "CashPayment",
@@ -24,7 +25,7 @@ void register_payoffs(py::module& m) {
             return cashPayment(toObservable(amount), toDate(settlementDate));
         },
         py::arg("amount"), py::arg("settlementDate"));
-    
+
     m.def(
         "BranchPayment",
         [](const py::object& condition, const py::object& _then, const py::object& _else) {
