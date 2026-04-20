@@ -4,9 +4,6 @@ target_link_libraries(digital_call PRIVATE pricer project_warnings)
 add_executable(one_touch_call OneTouchCallOption.cpp)
 target_link_libraries(one_touch_call PRIVATE pricer project_warnings)
 
-add_executable(lcgf_cliquet LocallyCappedGloballyFlooredCliquet.cpp)
-target_link_libraries(lcgf_cliquet PRIVATE pricer project_warnings)
-
 add_executable(napoleon_cliquet NapoleonCliquet.cpp)
 target_link_libraries(napoleon_cliquet PRIVATE pricer project_warnings)
 

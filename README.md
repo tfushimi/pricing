@@ -59,27 +59,9 @@ docker run --rm -v $(pwd):/work pricing ctest --test-dir /work/cmake-build-docke
 
 ## Python Bindings
 
-The `pypricing` module exposes the payoff DSL to Python.
+The full library is also accessible from Python via the `pypricing` module. You can define payoffs,
+set up market data, and run pricers without writing any C++. This makes it easy to experiment
+interactively, run scenario analysis, or build higher-level workflows on top of the C++ engine.
 
-```bash
-# Build the Python module
-docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pypricing
+See [python/README.md](python/README.md) for build instructions, available modules, and example scripts.
 
-# Run Python tests
-docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pytest
-
-# Run a Python script
-docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/barrier_enhanced_note.py
-
-# Interactive use
-docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
-```
-
-```python
->>> from pypricing import payoff
->>> spx = payoff.Fixing("SPX", "2026-12-31")
->>> call = payoff.Max(spx - 100.0, 0.0)
->>> payment = payoff.CashPayment(call, "2027-01-02")
->>> print(payment)
-CashPayment(amount=Max(Add(Fixing(SPX, 2026-12-31), Multiply(-1.000000, 100.000000)), 0.000000), settlementDate=2027-01-02)
-```
