@@ -38,20 +38,26 @@ docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/pytho
 ## Example
 
 ```python
-from datetime import date
-from pypricing.market import SimpleMarket
-from pypricing.payoff import CashPayment, Fixing, Max
-from pypricing.pricer import BSPricer, HestonMCPricer, HestonParams
+>>> from datetime import date
+>>> from pypricing.market import SimpleMarket
+>>> from pypricing.payoff import CashPayment, Fixing, Max
+>>> from pypricing.pricer import BSPricer, HestonMCPricer, HestonParams
 
-mkt = SimpleMarket(date(2025, 1, 15), "SPX", 100.0, 0.05, 0.0, 0.2)
+# define a market
+>>> mkt = SimpleMarket(date(2025, 1, 15), "SPX", 100.0, 0.05, 0.0, 0.2)
 
-fixing = Fixing("SPX", date(2026, 1, 15))
-call = CashPayment(Max(fixing - 100.0, 0.0), date(2026, 1, 17))
+# Call option
+>>> fixing = Fixing("SPX", date(2026, 1, 15))
+>>> call = CashPayment(Max(fixing - 100.0, 0.0), date(2026, 1, 17))
+>>> call
+CashPayment(amount=Max(Add(Fixing(SPX, 2026-01-15), Multiply(-1.000000, 100.000000)), 0.000000), settlementDate=2026-01-17)
 
 # Analytic BS price
-print(BSPricer(mkt).price(call))
+>>> BSPricer(mkt).price(call)
+10.443333297623427
 
-# Heston MC price
-params = HestonParams(v0=0.04, kappa=1.5, theta=0.04, xi=0.3, rho=-0.7)
-print(HestonMCPricer(mkt, params, n_paths=100_000).price(call))
+# Heston pricer
+>>> params = HestonParams(v0=0.04, kappa=1.5, theta=0.04, xi=0.3, rho=-0.7)
+>>> HestonMCPricer(mkt, params, n_paths=100_000).price(call)
+10.362778485144844
 ```
