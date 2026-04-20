@@ -26,10 +26,14 @@ docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/pytho
 
 ## Apps
 
-| Script | Description |
-|---|---|
-| `app/barrier_enhanced_note.py` | Barrier-protected capital note priced under BS across a range of spots |
-| `app/locally_capped_globally_floored_cliquet.py` | LCGF cliquet (Figure 10.1 of Gatheral 2006) under Heston and approximate local vol |
+| Script | Figure | Description |
+|---|---|---|
+| `app/barrier_enhanced_note.py` | — | Barrier-protected capital note priced under BS across a range of spots |
+| `app/digital_call.py` | 9.3 | Digital call across strikes: Heston (analytic) vs approximate local vol (MC) |
+| `app/one_touch_call.py` | 9.4 | One-touch call across barriers: Heston MC vs approximate local vol MC |
+| `app/locally_capped_globally_floored_cliquet.py` | 10.1 | LCGF cliquet: monthly returns capped at ±1%, global floor swept over MinCoupon |
+| `app/napoleon_cliquet.py` | 10.5 | Napoleon: annual coupon = max(0, MaxCoupon + worst monthly return) |
+| `app/reverse_cliquet.py` | 10.3 | Reverse cliquet: max(0, MaxCoupon + sum of semi-annual reverse returns) |
 
 ## Example
 
