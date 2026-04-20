@@ -1,2 +1,0 @@
-add_executable(implied_vol_curve ImpliedVolCurve.cpp)
-target_link_libraries(implied_vol_curve PRIVATE pricer project_warnings)

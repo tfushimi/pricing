@@ -67,6 +67,7 @@ All use Heston-Nandi parameters (v0=0.04, κ=10, θ=0.04, ξ=1, ρ=-1) with zero
 
 | Script | Figure | Description |
 |---|---|---|
+| `app/implied_vol_curve.py` | 4.3 | Heston implied volatility smile across log-strikes at T=0.5 |
 | `app/digital_call.py` | 9.3 | Digital call across strikes: Heston (analytic) vs approximate local vol (MC) |
 | `app/one_touch_call.py` | 9.4 | One-touch call across barriers: Heston MC vs approximate local vol MC |
 | `app/locally_capped_globally_floored_cliquet.py` | 10.1 | LCGF cliquet: monthly returns capped at ±1%, global floor swept over MinCoupon |

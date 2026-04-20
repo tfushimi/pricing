@@ -8,6 +8,7 @@
 #include "pricer/BSPricer.h"
 #include "pricer/HestonFormula.h"
 #include "pricer/HestonPricer.h"
+#include "pricer/ImpliedVol.h"
 #include "pricer/MCPricerWrapper.h"
 
 namespace py = pybind11;
@@ -21,6 +22,12 @@ void register_pricer(py::module& m) {
         .def_readonly("theta", &HestonParams::theta)
         .def_readonly("xi", &HestonParams::xi)
         .def_readonly("rho", &HestonParams::rho);
+
+    m.def("implied_vol", &pricer::impliedVol, py::arg("price"), py::arg("F"), py::arg("K"),
+          py::arg("T"), py::arg("dF"), py::arg("tol") = 1e-8);
+
+    m.def("heston_implied_vol", &pricer::hestonImpliedVol, py::arg("F"), py::arg("K"),
+          py::arg("T"), py::arg("dF"), py::arg("params"));
 
     m.def("bs_call", &pricer::bsCallFormula, py::arg("F"), py::arg("K"), py::arg("T"),
           py::arg("dF"), py::arg("vol"));
