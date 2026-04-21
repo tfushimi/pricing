@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <format>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -11,7 +10,12 @@ namespace calendar {
 using Date = std::chrono::sys_days;
 
 inline std::string toString(const Date& date) {
-    return std::format("{:%Y-%m-%d}", date);  // e.g. "2026-01-15"
+    const std::chrono::year_month_day ymd{date};
+    std::ostringstream oss;
+    oss << std::setw(4) << std::setfill('0') << static_cast<int>(ymd.year()) << '-' << std::setw(2)
+        << std::setfill('0') << static_cast<unsigned>(ymd.month()) << '-' << std::setw(2)
+        << std::setfill('0') << static_cast<unsigned>(ymd.day());
+    return oss.str();
 }
 
 inline Date makeDate(const int year, const int month, const int day) {

@@ -1,5 +1,3 @@
-#include "pricer/MCPricerWrapper.h"
-
 #include <gtest/gtest.h>
 
 #include "common/Date.h"
@@ -7,6 +5,7 @@
 #include "payoff/Observable.h"
 #include "pricer/BSFormula.h"
 #include "pricer/HestonFormula.h"
+#include "pricer/MCPricerWrapper.h"
 
 using namespace calendar;
 using namespace market;
@@ -71,7 +70,8 @@ TEST_F(MCPricerTest, HestonPricerATMCall) {
     const auto pf = cashPayment(max(fixing(symbol, fixingDate) - K, 0.0), settlementDate);
 
     const double mcPrice = HestonMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
@@ -81,7 +81,8 @@ TEST_F(MCPricerTest, HestonPricerOTMCall) {
     const auto pf = cashPayment(max(fixing(symbol, fixingDate) - K, 0.0), settlementDate);
 
     const double mcPrice = HestonMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
@@ -91,7 +92,8 @@ TEST_F(MCPricerTest, HestonPricerDigitalCall) {
     const auto pf = cashPayment(fixing(symbol, fixingDate) > K, settlementDate);
 
     const double mcPrice = HestonMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
 }
@@ -101,7 +103,8 @@ TEST_F(MCPricerTest, ApproxLocalVolPricerATMCall) {
     const auto pf = cashPayment(max(fixing(symbol, fixingDate) - K, 0.0), settlementDate);
 
     const double mcPrice = ApproxLocalVolMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
@@ -111,7 +114,8 @@ TEST_F(MCPricerTest, ApproxLocalVolPricerOTMCall) {
     const auto pf = cashPayment(max(fixing(symbol, fixingDate) - K, 0.0), settlementDate);
 
     const double mcPrice = ApproxLocalVolMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }
@@ -121,7 +125,8 @@ TEST_F(MCPricerTest, ApproxLocalVolPricerDigitalCall) {
     const auto pf = cashPayment(fixing(symbol, fixingDate) > K, settlementDate);
 
     const double mcPrice = ApproxLocalVolMCPricer{market, hestonParams, 100'000}.price(pf);
-    const double formulaPrice = hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.01);
 }
@@ -137,7 +142,8 @@ TEST_F(MCPricerTest, ScenarioCaching) {
     EXPECT_NEAR(p.priceFromScenarios(call, scenarios),
                 hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams), 0.1);
     EXPECT_NEAR(p.priceFromScenarios(digital, scenarios),
-                hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams), 0.01);
+                hestonDigitalCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams),
+                0.01);
 }
 
 TEST_F(MCPricerTest, ParallelMCPricer) {
@@ -145,7 +151,8 @@ TEST_F(MCPricerTest, ParallelMCPricer) {
     const auto pf = cashPayment(max(fixing(symbol, fixingDate) - K, 0.0), settlementDate);
 
     const double mcPrice = HestonMCPricer{market, hestonParams, 100'000, 1.0 / 12.0, 8}.price(pf);
-    const double formulaPrice = hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
+    const double formulaPrice =
+        hestonCallFormula(market.getForward(symbol, T), K, T, dF, hestonParams);
 
     EXPECT_NEAR(mcPrice, formulaPrice, 0.1);
 }

@@ -3,6 +3,8 @@
 #include <chrono>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #include "common/Date.h"
 
@@ -41,7 +43,7 @@ class ObservableNodePtr {
     ObservableNodePtr() = default;
 
     // implicit conversion from shared_ptr
-    template <typename T, typename = std::enable_if<std::is_base_of_v<ObservableNode, T>>>
+    template <typename T, typename = std::enable_if_t<std::is_base_of_v<ObservableNode, T>>>
     ObservableNodePtr(std::shared_ptr<T> payoffNode) : _ptr(std::move(payoffNode)) {}
 
     // implicit conversion from double

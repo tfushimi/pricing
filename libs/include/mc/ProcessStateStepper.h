@@ -1,7 +1,9 @@
 #pragma once
 
+#include <concepts>
 #include <map>
 
+#include "Process.h"
 #include "TimeGrid.h"
 #include "common/Date.h"
 #include "numerics/RNG.h"
@@ -9,10 +11,11 @@
 namespace mc {
 using calendar::Date;
 
-// TODO try concept
 template <typename ProcessType>
+    requires std::derived_from<ProcessType, Process<typename ProcessType::State>>
 class ProcessStateStepper {
-    using State = ProcessType::State;
+    // typename is needed to compile for macos
+    using State = typename ProcessType::State;
 
    public:
     explicit ProcessStateStepper(const ProcessType& process) : _process(process) {}

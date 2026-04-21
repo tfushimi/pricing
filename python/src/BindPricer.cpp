@@ -26,8 +26,8 @@ void register_pricer(py::module& m) {
     m.def("implied_vol", &pricer::impliedVol, py::arg("price"), py::arg("F"), py::arg("K"),
           py::arg("T"), py::arg("dF"), py::arg("tol") = 1e-8);
 
-    m.def("heston_implied_vol", &pricer::hestonImpliedVol, py::arg("F"), py::arg("K"),
-          py::arg("T"), py::arg("dF"), py::arg("params"));
+    m.def("heston_implied_vol", &pricer::hestonImpliedVol, py::arg("F"), py::arg("K"), py::arg("T"),
+          py::arg("dF"), py::arg("params"));
 
     m.def("bs_call", &pricer::bsCallFormula, py::arg("F"), py::arg("K"), py::arg("T"),
           py::arg("dF"), py::arg("vol"));
@@ -57,8 +57,8 @@ void register_pricer(py::module& m) {
              py::arg("market"), py::arg("params"), py::arg("n_paths"),
              py::arg("max_dt") = 1.0 / 12.0, py::arg("n_threads") = 1, py::arg("seed") = 0)
         .def("generate_scenarios", &pricer::HestonMCPricer::generateScenarios, py::arg("payoff"))
-        .def("price_from_scenarios", &pricer::HestonMCPricer::priceFromScenarios,
-             py::arg("payoff"), py::arg("scenarios"))
+        .def("price_from_scenarios", &pricer::HestonMCPricer::priceFromScenarios, py::arg("payoff"),
+             py::arg("scenarios"))
         .def("price", &pricer::HestonMCPricer::price, py::arg("payoff"));
 
     py::class_<pricer::ApproxLocalVolMCPricer>(m, "ApproxLocalVolMCPricer")

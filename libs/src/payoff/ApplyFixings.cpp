@@ -1,5 +1,3 @@
-#include <ranges>
-
 #include "market/Market.h"
 #include "mc/ProcessStateStepper.h"
 #include "payoff/Observable.h"
@@ -32,7 +30,8 @@ class ApplyFixings final : public ObservableVisitor<Sample>, public PayoffVisito
             throw std::invalid_argument("Sample cannot be empty");
         }
 
-        for (const auto& sample : scenario | std::views::values) {
+        // cannot use views for macos compilation
+        for (const auto& [date, sample] : scenario) {
             if (sample.size() != _dim) {
                 throw std::invalid_argument("Sample size doesn't match expected size");
             }

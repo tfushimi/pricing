@@ -11,8 +11,9 @@ namespace pricer {
 
 using Scenarios = std::vector<Scenario>;
 
-inline const RNGFactory defaultRNGFactory =
-    [](const int seed) { return std::make_unique<numerics::rng::NormalRNG>(seed); };
+inline const RNGFactory defaultRNGFactory = [](const int seed) {
+    return std::make_unique<numerics::rng::NormalRNG>(seed);
+};
 
 class MCPricerBase {
    public:
@@ -35,7 +36,8 @@ class MCPricerBase {
     std::string extractSymbol(const payoff::PayoffNodePtr& pf) const {
         const auto applied = payoff::applyMarket(pf, _market);
         const auto [symbols, _] = payoff::getSymbolsAndFixingDates(applied);
-        if (symbols.empty()) throw std::invalid_argument("No symbol found in payoff");
+        if (symbols.empty())
+            throw std::invalid_argument("No symbol found in payoff");
         if (symbols.size() > 1)
             throw std::invalid_argument("MCPricer supports single-symbol payoffs only");
         return *symbols.begin();
@@ -57,8 +59,9 @@ class GBMMCPricer final : public MCPricerBase {
     Scenarios generateScenarios(const payoff::PayoffNodePtr& pf) const override {
         const std::string symbol = extractSymbol(pf);
         const auto forward = [&](const double t) { return _market.getForward(symbol, t); };
-        const MCPricer pricer{_market, mc::GBMProcess{forward, _vol}, _nPaths, _maxDt, _nThreads,
-                              defaultRNGFactory, _seed};
+        const MCPricer pricer{
+            _market, mc::GBMProcess{forward, _vol}, _nPaths, _maxDt, _nThreads, defaultRNGFactory,
+            _seed};
         return pricer.generateScenarios(pf);
     }
 
@@ -75,8 +78,10 @@ class HestonMCPricer final : public MCPricerBase {
     Scenarios generateScenarios(const payoff::PayoffNodePtr& pf) const override {
         const std::string symbol = extractSymbol(pf);
         const auto forward = [&](const double t) { return _market.getForward(symbol, t); };
-        const MCPricer pricer{_market, mc::HestonProcess{forward, _params}, _nPaths, _maxDt,
-                              _nThreads, defaultRNGFactory, _seed};
+        const MCPricer pricer{_market,   mc::HestonProcess{forward, _params},
+                              _nPaths,   _maxDt,
+                              _nThreads, defaultRNGFactory,
+                              _seed};
         return pricer.generateScenarios(pf);
     }
 
@@ -97,8 +102,10 @@ class ApproxLocalVolMCPricer final : public MCPricerBase {
         const auto localVol = [p = _params](const Sample& logZ, const double t) {
             return approximateLocalVol(p, logZ, t);
         };
-        const MCPricer pricer{_market, mc::LocalVolProcess{forward, localVol}, _nPaths, _maxDt,
-                              _nThreads, defaultRNGFactory, _seed};
+        const MCPricer pricer{_market,   mc::LocalVolProcess{forward, localVol},
+                              _nPaths,   _maxDt,
+                              _nThreads, defaultRNGFactory,
+                              _seed};
         return pricer.generateScenarios(pf);
     }
 
