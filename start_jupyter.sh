@@ -1,0 +1,7 @@
+docker run --rm -it \
+  -v $(pwd):/work \
+  -e PYTHONPATH=/work/cmake-build-docker/python \
+  -p 8888:8888 \
+  pricing \
+  jupyter notebook --no-browser --ip=0.0.0.0 --port=8888 --notebook-dir=/work --allow-root
+		    
