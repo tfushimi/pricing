@@ -4,6 +4,22 @@ Python bindings for the pricing library via pybind11. Exposes the payoff DSL, ma
 
 ## Build & Run
 
+**Linux (native)**
+```bash
+# Build the Python module
+cmake --build cmake-build-docker --target pypricing
+
+# Run Python tests
+cmake --build cmake-build-docker --target pytest
+
+# Run a script
+PYTHONPATH=cmake-build-docker/python python3 python/app/barrier_enhanced_note.py
+
+# Interactive Python session
+PYTHONPATH=cmake-build-docker/python python3
+```
+
+**Docker**
 ```bash
 # Build the Python module
 docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pypricing
@@ -14,7 +30,7 @@ docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker -
 # Run a script
 docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/barrier_enhanced_note.py
 
-# Interactive use
+# Interactive Python session
 docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
 ```
 

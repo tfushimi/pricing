@@ -30,16 +30,21 @@ python/
 
 ## Build
 
-CMake + Ninja, C++20. Requires GCC 13+ on Ubuntu 24.04 (or Docker — a `Dockerfile` is provided).
+CMake, C++20, Ubuntu 24.04. A `Dockerfile` is provided for convenience.
 
-**Ubuntu (native)**
+**Linux (native)**
 ```bash
-apt-get install build-essential cmake ninja-build clang-format
+# Install dependencies
+apt-get install build-essential cmake ninja-build python3-dev python3-pytest
 
-cmake -S . -B cmake-build -G Ninja
-cmake --build cmake-build
+# Configure (one-time, downloads dependencies)
+cmake -B cmake-build-docker
 
-ctest --test-dir cmake-build
+# Build all targets
+cmake --build cmake-build-docker
+
+# Run all C++ tests
+ctest --test-dir cmake-build-docker
 ```
 
 **Docker**
@@ -48,7 +53,7 @@ ctest --test-dir cmake-build
 docker build -t pricing .
 
 # Configure (one-time, downloads dependencies)
-docker run --rm -v $(pwd):/work pricing cmake -S /work -B /work/cmake-build-docker -G Ninja
+docker run --rm -v $(pwd):/work pricing cmake -S /work -B /work/cmake-build-docker
 
 # Build all targets
 docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker
