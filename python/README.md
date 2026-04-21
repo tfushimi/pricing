@@ -43,6 +43,9 @@ docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/pytho
 ## Example
 
 ```python
+>>> import sys
+>>> sys.path.append("/work/cmake-build-docker/python")  # path to pypricing.so
+
 >>> from datetime import date
 >>> from pypricing.market import SimpleMarket
 >>> from pypricing.payoff import CashPayment, Fixing, Max
