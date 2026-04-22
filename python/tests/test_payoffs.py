@@ -62,3 +62,11 @@ def test_payoff_from_json(spx, settle):
     j = p1.to_json()
     p2 = payoff.from_json(j)
     assert "CashPayment" in repr(p2)
+
+
+def test_get_symbols(spx, settle):
+    p = payoff.CashPayment(payoff.Max(spx, payoff.Fixing('QQQ', settle)), settle)
+    symbols = p.get_symbols()
+    assert len(symbols) == 2
+    assert 'SPX' in symbols
+    assert 'QQQ' in symbols

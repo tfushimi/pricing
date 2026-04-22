@@ -44,9 +44,6 @@ target_compile_options(project_warnings INTERFACE
 # libraries
 add_subdirectory(libs)
 
-# executable
-add_subdirectory(app)
-
 # python bindings
 add_subdirectory(python)
 

@@ -21,7 +21,6 @@ libs/
   src/          # Implementations
   tests/        # GoogleTest unit tests
 
-app/            # Executable entry points (one .cpp per product)
 python/
   src/          # pybind11 binding sources (pypricing module)
   app/          # Python scripts (e.g. barrier_enhanced_note.py)

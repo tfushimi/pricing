@@ -13,7 +13,7 @@ cmake --build cmake-build-docker --target pypricing
 cmake --build cmake-build-docker --target pytest
 
 # Run a script
-PYTHONPATH=cmake-build-docker/python python3 python/app/barrier_enhanced_note.py
+PYTHONPATH=cmake-build-docker/python python3 python/app/<script>.py
 
 # Interactive Python session
 PYTHONPATH=cmake-build-docker/python python3
@@ -28,7 +28,7 @@ docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker -
 docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pytest
 
 # Run a script
-docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/barrier_enhanced_note.py
+docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/<script>.py
 
 # Interactive Python session
 docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
@@ -77,6 +77,7 @@ CashPayment(amount=Max(Add(Fixing(SPX, 2026-01-15), Multiply(-1.000000, 100.0000
 | Script | Description |
 |---|---|
 | `app/barrier_enhanced_note.py` | Barrier-protected capital note priced under BS across a range of spots |
+| `app/json_pricing.py` | Loads a payoff from JSON and prices it using Black-Scholes |
 
 ### The Volatility Surface (Gatheral, 2006)
 
