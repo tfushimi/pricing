@@ -22,7 +22,12 @@ FetchContent_Declare(
         URL https://github.com/pybind/pybind11/archive/refs/tags/v2.13.6.zip
         DOWNLOAD_EXTRACT_TIMESTAMP true
 )
-FetchContent_MakeAvailable(googletest nlohmann_json pybind11)
+FetchContent_Declare(
+        pybind11_json
+        URL https://github.com/pybind/pybind11_json/archive/refs/tags/0.2.15.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+FetchContent_MakeAvailable(googletest nlohmann_json pybind11 pybind11_json)
 enable_testing()
 
 # project_warnings

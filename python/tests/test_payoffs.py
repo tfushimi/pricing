@@ -46,3 +46,19 @@ def test_branch_payment(spx, settle):
     else_ = payoff.CashPayment(80.0, settle)
     p = payoff.BranchPayment(condition, then_, else_)
     assert "BranchPayment" in repr(p)
+
+
+def test_payoff_to_json(spx, settle):
+    p = payoff.CashPayment(payoff.Max(spx - 100.0, 0.0), settle)
+    j = p.to_json()
+    assert j['type'] in 'CashPayment'
+    assert j['amount']['type'] in 'Max'
+    assert j['settlementDate'] == '2027-01-02'
+    assert "CashPayment" in repr(p)
+
+
+def test_payoff_from_json(spx, settle):
+    p1 = payoff.CashPayment(payoff.Max(spx - 100.0, 0.0), settle)
+    j = p1.to_json()
+    p2 = payoff.from_json(j)
+    assert "CashPayment" in repr(p2)
