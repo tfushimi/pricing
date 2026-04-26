@@ -8,6 +8,7 @@
 #include <string>
 
 #include "BSVolSlice.h"
+#include "Curve.h"
 #include "Market.h"
 #include "common/Date.h"
 
@@ -26,7 +27,10 @@ class MarketDB final : public Market {
 
    private:
     mutable soci::session sql;
-    mutable std::map<std::string, double> _prices;
+    mutable std::map<std::pair<std::string, calendar::Date>, double> _prices;
+    // TODO discount_factor and forward curve should use linear interpolation
+    mutable std::vector<CurvePoint> _discount_factor_points;
+    mutable std::map<std::string, std::vector<CurvePoint>> _forward_points;
     mutable std::map<std::pair<std::string, calendar::Date>, std::unique_ptr<BSVolSlice>>
         _bsVolSlices;
 };

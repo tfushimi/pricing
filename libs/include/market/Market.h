@@ -19,10 +19,12 @@ class Market {
     calendar::Date getPricingDate() const { return _pricingDate; };
 
     // Returns the observed closing price of symbol on the given date, or nullopt if unavailable.
+    // TODO maybe take FixingType like CLOSING?
     virtual std::optional<double> getPrice(const std::string& symbol,
                                            const calendar::Date& date) const = 0;
 
     // Returns the discount factor for time T (in years from pricing date).
+    // TODO take currency like USD
     virtual double getDiscountFactor(double T) const = 0;
     double getDiscountFactor(const calendar::Date date) const {
         return getDiscountFactor(calendar::yearFraction(getPricingDate(), date));
