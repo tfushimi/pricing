@@ -3,7 +3,6 @@
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 
-#include <iostream>
 #include <optional>
 #include <string>
 
@@ -45,20 +44,19 @@ double MarketDB::getDiscountFactor(double) const {
         return _discountFactorPoints.front().getValue();
     }
 
-    std::vector<string> maturityDates(100);
-    std::vector<double> discountFactors(100);
-
     const string ccy = "USD";
-    sql << "SELECT maturity_date, discount_factor FROM discount_factor WHERE ccy = ? ORDER BY "
-           "maturity_date ASC",
-        into(maturityDates), into(discountFactors), use(ccy);
+    const rowset rs =
+        (sql.prepare
+             << "SELECT maturity_date, discount_factor FROM discount_factor WHERE ccy = ? ORDER BY "
+                "maturity_date ASC",
+         use(ccy));
 
-    if (maturityDates.empty()) {
-        throw std::runtime_error("No discount factor in MarketDB");
+    for (const auto& r : rs) {
+        _discountFactorPoints.emplace_back(fromString(r.get<string>(0)), r.get<double>(1));
     }
 
-    for (std::size_t i = 0; i < maturityDates.size(); i++) {
-        _discountFactorPoints.emplace_back(fromString(maturityDates[i]), discountFactors[i]);
+    if (_discountFactorPoints.empty()) {
+        throw std::runtime_error("No discount factor in MarketDB");
     }
 
     return _discountFactorPoints.front().getValue();
@@ -70,21 +68,20 @@ double MarketDB::getForward(const std::string& symbol, double) const {
         return it->second.front().getValue();
     }
 
-    std::vector<string> maturityDates(100);
-    std::vector<double> forwardPrices(100);
-
-    sql << "SELECT maturity_date, forward FROM forward_price WHERE symbol = ? ORDER BY "
-           "maturity_date ASC",
-        into(maturityDates), into(forwardPrices), use(symbol);
-
-    if (maturityDates.empty()) {
-        throw std::runtime_error("No forward price in MarketDB");
-    }
+    const rowset rs =
+        (sql.prepare
+             << "SELECT maturity_date, forward FROM forward_price WHERE symbol = ? ORDER BY "
+                "maturity_date ASC",
+         use(symbol));
 
     std::vector<CurvePoint> result;
 
-    for (std::size_t i = 0; i < maturityDates.size(); i++) {
-        result.emplace_back(fromString(maturityDates[i]), forwardPrices[i]);
+    for (const auto& r : rs) {
+        result.emplace_back(fromString(r.get<string>(0)), r.get<double>(1));
+    }
+
+    if (result.empty()) {
+        throw std::runtime_error("No forward price in MarketDB");
     }
 
     _forwardPoints.emplace(symbol, std::move(result));
@@ -94,26 +91,28 @@ double MarketDB::getForward(const std::string& symbol, double) const {
 
 // TODO interpolate BSVolSlice
 const BSVolSlice& MarketDB::getBSVolSlice(const std::string& symbol, const Date& date) const {
-    std::vector<string> maturityDates(100);
-    std::vector<double> strikes(100);
-    std::vector<double> impliedVols(100);
+    const auto key = make_pair(symbol, date);
+    if (const auto it = _volPoints.find(key); it != _volPoints.end()) {
+        return flatVolSlice;
+    }
 
     const string dateStr = toString(date);
-    sql << "SELECT maturity_date, strike, implied_vol FROM implied_vol WHERE symbol = ? AND "
-           "maturity_date = ? ORDER BY strike ASC",
-        into(maturityDates), into(strikes), into(impliedVols), use(symbol), use(dateStr);
-
-    if (maturityDates.empty()) {
-        throw std::runtime_error("No implied_vol in MarketDB");
-    }
+    const rowset rs =
+        (sql.prepare
+             << "SELECT maturity_date, strike, implied_vol FROM implied_vol WHERE symbol = ? AND "
+                "maturity_date = ? ORDER BY strike ASC",
+         use(symbol), use(dateStr));
 
     std::vector<VolPoint> result;
 
-    for (std::size_t i = 0; i < maturityDates.size(); i++) {
-        result.emplace_back(fromString(maturityDates[i]), strikes[i], impliedVols[i]);
+    for (const auto& r : rs) {
+        result.emplace_back(fromString(r.get<string>(0)), r.get<double>(1), r.get<double>(2));
     }
 
-    const auto key = make_pair(symbol, date);
+    if (result.empty()) {
+        throw std::runtime_error("No implied_vol in MarketDB");
+    }
+
     _volPoints.emplace(key, std::move(result));
 
     return flatVolSlice;
