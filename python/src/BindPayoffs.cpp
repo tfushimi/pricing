@@ -22,12 +22,12 @@ void register_payoffs(py::module& m) {
         .def(py::self + py::self)
         .def("__repr__", [](const PayoffNodePtr& self) { return self->toString(); })
         .def("to_json", [](const PayoffNodePtr& self) { return toJson(self); })
-    .def("get_symbols", [](const PayoffNodePtr& self) {
-        const auto [symbols, _] = getSymbolsAndFixingDates(self);
-        std::vector<std::string> result;
-        result.assign(symbols.begin(), symbols.end());
-        return result;
-    });
+        .def("get_symbols", [](const PayoffNodePtr& self) {
+            const auto [symbols, _] = getSymbolsAndFixingDates(self);
+            std::vector<std::string> result;
+            result.assign(symbols.begin(), symbols.end());
+            return result;
+        });
 
     m.def("from_json", [](const nlohmann::json& json) { return payoffFromJson(json); });
 

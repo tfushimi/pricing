@@ -12,14 +12,15 @@ namespace market {
 // volatility surfaces from any data source (in-memory, database, market data vendor, etc.).
 class Market {
    public:
-    explicit Market(const calendar::Date pricingDate) : _pricingDate(pricingDate){}
+    explicit Market(const calendar::Date pricingDate) : _pricingDate(pricingDate) {}
     virtual ~Market() = default;
 
     // Returns the pricing date — the valuation date from which all time fractions are measured.
     calendar::Date getPricingDate() const { return _pricingDate; };
 
     // Returns the observed closing price of symbol on the given date, or nullopt if unavailable.
-    virtual std::optional<double> getPrice(const std::string& symbol, const calendar::Date& date) const = 0;
+    virtual std::optional<double> getPrice(const std::string& symbol,
+                                           const calendar::Date& date) const = 0;
 
     // Returns the discount factor for time T (in years from pricing date).
     virtual double getDiscountFactor(double T) const = 0;
@@ -34,7 +35,8 @@ class Market {
     }
 
     // Returns the Black-Scholes implied volatility slice for symbol at the given expiry date.
-    virtual const BSVolSlice& getBSVolSlice(const std::string& symbol, const calendar::Date& date) const = 0;
+    virtual const BSVolSlice& getBSVolSlice(const std::string& symbol,
+                                            const calendar::Date& date) const = 0;
 
    private:
     const calendar::Date _pricingDate;

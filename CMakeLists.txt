@@ -26,8 +26,14 @@ FetchContent_Declare(
         pybind11_json
         URL https://github.com/pybind/pybind11_json/archive/refs/tags/0.2.15.zip
         DOWNLOAD_EXTRACT_TIMESTAMP true
+        GIT_SUBMODULES_RECURSE TRUE
 )
-FetchContent_MakeAvailable(googletest nlohmann_json pybind11 pybind11_json)
+FetchContent_Declare(
+        soci
+        URL https://github.com/SOCI/soci/archive/refs/tags/v4.1.2.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+FetchContent_MakeAvailable(googletest nlohmann_json pybind11 pybind11_json soci)
 enable_testing()
 
 # project_warnings
@@ -64,7 +70,6 @@ if(CLANG_FORMAT)
         add_custom_target(
                 format
                 COMMAND find
-                ${CMAKE_SOURCE_DIR}/app
                 ${CMAKE_SOURCE_DIR}/libs
                 ${CMAKE_SOURCE_DIR}/python
         (-name "*.cpp" -o -name "*.h")

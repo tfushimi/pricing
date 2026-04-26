@@ -11,7 +11,7 @@ add_library(payoff STATIC
         src/payoff/JsonCodec.cpp
 )
 add_library(market STATIC
-        src/market/MarketImpl.cpp
+        src/market/MarketDB.cpp
 )
 add_library(pricer STATIC
         src/pricer/PLFPayoffPricer.cpp
@@ -46,6 +46,9 @@ target_link_libraries(payoff PUBLIC
 )
 target_link_libraries(market PUBLIC
         common
+        soci_core
+        soci_sqlite3
+        project_warnings
 )
 target_link_libraries(pricer PUBLIC
         numerics

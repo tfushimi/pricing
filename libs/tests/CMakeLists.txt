@@ -105,6 +105,24 @@ target_link_libraries(test_time_grid PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_market_db market/MarketDB_test.cpp)
+target_link_libraries(test_market_db PRIVATE
+        market
+        GTest::gtest_main
+)
+
+# generate test_market.db for unit testing
+add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/market.db
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_SOURCE_DIR}"
+                python3 ${CMAKE_SOURCE_DIR}/load_test_market_data.py
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${CMAKE_SOURCE_DIR}/load_test_market_data.py
+                ${CMAKE_SOURCE_DIR}/market_db.py
+)
+add_custom_target(market_test_db DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/market.db)
+add_dependencies(test_market_db market_test_db)
+
 include(GoogleTest)
 gtest_discover_tests(test_integration)
 gtest_discover_tests(test_root_finding)
@@ -123,3 +141,6 @@ gtest_discover_tests(test_json_codec)
 gtest_discover_tests(test_process)
 gtest_discover_tests(test_process_state_stepper)
 gtest_discover_tests(test_time_grid)
+gtest_discover_tests(test_market_db
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}  # point to where test_market.db is written
+)
