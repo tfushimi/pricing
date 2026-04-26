@@ -14,6 +14,10 @@
 
 namespace market {
 
+// SQLite-backed Market implementation using SOCI. Market data is loaded lazily on first access
+// and cached in memory. url is a SOCI SQLite3 connection string, e.g. "db=market.db".
+// To support other databases (e.g. PostgreSQL), replace soci::sqlite3 with the appropriate
+// SOCI backend in the constructor.
 class MarketDB final : public Market {
    public:
     explicit MarketDB(calendar::Date pricingDate, const std::string& url);

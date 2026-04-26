@@ -38,7 +38,7 @@ std::optional<double> MarketDB::getPrice(const std::string& symbol, const Date& 
     return std::nullopt;
 }
 
-// TODO linearly interpolate CurvePoints
+// TODO linearly interpolate between stored pillar dates; currently returns the nearest maturity
 double MarketDB::getDiscountFactor(double) const {
     if (!_discountFactorPoints.empty()) {
         return _discountFactorPoints.front().getValue();
@@ -62,7 +62,7 @@ double MarketDB::getDiscountFactor(double) const {
     return _discountFactorPoints.front().getValue();
 }
 
-// TODO linearly interpolate CurvePoints
+// TODO linearly interpolate between stored pillar dates; currently returns the nearest maturity
 double MarketDB::getForward(const std::string& symbol, double) const {
     if (const auto it = _forwardPoints.find(symbol); it != _forwardPoints.end()) {
         return it->second.front().getValue();
@@ -89,7 +89,7 @@ double MarketDB::getForward(const std::string& symbol, double) const {
     return _forwardPoints.at(symbol).front().getValue();
 }
 
-// TODO interpolate BSVolSlice
+// TODO interpolate BSVolSlice; currently returns a flat vol slice
 const BSVolSlice& MarketDB::getBSVolSlice(const std::string& symbol, const Date& date) const {
     const auto key = make_pair(symbol, date);
     if (const auto it = _volPoints.find(key); it != _volPoints.end()) {
