@@ -2,7 +2,7 @@
 
 import math
 import sqlite3
-from datetime import date, timedelta
+from datetime import date
 
 import market_db
 
@@ -13,11 +13,17 @@ SPOT = 100.0
 RATE = 0.05
 DIV_YIELD = 0.02
 
+MATURITIES = [
+    date(2026, 5, 24),   # ~1M
+    date(2026, 7, 24),   # ~3M
+    date(2026, 10, 24),  # ~6M
+    date(2027, 4, 24),   # ~1Y
+]
+
+STRIKES = [80.0, 90.0, 100.0, 110.0, 120.0]
+
 # Fixed SVI parameters — easy to hand-verify
 SVI = dict(a=0.04, b=0.10, rho=-0.30, m=0.0, sigma=0.10)
-
-TENORS_DAYS = [30, 91, 182, 365]
-STRIKES = [80.0, 90.0, 100.0, 110.0, 120.0]
 
 
 def main() -> None:
@@ -27,9 +33,8 @@ def main() -> None:
 
     market_db.insert_price(cur, SYMBOL, ASOF, SPOT)
 
-    for t_days in TENORS_DAYS:
-        maturity = ASOF + timedelta(days=t_days)
-        T = t_days / 365.0
+    for maturity in MATURITIES:
+        T = (maturity - ASOF).days / 365.0
         df = math.exp(-RATE * T)
         fwd = SPOT * math.exp((RATE - DIV_YIELD) * T)
 
@@ -39,8 +44,8 @@ def main() -> None:
 
     conn.commit()
     conn.close()
-    print(f"market.db written: asof={ASOF.isoformat()}, spot={SPOT}, "
-          f"tenors={TENORS_DAYS}, strikes={STRIKES}")
+    print(f"test_market.db written: asof={ASOF.isoformat()}, spot={SPOT}, "
+          f"maturities={[m.isoformat() for m in MATURITIES]}, strikes={STRIKES}")
 
 
 if __name__ == "__main__":

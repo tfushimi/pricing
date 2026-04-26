@@ -3,6 +3,7 @@
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 
+#include <iostream>
 #include <optional>
 #include <string>
 
@@ -40,58 +41,81 @@ std::optional<double> MarketDB::getPrice(const std::string& symbol, const Date& 
 
 // TODO linearly interpolate CurvePoints
 double MarketDB::getDiscountFactor(double) const {
-    if (!_discount_factor_points.empty()) {
-        return _discount_factor_points.front().getValue();
+    if (!_discountFactorPoints.empty()) {
+        return _discountFactorPoints.front().getValue();
     }
 
-    std::vector<string> maturity_dates(100);
-    std::vector<double> df(100);
+    std::vector<string> maturityDates(100);
+    std::vector<double> discountFactors(100);
 
     const string ccy = "USD";
     sql << "SELECT maturity_date, discount_factor FROM discount_factor WHERE ccy = ? ORDER BY "
            "maturity_date ASC",
-        into(maturity_dates), into(df), use(ccy);
+        into(maturityDates), into(discountFactors), use(ccy);
 
-    if (maturity_dates.empty()) {
+    if (maturityDates.empty()) {
         throw std::runtime_error("No discount factor in MarketDB");
     }
 
-    for (std::size_t i = 0; i < maturity_dates.size(); i++) {
-        _discount_factor_points.emplace_back(fromString(maturity_dates[i]), df[i]);
+    for (std::size_t i = 0; i < maturityDates.size(); i++) {
+        _discountFactorPoints.emplace_back(fromString(maturityDates[i]), discountFactors[i]);
     }
 
-    return _discount_factor_points.front().getValue();
+    return _discountFactorPoints.front().getValue();
 }
 
 // TODO linearly interpolate CurvePoints
 double MarketDB::getForward(const std::string& symbol, double) const {
-    if (const auto it = _forward_points.find(symbol); it != _forward_points.end()) {
+    if (const auto it = _forwardPoints.find(symbol); it != _forwardPoints.end()) {
         return it->second.front().getValue();
     }
 
-    std::vector<string> maturity_dates(100);
-    std::vector<double> forward_prices(100);
+    std::vector<string> maturityDates(100);
+    std::vector<double> forwardPrices(100);
 
     sql << "SELECT maturity_date, forward FROM forward_price WHERE symbol = ? ORDER BY "
            "maturity_date ASC",
-        into(maturity_dates), into(forward_prices), use(symbol);
+        into(maturityDates), into(forwardPrices), use(symbol);
 
-    if (maturity_dates.empty()) {
+    if (maturityDates.empty()) {
         throw std::runtime_error("No forward price in MarketDB");
     }
 
     std::vector<CurvePoint> result;
 
-    for (std::size_t i = 0; i < maturity_dates.size(); i++) {
-        result.emplace_back(fromString(maturity_dates[i]), forward_prices[i]);
+    for (std::size_t i = 0; i < maturityDates.size(); i++) {
+        result.emplace_back(fromString(maturityDates[i]), forwardPrices[i]);
     }
 
-    _forward_points.emplace(symbol, std::move(result));
+    _forwardPoints.emplace(symbol, std::move(result));
 
-    return _forward_points.at(symbol).front().getValue();
+    return _forwardPoints.at(symbol).front().getValue();
 }
 
-const BSVolSlice& MarketDB::getBSVolSlice(const std::string&, const Date&) const {
-    throw std::runtime_error("BSVolSlice not implemented");
+// TODO interpolate BSVolSlice
+const BSVolSlice& MarketDB::getBSVolSlice(const std::string& symbol, const Date& date) const {
+    std::vector<string> maturityDates(100);
+    std::vector<double> strikes(100);
+    std::vector<double> impliedVols(100);
+
+    const string dateStr = toString(date);
+    sql << "SELECT maturity_date, strike, implied_vol FROM implied_vol WHERE symbol = ? AND "
+           "maturity_date = ? ORDER BY strike ASC",
+        into(maturityDates), into(strikes), into(impliedVols), use(symbol), use(dateStr);
+
+    if (maturityDates.empty()) {
+        throw std::runtime_error("No implied_vol in MarketDB");
+    }
+
+    std::vector<VolPoint> result;
+
+    for (std::size_t i = 0; i < maturityDates.size(); i++) {
+        result.emplace_back(fromString(maturityDates[i]), strikes[i], impliedVols[i]);
+    }
+
+    const auto key = make_pair(symbol, date);
+    _volPoints.emplace(key, std::move(result));
+
+    return flatVolSlice;
 }
 }  // namespace market

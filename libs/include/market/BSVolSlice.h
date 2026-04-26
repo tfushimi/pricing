@@ -30,6 +30,22 @@ class BSVolSlice {
     }
 };
 
+// Represents a point on a volatility surface
+class VolPoint final {
+   public:
+    VolPoint(const calendar::Date date, const double strike, const double vol)
+        : _date(date), _strike(strike), _vol(vol) {}
+    ~VolPoint() = default;
+    calendar::Date date() const { return _date; }
+    double getVol() const { return _vol; }
+    double getStrike() const { return _strike; }
+
+   private:
+    const calendar::Date _date;
+    const double _strike;
+    const double _vol;
+};
+
 class FlatVolSlice final : public BSVolSlice {
    public:
     FlatVolSlice(const double forward, const double time, const double vol)

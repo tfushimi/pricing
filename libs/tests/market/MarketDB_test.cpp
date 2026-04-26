@@ -24,11 +24,20 @@ TEST_F(MarketDBTest, Price) {
 
 TEST_F(MarketDBTest, DiscountFactor) {
     const auto df = mkt.getDiscountFactor(1.0);
-
     EXPECT_NEAR(df, 0.995899, 1e-6);
 }
 
 TEST_F(MarketDBTest, ForwardPrice) {
     const auto forward_price = mkt.getForward("SPX", 1.0);
     EXPECT_NEAR(forward_price, 100.246879, 1e-6);
+    EXPECT_THROW(mkt.getForward("UNKNOWN", 1.0), std::runtime_error);
+}
+
+TEST_F(MarketDBTest, BSVolSlice) {
+    const BSVolSlice& volSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+
+    EXPECT_DOUBLE_EQ(volSlice.vol(100.0), 100.0);
+    EXPECT_DOUBLE_EQ(volSlice.vol(120.0), 100.0);
+
+    EXPECT_THROW(mkt.getBSVolSlice("UNKNOWN", makeDate(2026, 5, 24)), std::runtime_error);
 }

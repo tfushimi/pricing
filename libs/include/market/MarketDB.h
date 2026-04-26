@@ -29,9 +29,12 @@ class MarketDB final : public Market {
     mutable soci::session sql;
     mutable std::map<std::pair<std::string, calendar::Date>, double> _prices;
     // TODO discount_factor and forward curve should use linear interpolation
-    mutable std::vector<CurvePoint> _discount_factor_points;
-    mutable std::map<std::string, std::vector<CurvePoint>> _forward_points;
+    mutable std::vector<CurvePoint> _discountFactorPoints;
+    mutable std::map<std::string, std::vector<CurvePoint>> _forwardPoints;
+    mutable std::map<std::pair<std::string, calendar::Date>, std::vector<VolPoint>> _volPoints;
     mutable std::map<std::pair<std::string, calendar::Date>, std::unique_ptr<BSVolSlice>>
         _bsVolSlices;
+
+    const FlatVolSlice flatVolSlice{100, 1.0, 100};
 };
 }  // namespace market
