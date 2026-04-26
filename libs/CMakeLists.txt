@@ -50,6 +50,11 @@ target_link_libraries(market PUBLIC
         soci_sqlite3
         project_warnings
 )
+# Mark SOCI headers as system includes to suppress warnings in third-party code
+# (shadowed members and non-virtual destructor in soci/logger.h)
+target_include_directories(market SYSTEM PUBLIC
+        $<TARGET_PROPERTY:soci_core,INTERFACE_INCLUDE_DIRECTORIES>
+)
 target_link_libraries(pricer PUBLIC
         numerics
         payoff
