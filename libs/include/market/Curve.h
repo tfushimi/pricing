@@ -6,6 +6,8 @@
 
 namespace market {
 
+// Abstract curve callable by time to expiry T (years) or by date.
+// Used for discount factors and forward prices.
 class Curve {
    public:
     explicit Curve(const calendar::Date pricingDate) : _pricingDate(pricingDate) {}

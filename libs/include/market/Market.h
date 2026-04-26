@@ -7,27 +7,36 @@
 #include "common/Date.h"
 
 namespace market {
-using calendar::Date;
-using calendar::yearFraction;
 
+// Abstract market data interface. Implementations provide access to prices, rates, and
+// volatility surfaces from any data source (in-memory, database, market data vendor, etc.).
 class Market {
    public:
-    Market(const Date pricingDate) : _pricingDate(pricingDate){};
+    explicit Market(const calendar::Date pricingDate) : _pricingDate(pricingDate){}
     virtual ~Market() = default;
-    Date getPricingDate() const { return _pricingDate; };
-    // TODO FixingType (e.g., CLOSE)
-    virtual std::optional<double> getPrice(const std::string& symbol, const Date& date) const = 0;
+
+    // Returns the pricing date — the valuation date from which all time fractions are measured.
+    calendar::Date getPricingDate() const { return _pricingDate; };
+
+    // Returns the observed closing price of symbol on the given date, or nullopt if unavailable.
+    virtual std::optional<double> getPrice(const std::string& symbol, const calendar::Date& date) const = 0;
+
+    // Returns the discount factor for time T (in years from pricing date).
     virtual double getDiscountFactor(double T) const = 0;
-    double getDiscountFactor(const Date date) const {
-        return getDiscountFactor(yearFraction(getPricingDate(), date));
+    double getDiscountFactor(const calendar::Date date) const {
+        return getDiscountFactor(calendar::yearFraction(getPricingDate(), date));
     }
+
+    // Returns the forward price of symbol at time T (in years from pricing date).
     virtual double getForward(const std::string& symbol, double T) const = 0;
-    double getForward(const std::string& symbol, const Date date) const {
-        return getForward(symbol, yearFraction(getPricingDate(), date));
+    double getForward(const std::string& symbol, const calendar::Date date) const {
+        return getForward(symbol, calendar::yearFraction(getPricingDate(), date));
     }
-    virtual const BSVolSlice& getBSVolSlice(const std::string& symbol, const Date& date) const = 0;
+
+    // Returns the Black-Scholes implied volatility slice for symbol at the given expiry date.
+    virtual const BSVolSlice& getBSVolSlice(const std::string& symbol, const calendar::Date& date) const = 0;
 
    private:
-    const Date _pricingDate;
+    const calendar::Date _pricingDate;
 };
 }  // namespace market

@@ -7,14 +7,23 @@
 
 namespace market {
 
+// Abstract implied volatility slice at a single expiry. Implementations provide the vol smile
+// as a function of strike, used by BS pricers and digital call pricing via dVol/dStrike.
 class BSVolSlice {
    public:
     BSVolSlice() = default;
     virtual ~BSVolSlice() = default;
-    virtual double forward() const = 0;  // fair strike of forward contract
+
+    // Returns the forward price of the underlying at this expiry.
+    virtual double forward() const = 0;
+
+    // Returns the time to expiry in years.
     virtual double time() const = 0;
+
+    // Returns the Black-Scholes implied volatility at the given strike.
     virtual double vol(double strike) const = 0;
 
+    // Returns dVol/dStrike. Defaults to central finite difference; override for analytic gradient.
     virtual double dVolDStrike(const double strike) const {
         constexpr double dK = 1e-4;
         return (vol(strike + dK) - vol(strike - dK)) / (2.0 * dK);
@@ -37,9 +46,7 @@ class FlatVolSlice final : public BSVolSlice {
     double _vol;
 };
 
-/**
- * Implements BSVolSlice using SVI parameterization
- */
+// BSVolSlice backed by an SVI parameterization with analytic dVol/dStrike.
 class SVIVolSlice final : public BSVolSlice {
    public:
     SVIVolSlice(const double forward, const double time, SVIParams params)

@@ -10,7 +10,9 @@ add_library(payoff STATIC
         src/payoff/ApplyFixings.cpp
         src/payoff/JsonCodec.cpp
 )
-add_library(market INTERFACE)
+add_library(market STATIC
+        src/market/MarketImpl.cpp
+)
 add_library(pricer STATIC
         src/pricer/PLFPayoffPricer.cpp
 )
@@ -26,7 +28,7 @@ target_include_directories(payoff
         PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/include
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_include_directories(market INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(market PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(pricer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(mc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -42,7 +44,7 @@ target_link_libraries(payoff PUBLIC
         nlohmann_json
         project_warnings
 )
-target_link_libraries(market INTERFACE
+target_link_libraries(market PUBLIC
         common
 )
 target_link_libraries(pricer PUBLIC
