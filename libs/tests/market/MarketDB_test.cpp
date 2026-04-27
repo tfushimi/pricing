@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 #include "common/Date.h"
 
 using namespace calendar;
@@ -25,11 +27,22 @@ TEST_F(MarketDBTest, Price) {
 TEST_F(MarketDBTest, DiscountFactor) {
     EXPECT_DOUBLE_EQ(mkt.getDiscountFactor(0.0), 1.0);
     EXPECT_NEAR(mkt.getDiscountFactor(1.0), std::exp(-0.05 * 1.0), 1e-3);
+
+    // monotonically decreasing
+    EXPECT_GT(mkt.getDiscountFactor(0.25), mkt.getDiscountFactor(0.5));
+    EXPECT_GT(mkt.getDiscountFactor(0.5),  mkt.getDiscountFactor(1.0));
+
+    EXPECT_THROW(mkt.getDiscountFactor(-1.0), std::invalid_argument);
 }
 
 TEST_F(MarketDBTest, ForwardPrice) {
     EXPECT_DOUBLE_EQ(mkt.getForward("SPX", 0.0), 100.0);
-    EXPECT_NEAR(mkt.getForward("SPX", 1.0), 100 * std::exp(0.03), 1e-2);
+    EXPECT_NEAR(mkt.getForward("SPX", 1.0), 100.0 * std::exp(0.03 * 1.0), 1e-2);
+
+    // monotonically increasing (positive carry: r > q)
+    EXPECT_LT(mkt.getForward("SPX", 0.25), mkt.getForward("SPX", 0.5));
+    EXPECT_LT(mkt.getForward("SPX", 0.5),  mkt.getForward("SPX", 1.0));
+
     EXPECT_THROW(mkt.getForward("UNKNOWN", 1.0), std::runtime_error);
 }
 
