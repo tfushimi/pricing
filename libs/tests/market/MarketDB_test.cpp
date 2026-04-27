@@ -26,7 +26,11 @@ TEST_F(MarketDBTest, Price) {
 
 TEST_F(MarketDBTest, DiscountFactor) {
     EXPECT_DOUBLE_EQ(mkt.getDiscountFactor(0.0), 1.0);
-    EXPECT_NEAR(mkt.getDiscountFactor(1.0), std::exp(-0.05 * 1.0), 1e-3);
+
+    // log-linear interpolation recovers exp(-r*T) exactly since seed data uses constant rate
+    EXPECT_NEAR(mkt.getDiscountFactor(0.25), std::exp(-0.05 * 0.25), 1e-6);
+    EXPECT_NEAR(mkt.getDiscountFactor(0.5),  std::exp(-0.05 * 0.5),  1e-6);
+    EXPECT_NEAR(mkt.getDiscountFactor(1.0),  std::exp(-0.05 * 1.0),  1e-6);
 
     // monotonically decreasing
     EXPECT_GT(mkt.getDiscountFactor(0.25), mkt.getDiscountFactor(0.5));
@@ -37,7 +41,11 @@ TEST_F(MarketDBTest, DiscountFactor) {
 
 TEST_F(MarketDBTest, ForwardPrice) {
     EXPECT_DOUBLE_EQ(mkt.getForward("SPX", 0.0), 100.0);
-    EXPECT_NEAR(mkt.getForward("SPX", 1.0), 100.0 * std::exp(0.03 * 1.0), 1e-2);
+
+    // log-linear interpolation recovers S*exp((r-q)*T) exactly since seed data uses constant carry
+    EXPECT_NEAR(mkt.getForward("SPX", 0.25), 100.0 * std::exp(0.03 * 0.25), 1e-6);
+    EXPECT_NEAR(mkt.getForward("SPX", 0.5),  100.0 * std::exp(0.03 * 0.5),  1e-6);
+    EXPECT_NEAR(mkt.getForward("SPX", 1.0),  100.0 * std::exp(0.03 * 1.0),  1e-6);
 
     // monotonically increasing (positive carry: r > q)
     EXPECT_LT(mkt.getForward("SPX", 0.25), mkt.getForward("SPX", 0.5));

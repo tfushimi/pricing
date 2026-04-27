@@ -82,7 +82,7 @@ def insert_vol_slice(cur: sqlite3.Cursor, symbol: str, asof: date, maturity: dat
                      strikes: list[float], forward: float) -> None:
     asof_str = asof.isoformat()
     maturity_str = maturity.isoformat()
-    T = (maturity - asof).days / 365.0
+    T = (maturity - asof).days / 365.25
     cur.execute("INSERT INTO svi_slice VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (symbol, asof_str, maturity_str, a, b, rho, m, sigma))
     for K in strikes:

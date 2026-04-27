@@ -34,7 +34,7 @@ def main() -> None:
     market_db.insert_price(cur, SYMBOL, ASOF, SPOT)
 
     for maturity in MATURITIES:
-        T = (maturity - ASOF).days / 365.0
+        T = (maturity - ASOF).days / 365.25
         df = math.exp(-RATE * T)
         fwd = SPOT * math.exp((RATE - DIV_YIELD) * T)
 

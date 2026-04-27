@@ -65,7 +65,7 @@ double MarketDB::getDiscountFactor(const double T) const {
         throw std::runtime_error("No discount factors found for USD");
     }
 
-    _discountCurve.emplace(getPricingDate(), maturityDates, discountFactors);
+    _discountCurve.emplace(getPricingDate(), maturityDates, discountFactors);  // log-linear
 
     return (*_discountCurve)(T);
 }
@@ -99,7 +99,7 @@ double MarketDB::getForward(const std::string& symbol, const double T) const {
     }
 
     _forwardCurves.emplace(std::piecewise_construct, std::forward_as_tuple(symbol),
-                           std::forward_as_tuple(getPricingDate(), maturityDates, forwardPrices));
+                           std::forward_as_tuple(getPricingDate(), maturityDates, forwardPrices));  // log-linear
 
     return _forwardCurves.at(symbol)(T);
 }

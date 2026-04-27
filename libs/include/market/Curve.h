@@ -66,10 +66,44 @@ class LinearInterpolatedCurve final : public Curve {
                                                const std::vector<calendar::Date>& dates) {
         std::vector<double> x;
         x.reserve(dates.size());
+        for (const auto& d : dates)
+            x.push_back(calendar::yearFraction(pricingDate, d));
+        return x;
+    }
+};
+
+// Curve backed by (date, value) knots, interpolated log-linearly in time.
+// Equivalent to linearly interpolating the continuously compounded rate.
+// Guarantees strictly positive values. Suitable for discount factors and forward prices.
+class LogLinearInterpolatedCurve final : public Curve {
+   public:
+    LogLinearInterpolatedCurve(const calendar::Date pricingDate,
+                               const std::vector<calendar::Date>& dates,
+                               const std::vector<double>& values)
+        : Curve(pricingDate), _interp(toYearFractions(pricingDate, dates), toLogs(values)) {}
+
+    double operator()(const double T) const override { return std::exp(_interp(T)); }
+
+   private:
+    numerics::interpolation::LinearInterpolator _interp;
+
+    static std::vector<double> toYearFractions(const calendar::Date pricingDate,
+                                               const std::vector<calendar::Date>& dates) {
+        std::vector<double> x;
+        x.reserve(dates.size());
         for (const auto& d : dates) {
             x.push_back(calendar::yearFraction(pricingDate, d));
         }
         return x;
+    }
+
+    static std::vector<double> toLogs(const std::vector<double>& values) {
+        std::vector<double> logs;
+        logs.reserve(values.size());
+        for (const double v : values) {
+            logs.push_back(std::log(v));
+        }
+        return logs;
     }
 };
 
