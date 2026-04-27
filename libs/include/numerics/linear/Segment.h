@@ -11,6 +11,11 @@ namespace numerics::linear {
 constexpr double NEG_INF = -std::numeric_limits<double>::infinity();
 constexpr double POS_INF = std::numeric_limits<double>::infinity();
 
+struct Point {
+    double x;
+    double y;
+};
+
 /**
  * Represents f(S) = slope * S + intercept for S in [lo, hi)
  *
@@ -25,6 +30,12 @@ class Segment {
             throw std::invalid_argument("Invalid endpoints: left=" + std::to_string(_lo) +
                                         ",right=" + std::to_string(_hi));
         }
+    }
+    Segment(const Point left, const Point right) {
+        _slope = (right.y - left.y) / (right.x - left.x);
+        _intercept = left.y - _slope * left.x;
+        _lo = left.x;
+        _hi = right.x;
     }
     ~Segment() = default;
     Segment(const Segment& other) = default;

@@ -10,6 +10,17 @@
 using namespace numerics::linear;
 using PLF = PiecewiseLinearFunction;
 
+TEST(SegmentTest, TwoPointConstructor) {
+    // slope = (6-2)/(3-1) = 2, intercept = 2 - 2*1 = 0  =>  f(x) = 2x
+    const Segment s{Point{1.0, 2.0}, Point{3.0, 6.0}};
+
+    EXPECT_DOUBLE_EQ(s.getSlope(), 2.0);
+    EXPECT_DOUBLE_EQ(s.getIntercept(), 0.0);
+    EXPECT_DOUBLE_EQ(s.getLeft(), 1.0);
+    EXPECT_DOUBLE_EQ(s.getRight(), 3.0);
+    EXPECT_DOUBLE_EQ(s(2.0), 4.0);
+}
+
 TEST(PLFTest, TestSegment) {
     // f(x) = 2x + 3
     const Segment s(2.0, 3.0, 0.0, 10.0);
