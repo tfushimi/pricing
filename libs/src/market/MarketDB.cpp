@@ -38,12 +38,18 @@ std::optional<double> MarketDB::getPrice(const std::string& symbol, const Date& 
     return std::nullopt;
 }
 
-// TODO linearly interpolate between stored pillar dates; currently returns the nearest maturity
-double MarketDB::getDiscountFactor(double) const {
-    if (!_discountFactorPoints.empty()) {
-        return _discountFactorPoints.front().getValue();
+double MarketDB::getDiscountFactor(const double T) const {
+    if (T < 0.0) {
+
+        throw std::invalid_argument("T should be >= 0");
     }
 
+    if (_discountCurve.has_value()) {
+
+        return (*_discountCurve)(T);
+    }
+
+    // TODO take in currency
     const string ccy = "USD";
     const rowset rs =
         (sql.prepare
@@ -51,15 +57,22 @@ double MarketDB::getDiscountFactor(double) const {
                 "maturity_date ASC",
          use(ccy));
 
+    // discount factor is 1.0 today
+    std::vector dates{getPricingDate()};
+    std::vector values{1.0};
     for (const auto& r : rs) {
-        _discountFactorPoints.emplace_back(fromString(r.get<string>(0)), r.get<double>(1));
+        dates.push_back(fromString(r.get<string>(0)));
+        values.push_back(r.get<double>(1));
     }
 
-    if (_discountFactorPoints.empty()) {
-        throw std::runtime_error("No discount factor in MarketDB");
+    if (dates.empty()) {
+
+        throw std::runtime_error("No discount factors found for " + ccy);
     }
 
-    return _discountFactorPoints.front().getValue();
+    _discountCurve.emplace(getPricingDate(), dates, values);
+
+    return (*_discountCurve)(T);
 }
 
 // TODO linearly interpolate between stored pillar dates; currently returns the nearest maturity

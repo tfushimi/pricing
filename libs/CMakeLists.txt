@@ -46,6 +46,7 @@ target_link_libraries(payoff PUBLIC
 )
 target_link_libraries(market PUBLIC
         common
+        numerics
         soci_core
         soci_sqlite3
         project_warnings

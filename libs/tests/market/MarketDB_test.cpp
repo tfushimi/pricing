@@ -23,8 +23,8 @@ TEST_F(MarketDBTest, Price) {
 }
 
 TEST_F(MarketDBTest, DiscountFactor) {
-    const auto df = mkt.getDiscountFactor(1.0);
-    EXPECT_NEAR(df, 0.995899, 1e-6);
+    EXPECT_DOUBLE_EQ(mkt.getDiscountFactor(0.0), 1.0);
+    EXPECT_NEAR(mkt.getDiscountFactor(1.0), std::exp(-0.05 * 1.0), 1e-3);
 }
 
 TEST_F(MarketDBTest, ForwardPrice) {

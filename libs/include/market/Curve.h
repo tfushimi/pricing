@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cmath>
+#include <vector>
 
 #include "common/Date.h"
+#include "numerics/interpolation/LinearInterpolator.h"
 #include "payoff/Observable.h"
 
 namespace market {
@@ -59,4 +61,30 @@ class ConstantForwardCurve final : public Curve {
     const double _spot;
     const double _rate;
 };
+
+// Curve backed by (date, value) knots, interpolated linearly in time.
+// Extrapolates using the slope of the nearest segment beyond the knot range.
+class LinearInterpolatedCurve final : public Curve {
+   public:
+    LinearInterpolatedCurve(const calendar::Date pricingDate,
+                            const std::vector<calendar::Date>& dates,
+                            const std::vector<double>& values)
+        : Curve(pricingDate), _interp(toYearFractions(pricingDate, dates), values) {}
+
+    double operator()(const double T) const override { return _interp(T); }
+
+   private:
+    numerics::interpolation::LinearInterpolator _interp;
+
+    static std::vector<double> toYearFractions(const calendar::Date pricingDate,
+                                               const std::vector<calendar::Date>& dates) {
+        std::vector<double> x;
+        x.reserve(dates.size());
+        for (const auto& d : dates) {
+            x.push_back(calendar::yearFraction(pricingDate, d));
+        }
+        return x;
+    }
+};
+
 }  // namespace market
