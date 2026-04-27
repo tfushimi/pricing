@@ -33,7 +33,7 @@ class MarketDB final : public Market {
     mutable soci::session sql;
     mutable std::map<std::pair<std::string, calendar::Date>, double> _prices;
     mutable std::optional<LinearInterpolatedCurve> _discountCurve;
-    mutable std::map<std::string, std::vector<CurvePoint>> _forwardPoints;
+    mutable std::map<std::string, LinearInterpolatedCurve> _forwardCurves;
     mutable std::map<std::pair<std::string, calendar::Date>, std::vector<VolPoint>> _volPoints;
     mutable std::map<std::pair<std::string, calendar::Date>, std::unique_ptr<BSVolSlice>>
         _bsVolSlices;

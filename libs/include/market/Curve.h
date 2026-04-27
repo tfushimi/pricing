@@ -24,20 +24,6 @@ class Curve {
     calendar::Date _pricingDate;
 };
 
-// Represents a data point on Curve
-class CurvePoint final {
-   public:
-    explicit CurvePoint(const calendar::Date date, const double value)
-        : _date(date), _value(value) {}
-    ~CurvePoint() = default;
-    calendar::Date getDate() const { return _date; }
-    double getValue() const { return _value; }
-
-   private:
-    calendar::Date _date;
-    double _value;
-};
-
 class ConstantDiscountCurve final : public Curve {
    public:
     explicit ConstantDiscountCurve(const calendar::Date pricingDate, const double rate)

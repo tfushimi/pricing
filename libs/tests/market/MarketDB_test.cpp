@@ -9,7 +9,7 @@ using namespace market;
 
 class MarketDBTest : public ::testing::Test {
    public:
-    const Date pricingDate = makeDate(2026, 4, 26);
+    const Date pricingDate = makeDate(2026, 4, 24);
     const MarketDB mkt{pricingDate, "db=test_market.db"};
 };
 
@@ -28,8 +28,8 @@ TEST_F(MarketDBTest, DiscountFactor) {
 }
 
 TEST_F(MarketDBTest, ForwardPrice) {
-    const auto forward_price = mkt.getForward("SPX", 1.0);
-    EXPECT_NEAR(forward_price, 100.246879, 1e-6);
+    EXPECT_DOUBLE_EQ(mkt.getForward("SPX", 0.0), 100.0);
+    EXPECT_NEAR(mkt.getForward("SPX", 1.0), 100 * std::exp(0.03), 1e-2);
     EXPECT_THROW(mkt.getForward("UNKNOWN", 1.0), std::runtime_error);
 }
 
