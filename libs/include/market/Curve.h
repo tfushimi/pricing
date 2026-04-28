@@ -64,11 +64,12 @@ class LinearInterpolatedCurve final : public Curve {
 
     static std::vector<double> toYearFractions(const calendar::Date pricingDate,
                                                const std::vector<calendar::Date>& dates) {
-        std::vector<double> x;
-        x.reserve(dates.size());
-        for (const auto& d : dates)
-            x.push_back(calendar::yearFraction(pricingDate, d));
-        return x;
+        std::vector<double> result;
+        result.reserve(dates.size());
+        for (const auto& date : dates) {
+          result.push_back(calendar::yearFraction(pricingDate, date));
+        }
+        return result;
     }
 };
 
@@ -89,12 +90,12 @@ class LogLinearInterpolatedCurve final : public Curve {
 
     static std::vector<double> toYearFractions(const calendar::Date pricingDate,
                                                const std::vector<calendar::Date>& dates) {
-        std::vector<double> x;
-        x.reserve(dates.size());
-        for (const auto& d : dates) {
-            x.push_back(calendar::yearFraction(pricingDate, d));
+        std::vector<double> result;
+        result.reserve(dates.size());
+        for (const auto& date : dates) {
+            result.push_back(calendar::yearFraction(pricingDate, date));
         }
-        return x;
+        return result;
     }
 
     static std::vector<double> toLogs(const std::vector<double>& values) {

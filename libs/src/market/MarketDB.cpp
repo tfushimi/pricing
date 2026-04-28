@@ -65,9 +65,10 @@ double MarketDB::getDiscountFactor(const double T) const {
         throw std::runtime_error("No discount factors found for USD");
     }
 
-    _discountCurve.emplace(getPricingDate(), maturityDates, discountFactors);  // log-linear
+    const auto discountCurve =
+        _discountCurve.emplace(getPricingDate(), maturityDates, discountFactors);  // log-linear
 
-    return (*_discountCurve)(T);
+    return discountCurve(T);
 }
 
 double MarketDB::getForward(const std::string& symbol, const double T) const {
@@ -98,10 +99,11 @@ double MarketDB::getForward(const std::string& symbol, const double T) const {
         throw std::runtime_error("No forward prices found for " + symbol);
     }
 
-    _forwardCurves.emplace(std::piecewise_construct, std::forward_as_tuple(symbol),
-                           std::forward_as_tuple(getPricingDate(), maturityDates, forwardPrices));  // log-linear
+    const auto [forwardCurve, _] = _forwardCurves.emplace(
+        std::piecewise_construct, std::forward_as_tuple(symbol),
+        std::forward_as_tuple(getPricingDate(), maturityDates, forwardPrices));  // log-linear
 
-    return _forwardCurves.at(symbol)(T);
+    return forwardCurve->second(T);
 }
 
 // TODO interpolate BSVolSlice; currently returns a flat vol slice
