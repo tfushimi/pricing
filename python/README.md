@@ -13,7 +13,7 @@ cmake --build cmake-build-docker --target pypricing
 cmake --build cmake-build-docker --target pytest
 
 # Run a script
-PYTHONPATH=cmake-build-docker/python python3 python/app/<script>.py
+PYTHONPATH=cmake-build-docker/python python3 python/scripts/<script>.py
 
 # Interactive Python session
 PYTHONPATH=cmake-build-docker/python python3
@@ -28,7 +28,7 @@ docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker -
 docker run --rm -v $(pwd):/work pricing cmake --build /work/cmake-build-docker --target pytest
 
 # Run a script
-docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/app/<script>.py
+docker run --rm -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3 /work/python/scripts/<script>.py
 
 # Interactive Python session
 docker run --rm -it -v $(pwd):/work -e PYTHONPATH=/work/cmake-build-docker/python pricing python3
@@ -70,14 +70,14 @@ CashPayment(amount=Max(Add(Fixing(SPX, 2026-01-15), Multiply(-1.000000, 100.0000
 10.362778485144844
 ```
 
-## Apps
+## Scripts
 
 ### Structured Products
 
 | Script | Description |
 |---|---|
-| `app/barrier_enhanced_note.py` | Barrier-protected capital note priced under BS across a range of spots |
-| `app/json_pricing.py` | Loads a payoff from JSON and prices it using Black-Scholes |
+| `scripts/barrier_enhanced_note.py` | Barrier-protected capital note priced under BS across a range of spots |
+| `scripts/json_pricing.py` | Loads a payoff from JSON and prices it using Black-Scholes |
 
 ### The Volatility Surface (Gatheral, 2006)
 
@@ -87,9 +87,9 @@ All use Heston-Nandi parameters (v0=0.04, κ=10, θ=0.04, ξ=1, ρ=-1) with zero
 
 | Script | Figure | Description |
 |---|---|---|
-| `app/implied_vol_curve.py` | 4.3 | Heston implied volatility smile across log-strikes at T=0.5 |
-| `app/digital_call.py` | 9.3 | Digital call across strikes: Heston (analytic) vs approximate local vol (MC) |
-| `app/one_touch_call.py` | 9.4 | One-touch call across barriers: Heston MC vs approximate local vol MC |
-| `app/locally_capped_globally_floored_cliquet.py` | 10.1 | LCGF cliquet: monthly returns capped at ±1%, global floor swept over MinCoupon |
-| `app/napoleon_cliquet.py` | 10.5 | Napoleon: annual coupon = max(0, MaxCoupon + worst monthly return) |
-| `app/reverse_cliquet.py` | 10.3 | Reverse cliquet: max(0, MaxCoupon + sum of semi-annual reverse returns) |
+| `scripts/implied_vol_curve.py` | 4.3 | Heston implied volatility smile across log-strikes at T=0.5 |
+| `scripts/digital_call.py` | 9.3 | Digital call across strikes: Heston (analytic) vs approximate local vol (MC) |
+| `scripts/one_touch_call.py` | 9.4 | One-touch call across barriers: Heston MC vs approximate local vol MC |
+| `scripts/locally_capped_globally_floored_cliquet.py` | 10.1 | LCGF cliquet: monthly returns capped at ±1%, global floor swept over MinCoupon |
+| `scripts/napoleon_cliquet.py` | 10.5 | Napoleon: annual coupon = max(0, MaxCoupon + worst monthly return) |
+| `scripts/reverse_cliquet.py` | 10.3 | Reverse cliquet: max(0, MaxCoupon + sum of semi-annual reverse returns) |
