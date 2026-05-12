@@ -9,17 +9,15 @@
 using namespace market;
 using namespace calendar;
 
-const Date pricingDate = makeDate(2025, 1, 1);
-const Date maturityDate = makeDate(2026, 1, 1);
 constexpr double forward = 100.0;
 const std::vector strikes = {80.0, 90.0, 100.0, 110.0, 120.0};
 const std::vector vols = {0.25, 0.20, 0.18, 0.20, 0.25};
 
 // vol at each input strike must round-trip exactly: w = v^2*T, vol = sqrt(w/T) = v.
 TEST(InterpolatedBSVolSliceTest, KnotsReproduced) {
-    const InterpolatedBSVolSlice slice(pricingDate, forward, maturityDate, strikes, vols);
-    EXPECT_DOUBLE_EQ(slice.vol(80.0),  0.25);
-    EXPECT_DOUBLE_EQ(slice.vol(90.0),  0.20);
+    const InterpolatedBSVolSlice slice(forward, 1.0, strikes, vols);
+    EXPECT_DOUBLE_EQ(slice.vol(80.0), 0.25);
+    EXPECT_DOUBLE_EQ(slice.vol(90.0), 0.20);
     EXPECT_DOUBLE_EQ(slice.vol(100.0), 0.18);
     EXPECT_DOUBLE_EQ(slice.vol(110.0), 0.20);
     EXPECT_DOUBLE_EQ(slice.vol(120.0), 0.25);
@@ -27,7 +25,7 @@ TEST(InterpolatedBSVolSliceTest, KnotsReproduced) {
 
 // Analytic dVol/dK must match central finite difference to within FD truncation error O(dK^2).
 TEST(InterpolatedBSVolSliceTest, dVolDStrikeMatchesFD) {
-    const InterpolatedBSVolSlice slice(pricingDate, forward, maturityDate, strikes, vols);
+    const InterpolatedBSVolSlice slice(forward, 1.0, strikes, vols);
     constexpr double dK = 1e-4;
     for (const double K : {85.0, 95.0, 100.0, 105.0, 115.0}) {
         const double analytic = slice.dVolDStrike(K);
@@ -39,7 +37,7 @@ TEST(InterpolatedBSVolSliceTest, dVolDStrikeMatchesFD) {
 // Beyond the wing strikes, w(k) = vol^2*T must be linear in k = log(K/F):
 // three points outside the smile must be collinear in (k, w) space.
 TEST(InterpolatedBSVolSliceTest, ExtrapolationLinearInTotalVariance) {
-    const InterpolatedBSVolSlice slice(pricingDate, forward, maturityDate, strikes, vols);
+    const InterpolatedBSVolSlice slice(forward, 1.0, strikes, vols);
     const double T = slice.time();
     auto w = [&](double K) { return slice.vol(K) * slice.vol(K) * T; };
     auto k = [&](double K) { return std::log(K / forward); };
@@ -54,8 +52,6 @@ TEST(InterpolatedBSVolSliceTest, ExtrapolationLinearInTotalVariance) {
 }
 
 TEST(InterpolatedBSVolSliceTest, ThrowsOnNonPositiveForward) {
-    EXPECT_THROW(InterpolatedBSVolSlice(pricingDate, 0.0,  maturityDate, strikes, vols),
-                 std::invalid_argument);
-    EXPECT_THROW(InterpolatedBSVolSlice(pricingDate, -1.0, maturityDate, strikes, vols),
-                 std::invalid_argument);
+    EXPECT_THROW(InterpolatedBSVolSlice(0.0, 1.0, strikes, vols), std::invalid_argument);
+    EXPECT_THROW(InterpolatedBSVolSlice(-1.0, 1.0, strikes, vols), std::invalid_argument);
 }

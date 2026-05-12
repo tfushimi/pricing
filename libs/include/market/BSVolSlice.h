@@ -1,12 +1,11 @@
 #pragma once
 
-#include "numerics/interpolation/NaturalCubicSplineInterpolator.h"
-
 #include <cmath>
 
 #include "SVI.h"
 #include "common/Date.h"
 #include "common/Types.h"
+#include "numerics/interpolation/NaturalCubicSplineInterpolator.h"
 
 namespace market {
 
@@ -106,11 +105,10 @@ class SVIVolSlice final : public BSVolSlice {
 // knot.
 class InterpolatedBSVolSlice final : public BSVolSlice {
    public:
-    InterpolatedBSVolSlice(const calendar::Date pricingDate, const double forward,
-                           const calendar::Date maturityDate, const std::vector<double>& strikes,
-                           const std::vector<double>& vols)
-        : BSVolSlice(forward, calendar::yearFraction(pricingDate, maturityDate)),
-          _interp(toLogMoneyness(forward, strikes), toTotalVariance(time(), vols)) {}
+    InterpolatedBSVolSlice(const double forward, const double time,
+                           const std::vector<double>& strikes, const std::vector<double>& vols)
+        : BSVolSlice(forward, time),
+          _interp(toLogMoneyness(forward, strikes), toTotalVariance(time, vols)) {}
     ~InterpolatedBSVolSlice() override = default;
 
     double vol(const double strike) const override {
