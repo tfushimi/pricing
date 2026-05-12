@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "SVI.h"
+#include "common/Date.h"
 #include "common/Types.h"
 
 namespace market {
@@ -33,8 +34,8 @@ class BSVolSlice {
 // Represents a point on a volatility surface
 struct VolPoint {
     calendar::Date date;
-    const double strike;
-    const double vol;
+    const double strike{};
+    const double vol{};
 };
 
 class FlatVolSlice final : public BSVolSlice {

@@ -67,7 +67,7 @@ class LinearInterpolatedCurve final : public Curve {
         std::vector<double> result;
         result.reserve(dates.size());
         for (const auto& date : dates) {
-          result.push_back(calendar::yearFraction(pricingDate, date));
+            result.push_back(calendar::yearFraction(pricingDate, date));
         }
         return result;
     }

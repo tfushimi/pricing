@@ -16,6 +16,12 @@ target_link_libraries(test_linear_interpolator PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_natural_cubic_spline_interpolator numerics/interpolation/NaturalCubicSplineInterpolator_test.cpp)
+target_link_libraries(test_natural_cubic_spline_interpolator PRIVATE
+        numerics
+        GTest::gtest_main
+)
+
 add_executable(test_plf numerics/linear/PiecewiseLinearFunction_test.cpp)
 target_link_libraries(test_plf PRIVATE
         numerics
@@ -133,6 +139,7 @@ include(GoogleTest)
 gtest_discover_tests(test_integration)
 gtest_discover_tests(test_root_finding)
 gtest_discover_tests(test_linear_interpolator)
+gtest_discover_tests(test_natural_cubic_spline_interpolator)
 gtest_discover_tests(test_plf)
 gtest_discover_tests(test_bs_formula)
 gtest_discover_tests(test_heston_formula)
