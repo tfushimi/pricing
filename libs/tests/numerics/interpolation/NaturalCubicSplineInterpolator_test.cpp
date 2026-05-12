@@ -87,11 +87,11 @@ TEST(NaturalCubicSplineInterpolatorTest, VolSlice_MidpointInterpolation) {
     EXPECT_DOUBLE_EQ(interp(0.5), 0.215625);
 }
 
-// Beyond the wing strikes the boundary segment's cubic polynomial is continued.
-// S0(-0.5) = 0.25 + 0.0375 - 0.003125 = 0.284375
-// S1( 1.5) = 0.20 + 0.16875 - 0.084375 = 0.284375
+// Beyond the wing strikes the spline extrapolates linearly using the boundary slope.
+// b[0] = -0.075  =>  f(-1.5) = 0.25 + (-0.075)*(-0.5) = 0.2875
+// slope_right = 0.075  =>  f(1.5) = 0.25 + 0.075*(0.5) = 0.2875
 TEST(NaturalCubicSplineInterpolatorTest, VolSlice_ExtrapolationBeyondWings) {
     const NaturalCubicSplineInterpolator interp({-1.0, 0.0, 1.0}, {0.25, 0.20, 0.25});
-    EXPECT_DOUBLE_EQ(interp(-1.5), 0.284375);
-    EXPECT_DOUBLE_EQ(interp(1.5), 0.284375);
+    EXPECT_DOUBLE_EQ(interp(-1.5), 0.2875);
+    EXPECT_DOUBLE_EQ(interp(1.5), 0.2875);
 }

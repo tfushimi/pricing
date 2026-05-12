@@ -1,5 +1,7 @@
 #pragma once
 
+#include "numerics/interpolation/NaturalCubicSplineInterpolator.h"
+
 #include <cmath>
 
 #include "SVI.h"
@@ -94,5 +96,70 @@ class SVIVolSlice final : public BSVolSlice {
 
    private:
     vol::SVI _svi;
+};
+
+// BSVolSlice backed by a natural cubic spline fitted to market strike/vol pairs.
+// Interpolation is performed in (log-moneyness, total-variance) space:
+//   k = log(K/F),  w(k) = sigma(k)^2 * T
+// which avoids calendar arbitrage issues and keeps the smile smooth.
+// Extrapolation beyond the wing strikes is linear in w(k), using the spline slope at each boundary
+// knot.
+class InterpolatedBSVolSlice final : public BSVolSlice {
+   public:
+    InterpolatedBSVolSlice(const calendar::Date pricingDate, const double forward,
+                           const calendar::Date maturityDate, const std::vector<double>& strikes,
+                           const std::vector<double>& vols)
+        : BSVolSlice(forward, calendar::yearFraction(pricingDate, maturityDate)),
+          _interp(toLogMoneyness(forward, strikes), toTotalVariance(time(), vols)) {}
+    ~InterpolatedBSVolSlice() override = default;
+
+    double vol(const double strike) const override {
+        const double w = _interp(std::log(strike / forward()));
+        if (w <= 0.0) {
+            throw std::invalid_argument(
+                "InterpolatedBSVolSlice: non-positive total variance at strike " +
+                std::to_string(strike));
+        }
+        return std::sqrt(w / time());
+    }
+
+    // Analytic dSigma/dK via chain rule:
+    //   k = log(K/F)  →  dk/dK = 1/K
+    //   sigma = sqrt(w(k)/T)  →  dsigma/dk = dw/dk / (2*sigma*T)
+    //   dsigma/dK = dsigma/dk * dk/dK = dw/dk / (2*sigma*T*K)
+    double dVolDStrike(const double strike) const override {
+        const double k = std::log(strike / forward());
+        const double w = _interp(k);
+        if (w <= 0.0) {
+            throw std::invalid_argument(
+                "InterpolatedBSVolSlice: non-positive total variance at strike " +
+                std::to_string(strike));
+        }
+        const double dwdk = _interp.derivative(k);
+        const double sigma = std::sqrt(w / time());
+        return dwdk / (2.0 * sigma * time() * strike);
+    }
+
+   private:
+    numerics::interpolation::NaturalCubicSplineInterpolator _interp;
+
+    static std::vector<double> toLogMoneyness(const double forward,
+                                              const std::vector<double>& strikes) {
+        std::vector<double> logMoneyness;
+        logMoneyness.reserve(strikes.size());
+        for (const double strike : strikes) {
+            logMoneyness.push_back(std::log(strike / forward));
+        }
+        return logMoneyness;
+    }
+
+    static std::vector<double> toTotalVariance(const double time, const std::vector<double>& vols) {
+        std::vector<double> totalVariance;
+        totalVariance.reserve(vols.size());
+        for (const double vol : vols) {
+            totalVariance.push_back(vol * vol * time);
+        }
+        return totalVariance;
+    }
 };
 }  // namespace market

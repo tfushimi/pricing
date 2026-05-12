@@ -117,6 +117,12 @@ target_link_libraries(test_time_grid PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_bs_vol_slice market/BSVolSlice_test.cpp)
+target_link_libraries(test_bs_vol_slice PRIVATE
+        market
+        GTest::gtest_main
+)
+
 add_executable(test_market_db market/MarketDB_test.cpp)
 target_link_libraries(test_market_db PRIVATE
         market
@@ -155,6 +161,7 @@ gtest_discover_tests(test_json_codec)
 gtest_discover_tests(test_process)
 gtest_discover_tests(test_process_state_stepper)
 gtest_discover_tests(test_time_grid)
+gtest_discover_tests(test_bs_vol_slice)
 gtest_discover_tests(test_market_db
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}  # point to where test_market.db is written
 )

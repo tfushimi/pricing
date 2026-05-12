@@ -30,6 +30,16 @@ class CubicFunction {
         return a + b * h + c * h * h + d * h * h * h;
     }
 
+    double derivative(const double x) const {
+        if (x < _left || x > _right) {
+            throw std::invalid_argument("outside range of [" + std::to_string(_left) + "," +
+                                        std::to_string(x) + "]: x=" + std::to_string(x));
+        }
+        const auto [a, b, c, d] = _coefficients;
+        const auto h = x - _knot;
+        return b + 2.0 * c * h + 3.0 * d * h * h;
+    }
+
     double getLeft() const { return _left; }
 
     double getRight() const { return _right; }
@@ -44,8 +54,7 @@ class CubicFunction {
 // Piecewise cubic interpolator with natural boundary conditions:
 //   S''(x_0) = S''(x_{n-1}) = 0
 // Coefficients are solved via the tridiagonal Thomas algorithm.
-// Outside [x_0, x_{n-1}] the boundary segment's cubic polynomial is evaluated,
-// which reduces to linear extrapolation when the data is itself linear.
+// Outside [x_0, x_{n-1}] the spline extrapolates linearly using the slope at each boundary knot.
 class NaturalCubicSplineInterpolator {
    public:
     NaturalCubicSplineInterpolator(const std::vector<double>& x, const std::vector<double>& y)
@@ -57,7 +66,15 @@ class NaturalCubicSplineInterpolator {
                 return function(x);
             }
         }
+        throw std::invalid_argument("Invalid argument: x=" + std::to_string(x));
+    }
 
+    double derivative(const double x) const {
+        for (const auto& function : _functions) {
+            if (x < function.getRight()) {
+                return function.derivative(x);
+            }
+        }
         throw std::invalid_argument("Invalid argument: x=" + std::to_string(x));
     }
 
@@ -124,12 +141,16 @@ class NaturalCubicSplineInterpolator {
         }
 
         // step 7
+        const double slopeRight =
+            b[n - 2] + 2.0 * c[n - 2] * h[n - 2] + 3.0 * d[n - 2] * h[n - 2] * h[n - 2];
+
         std::vector<CubicFunction> functions;
+        functions.emplace_back(linear::NEG_INF, x[0], x[0], Coefficients{y[0], b[0], 0.0, 0.0});
         for (size_t i = 0; i < n - 1; i++) {
-            const auto left = i == 0 ? linear::NEG_INF : x[i];
-            const auto right = i == n - 2 ? linear::POS_INF : x[i + 1];
-            functions.emplace_back(left, right, x[i], Coefficients{y[i], b[i], c[i], d[i]});
+            functions.emplace_back(x[i], x[i + 1], x[i], Coefficients{y[i], b[i], c[i], d[i]});
         }
+        functions.emplace_back(x[n - 1], linear::POS_INF, x[n - 1],
+                               Coefficients{y[n - 1], slopeRight, 0.0, 0.0});
 
         return functions;
     }
