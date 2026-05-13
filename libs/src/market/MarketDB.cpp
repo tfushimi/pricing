@@ -3,6 +3,7 @@
 #include <soci/soci.h>
 #include <soci/sqlite3/soci-sqlite3.h>
 
+#include <algorithm>
 #include <optional>
 #include <string>
 
@@ -106,32 +107,102 @@ double MarketDB::getForward(const std::string& symbol, const double T) const {
     return forwardCurve->second(T);
 }
 
-// TODO interpolate BSVolSlice; currently returns a flat vol slice
-const BSVolSlice& MarketDB::getBSVolSlice(const std::string& symbol, const Date& date) const {
-    const auto key = make_pair(symbol, date);
-    if (_volPoints.contains(key)) {
-        return flatVolSlice;  // TODO return interpolated BSVolSlice from _volPoints
+void MarketDB::buildAndCacheVolSlice(const std::string& symbol, const std::string& dateStr,
+                                     const std::vector<double>& strikes,
+                                     const std::vector<double>& vols) const {
+    if (dateStr.empty() || strikes.empty()) {
+        return;
     }
 
-    const string dateStr = toString(date);
+    const auto maturityDate = fromString(dateStr);
+    const double time = yearFraction(getPricingDate(), maturityDate);
+    const double forward = getForward(symbol, time);
+    _bsVolSlices.emplace(make_pair(symbol, maturityDate),
+                         std::make_unique<InterpolatedBSVolSlice>(forward, time, strikes, vols));
+}
+
+void MarketDB::loadVolSlicesForSymbol(const std::string& symbol) const {
+    const auto pricingDateStr = toString(getPricingDate());
     const rowset rs =
         (sql.prepare
-             << "SELECT maturity_date, strike, implied_vol FROM implied_vol WHERE symbol = ? AND "
-                "maturity_date = ? ORDER BY strike ASC",
-         use(symbol), use(dateStr));
+             << "SELECT maturity_date, strike, implied_vol FROM implied_vol "
+                "WHERE symbol = ? AND maturity_date > ? ORDER BY maturity_date ASC, strike ASC",
+         use(symbol), use(pricingDateStr));
 
-    std::vector<VolPoint> result;
+    std::vector<double> strikes, vols;
+    std::string currentDateStr;
 
     for (const auto& r : rs) {
-        result.emplace_back(fromString(r.get<string>(0)), r.get<double>(1), r.get<double>(2));
+        const std::string matDateStr = r.get<string>(0);
+
+        // new maturity, so build a vol slice based on the accumulated strikes and vols
+        if (matDateStr != currentDateStr) {
+            buildAndCacheVolSlice(symbol, currentDateStr, strikes, vols);
+
+            strikes.clear();
+            vols.clear();
+
+            // start accumulating
+            currentDateStr = matDateStr;
+        }
+
+        // accumulate strikes and vols
+        strikes.push_back(r.get<double>(1));
+        vols.push_back(r.get<double>(2));
     }
 
-    if (result.empty()) {
-        throw std::runtime_error("No implied_vol in MarketDB");
+    buildAndCacheVolSlice(symbol, currentDateStr, strikes, vols);
+}
+
+const BSVolSlice& MarketDB::getBSVolSlice(const std::string& symbol, const Date& date) const {
+    const auto key = make_pair(symbol, date);
+    if (const auto it = _bsVolSlices.find(key); it != _bsVolSlices.end()) {
+        return *it->second;
     }
 
-    _volPoints.emplace(key, std::move(result));
+    if (!_loadedVolSymbols.contains(symbol)) {
+        loadVolSlicesForSymbol(symbol);
+        _loadedVolSymbols.insert(symbol);
+    }
 
-    return flatVolSlice;
+    if (const auto it = _bsVolSlices.find(key); it != _bsVolSlices.end()) {
+        return *it->second;
+    }
+
+    // Collect available expiry dates for this symbol in sorted order (map is ordered by key).
+    std::vector<Date> availableMaturityDates;
+    for (const auto& [k, _] : _bsVolSlices) {
+        if (k.first == symbol) {
+            availableMaturityDates.push_back(k.second);
+        }
+    }
+
+    if (availableMaturityDates.empty()) {
+        throw std::runtime_error("No implied vol data found for " + symbol);
+    }
+
+    // Flat extrapolation beyond the observed expiry range.
+    if (date <= availableMaturityDates.front()) {
+        return *_bsVolSlices.at({symbol, availableMaturityDates.front()});
+    }
+
+    if (date >= availableMaturityDates.back()) {
+        return *_bsVolSlices.at({symbol, availableMaturityDates.back()});
+    }
+
+    // Find the two bracketing expiry dates (nearDate < date < farDate).
+    const auto it = std::lower_bound(availableMaturityDates.begin(), availableMaturityDates.end(), date);
+    const Date& farDate = *it;
+    const Date& nearDate = *(it - 1);
+
+    const BSVolSlice& near = *_bsVolSlices.at({symbol, nearDate});
+    const BSVolSlice& far = *_bsVolSlices.at({symbol, farDate});
+    const double t = yearFraction(getPricingDate(), date);
+    const double fwd = getForward(symbol, t);
+
+    const auto [inserted, ok] = _bsVolSlices.emplace(
+        key, std::make_unique<TemporallyInterpolatedBSVolSlice>(fwd, t, near, far));
+
+    return *inserted->second;
 }
 }  // namespace market

@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 
 #include "BSVolSlice.h"
@@ -30,14 +31,17 @@ class MarketDB final : public Market {
                                     const calendar::Date& date) const override;
 
    private:
+    void loadVolSlicesForSymbol(const std::string& symbol) const;
+    void buildAndCacheVolSlice(const std::string& symbol, const std::string& dateStr,
+                               const std::vector<double>& strikes,
+                               const std::vector<double>& vols) const;
+
     mutable soci::session sql;
     mutable std::map<std::pair<std::string, calendar::Date>, double> _prices;
     mutable std::optional<LogLinearInterpolatedCurve> _discountCurve;
     mutable std::map<std::string, LogLinearInterpolatedCurve> _forwardCurves;
-    mutable std::map<std::pair<std::string, calendar::Date>, std::vector<VolPoint>> _volPoints;
+    mutable std::set<std::string> _loadedVolSymbols;
     mutable std::map<std::pair<std::string, calendar::Date>, std::unique_ptr<BSVolSlice>>
         _bsVolSlices;
-
-    const FlatVolSlice flatVolSlice{100, 1.0, 100};
 };
 }  // namespace market

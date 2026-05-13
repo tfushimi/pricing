@@ -54,11 +54,59 @@ TEST_F(MarketDBTest, ForwardPrice) {
     EXPECT_THROW(mkt.getForward("UNKNOWN", 1.0), std::runtime_error);
 }
 
-TEST_F(MarketDBTest, BSVolSlice) {
-    const BSVolSlice& volSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+// For a date present in the DB, the slice returns positive vols at all strikes.
+TEST_F(MarketDBTest, BSVolSlice_ExactDate_VolIsPositive) {
+    const BSVolSlice& slice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+    for (const double K : {80.0, 90.0, 100.0, 110.0, 120.0}) {
+        EXPECT_GT(slice.vol(K), 0.0) << "K=" << K;
+    }
+}
 
-    EXPECT_DOUBLE_EQ(volSlice.vol(100.0), 100.0);
-    EXPECT_DOUBLE_EQ(volSlice.vol(120.0), 100.0);
+// The same date always returns the same slice object (no duplicate construction).
+TEST_F(MarketDBTest, BSVolSlice_Caching) {
+    const BSVolSlice& s1 = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+    const BSVolSlice& s2 = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+    EXPECT_EQ(&s1, &s2);
+}
 
+// For a date strictly between two DB expiries the slice interpolates linearly
+// in total variance: w(K,T) = w1(K) + alpha*(w2(K)-w1(K)).
+TEST_F(MarketDBTest, BSVolSlice_TemporalInterpolation) {
+    const BSVolSlice& nearSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+    const BSVolSlice& farSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 7, 24));
+    const BSVolSlice& midSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 6, 24));
+
+    const double T1 = nearSlice.time();
+    const double T2 = farSlice.time();
+    const double T = midSlice.time();
+    const double alpha = (T - T1) / (T2 - T1);
+
+    for (const double K : {85.0, 95.0, 100.0, 105.0, 115.0}) {
+        const double w1 = nearSlice.vol(K) * nearSlice.vol(K) * T1;
+        const double w2 = farSlice.vol(K)  * farSlice.vol(K)  * T2;
+        const double wExpected = w1 + alpha * (w2 - w1);
+        EXPECT_NEAR(midSlice.vol(K) * midSlice.vol(K) * T, wExpected, 1e-10) << "K=" << K;
+    }
+}
+
+// Beyond the last DB expiry, the last slice is returned unchanged (flat extrapolation).
+TEST_F(MarketDBTest, BSVolSlice_ExtrapolationBeyondLastDate) {
+    const BSVolSlice& lastSlice = mkt.getBSVolSlice("SPX", makeDate(2027, 4, 24));
+    const BSVolSlice& beyondSlice = mkt.getBSVolSlice("SPX", makeDate(2028, 1, 1));
+    for (const double K : {80.0, 100.0, 120.0}) {
+        EXPECT_DOUBLE_EQ(beyondSlice.vol(K), lastSlice.vol(K)) << "K=" << K;
+    }
+}
+
+// Before the first DB expiry, the first slice is returned unchanged (flat extrapolation).
+TEST_F(MarketDBTest, BSVolSlice_ExtrapolationBeforeFirstDate) {
+    const BSVolSlice& firstSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 24));
+    const BSVolSlice& beforeSlice = mkt.getBSVolSlice("SPX", makeDate(2026, 5, 1));
+    for (const double K : {80.0, 100.0, 120.0}) {
+        EXPECT_DOUBLE_EQ(beforeSlice.vol(K), firstSlice.vol(K)) << "K=" << K;
+    }
+}
+
+TEST_F(MarketDBTest, BSVolSlice_ThrowsForUnknownSymbol) {
     EXPECT_THROW(mkt.getBSVolSlice("UNKNOWN", makeDate(2026, 5, 24)), std::runtime_error);
 }
