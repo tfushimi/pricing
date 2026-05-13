@@ -160,4 +160,59 @@ class InterpolatedBSVolSlice final : public BSVolSlice {
         return totalVariance;
     }
 };
+
+// BSVolSlice interpolated in time between two bracketing slices.
+// Interpolation is linear in total variance w(K) = sigma(K)^2 * T:
+//   w(K, T) = w1(K) + alpha * (w2(K) - w1(K)),   alpha = (T - T1) / (T2 - T1)
+// This preserves the no-calendar-arbitrage condition (w non-decreasing in T for fixed K).
+// T must lie strictly between the times of the two slices.
+class TemporallyInterpolatedBSVolSlice final : public BSVolSlice {
+   public:
+    TemporallyInterpolatedBSVolSlice(const double forward, const double time,
+                                     const BSVolSlice& near, const BSVolSlice& far)
+        : BSVolSlice(forward, time),
+          _alpha(computeAlpha(time, near, far)),
+          _near(near),
+          _far(far) {}
+    ~TemporallyInterpolatedBSVolSlice() override = default;
+
+    double vol(const double strike) const override {
+        const double w = totalVariance(strike);
+        return std::sqrt(w / time());
+    }
+
+    // Analytic dSigma/dK via chain rule on w = w1 + alpha*(w2-w1):
+    //   dw/dK = (1-alpha)*dw1/dK + alpha*dw2/dK
+    //   dw_i/dK = 2*sigma_i*T_i * dSigma_i/dK
+    //   dSigma/dK = dw/dK / (2*sigma*T)
+    double dVolDStrike(const double strike) const override {
+        const double w = totalVariance(strike);
+        const double dw =
+            (1.0 - _alpha) * 2.0 * _near.vol(strike) * _near.time() * _near.dVolDStrike(strike) +
+            _alpha * 2.0 * _far.vol(strike) * _far.time() * _far.dVolDStrike(strike);
+        return dw / (2.0 * std::sqrt(w / time()) * time());
+    }
+
+   private:
+    double _alpha;
+    const BSVolSlice& _near;
+    const BSVolSlice& _far;
+
+    static double computeAlpha(const double time, const BSVolSlice& near, const BSVolSlice& far) {
+        if (near.time() >= far.time()) {
+            throw std::invalid_argument("TemporallyInterpolatedBSVolSlice: near must precede far");
+        }
+        if (time <= near.time() || time >= far.time()) {
+            throw std::invalid_argument(
+                "TemporallyInterpolatedBSVolSlice: time out of interpolation range");
+        }
+        return (time - near.time()) / (far.time() - near.time());
+    }
+
+    double totalVariance(const double strike) const {
+        const double w1 = _near.vol(strike) * _near.vol(strike) * _near.time();
+        const double w2 = _far.vol(strike) * _far.vol(strike) * _far.time();
+        return w1 + _alpha * (w2 - w1);
+    }
+};
 }  // namespace market

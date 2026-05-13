@@ -55,3 +55,56 @@ TEST(InterpolatedBSVolSliceTest, ThrowsOnNonPositiveForward) {
     EXPECT_THROW(InterpolatedBSVolSlice(0.0, 1.0, strikes, vols), std::invalid_argument);
     EXPECT_THROW(InterpolatedBSVolSlice(-1.0, 1.0, strikes, vols), std::invalid_argument);
 }
+
+// If both slices carry the same flat vol, the interpolated vol equals that vol at any T.
+TEST(TemporallyInterpolatedBSVolSliceTest, SameVolPreserved) {
+    const FlatVolSlice near(forward, 1.0, 0.20);
+    const FlatVolSlice far(forward, 3.0, 0.20);
+    const TemporallyInterpolatedBSVolSlice slice(forward, 2.0, near, far);
+    EXPECT_DOUBLE_EQ(slice.vol(90.0), 0.20);
+    EXPECT_DOUBLE_EQ(slice.vol(100.0), 0.20);
+    EXPECT_DOUBLE_EQ(slice.vol(110.0), 0.20);
+}
+
+// Interpolation is in total-variance space: w = w1 + alpha*(w2-w1), vol = sqrt(w/T).
+// near: FlatVol(0.20, T=1.0) -> w1 = 0.04
+// far:  FlatVol(0.30, T=2.0) -> w2 = 0.18
+// T=1.5, alpha=0.5 -> w = 0.11, vol = sqrt(0.11/1.5)
+TEST(TemporallyInterpolatedBSVolSliceTest, VolInterpolationByTotalVariance) {
+    const FlatVolSlice near(forward, 1.0, 0.20);
+    const FlatVolSlice far(forward, 2.0, 0.30);
+    const TemporallyInterpolatedBSVolSlice slice(forward, 1.5, near, far);
+    const double expected = std::sqrt(0.11 / 1.5);
+    EXPECT_NEAR(slice.vol(90.0), expected, 1e-10);
+    EXPECT_NEAR(slice.vol(100.0), expected, 1e-10);
+    EXPECT_NEAR(slice.vol(110.0), expected, 1e-10);
+}
+
+// Analytic dVol/dK must match central FD. Uses InterpolatedBSVolSlice for a non-trivial smile.
+TEST(TemporallyInterpolatedBSVolSliceTest, dVolDStrikeMatchesFD) {
+    const InterpolatedBSVolSlice near(forward, 1.0, strikes, {0.25, 0.20, 0.18, 0.20, 0.25});
+    const InterpolatedBSVolSlice far(forward, 2.0, strikes, {0.30, 0.25, 0.22, 0.25, 0.30});
+    const TemporallyInterpolatedBSVolSlice slice(forward, 1.5, near, far);
+    constexpr double dK = 1e-4;
+    for (const double K : {85.0, 95.0, 100.0, 105.0, 115.0}) {
+        const double analytic = slice.dVolDStrike(K);
+        const double fd = (slice.vol(K + dK) - slice.vol(K - dK)) / (2.0 * dK);
+        EXPECT_NEAR(analytic, fd, 1e-6) << "K=" << K;
+    }
+}
+
+TEST(TemporallyInterpolatedBSVolSliceTest, ThrowsOnTimeOutOfRange) {
+    const FlatVolSlice near(forward, 1.0, 0.20);
+    const FlatVolSlice far(forward, 2.0, 0.20);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 1.0, near, far), std::invalid_argument);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 2.0, near, far), std::invalid_argument);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 0.5, near, far), std::invalid_argument);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 3.0, near, far), std::invalid_argument);
+}
+
+TEST(TemporallyInterpolatedBSVolSliceTest, ThrowsOnInvalidSliceOrder) {
+    const FlatVolSlice near(forward, 1.0, 0.20);
+    const FlatVolSlice far(forward, 2.0, 0.20);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 1.5, far, near), std::invalid_argument);
+    EXPECT_THROW(TemporallyInterpolatedBSVolSlice(forward, 1.5, near, near), std::invalid_argument);
+}
