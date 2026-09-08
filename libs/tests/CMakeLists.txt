@@ -41,6 +41,12 @@ target_link_libraries(test_heston_formula PRIVATE
         GTest::gtest_main
 )
 
+add_executable(test_bond_formula pricer/BondFormula_test.cpp)
+target_link_libraries(test_bond_formula PRIVATE
+        pricer
+        GTest::gtest_main
+)
+
 add_executable(test_implied_vol pricer/ImpliedVol_test.cpp)
 target_link_libraries(test_implied_vol PRIVATE
         pricer
